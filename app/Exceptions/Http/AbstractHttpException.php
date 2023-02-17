@@ -22,7 +22,9 @@ abstract class AbstractHttpException extends RuntimeException
     public function render($request)
     {
         return response()->json(
-            $this->exceptionMessage->getJsonResponse(),
+            [
+                'errors' => $this->exceptionMessage->getJsonResponse()
+            ],
             $this->getStatusCode()
         );
     }

@@ -86,7 +86,9 @@ abstract class HttpExceptionBaseTestCase extends TestCase
 
         // Assert
         $this->assertEqualsCanonicalizing(
-            $this->mockedJsonResponse->toArray(),
+            [
+                'errors' => $this->mockedJsonResponse->toArray(),
+            ],
             json_decode($result->content(), true)
         );
     }
