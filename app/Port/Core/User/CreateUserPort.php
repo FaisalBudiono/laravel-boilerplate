@@ -6,5 +6,5 @@ interface CreateUserPort
 {
     public function getName(): string;
     public function getEmail(): string;
-    public function getPassword(): string;
+    public function getUserPassword(): string;
 }

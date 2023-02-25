@@ -36,7 +36,7 @@ class UserCoreTest extends TestCase
         $mockRequest = $this->mock(CreateUserPort::class, function (MockInterface $mock) use ($name, $email, $password) {
             $mock->shouldReceive('getName')->andReturn($name);
             $mock->shouldReceive('getEmail')->andReturn($email);
-            $mock->shouldReceive('getPassword')->andReturn($password);
+            $mock->shouldReceive('getUserPassword')->andReturn($password);
         });
 
         $hashedPassword = $this->faker->words(7, true);

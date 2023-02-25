@@ -17,7 +17,7 @@ class UserCore implements UserCoreInterface
             $user = new User;
             $user->name = $request->getName();
             $user->email = $request->getEmail();
-            $user->password = Hash::make($request->getPassword());
+            $user->password = Hash::make($request->getUserPassword());
             $user->save();
 
             DB::commit();
