@@ -2,6 +2,9 @@
 
 namespace App\Core\User;
 
+use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
+use App\Exceptions\Core\User\UserEmailDuplicatedException;
+use App\Models\User\Enum\UserExceptionCode;
 use App\Models\User\User;
 use App\Port\Core\User\CreateUserPort;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +16,16 @@ class UserCore implements UserCoreInterface
     {
         try {
             DB::beginTransaction();
+
+            $isEmailExist = User::query()
+                ->where('email', $request->getEmail())
+                ->exists();
+            if ($isEmailExist) {
+                throw new UserEmailDuplicatedException(new ExceptionMessageStandard(
+                    'Email is duplicated',
+                    UserExceptionCode::DUPLICATED->value,
+                ));
+            }
 
             $user = new User;
             $user->name = $request->getName();
