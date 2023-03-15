@@ -10,7 +10,7 @@ use App\Port\Core\User\CreateUserPort;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
-class UserCore implements UserCoreInterface
+class UserCore implements UserCoreContract
 {
     public function create(CreateUserPort $request): User
     {

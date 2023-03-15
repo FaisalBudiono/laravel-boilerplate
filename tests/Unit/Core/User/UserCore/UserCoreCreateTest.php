@@ -3,6 +3,7 @@
 namespace Tests\Unit\Core\User\UserCore;
 
 use App\Core\User\UserCore;
+use App\Core\User\UserCoreContract;
 use App\Exceptions\Core\User\UserEmailDuplicatedException;
 use App\Models\User\User;
 use App\Port\Core\User\CreateUserPort;
@@ -37,7 +38,14 @@ class UserCoreCreateTest extends TestCase
     }
 
     #[Test]
-    public function should_save_user_data()
+    public function should_implement_user_core_contract()
+    {
+        // Assert
+        $this->assertInstanceOf(UserCoreContract::class, $this->core);
+    }
+
+    #[Test]
+    public function should_r_data()
     {
         // Arrange
         $name = $this->faker->name;
