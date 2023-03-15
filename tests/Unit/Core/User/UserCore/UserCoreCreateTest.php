@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Unit\Core\User\UserCore;
 
 use App\Core\User\UserCore;
 use App\Exceptions\Core\User\UserEmailDuplicatedException;
@@ -13,7 +13,7 @@ use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
-class UserCoreTest extends TestCase
+class UserCoreCreateTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -37,7 +37,7 @@ class UserCoreTest extends TestCase
     }
 
     #[Test]
-    public function create_should_save_user_data()
+    public function should_save_user_data()
     {
         // Arrange
         $name = $this->faker->name;
@@ -69,7 +69,7 @@ class UserCoreTest extends TestCase
     }
 
     #[Test]
-    public function create_should_throw_error_when_user_email_already_registered()
+    public function should_throw_error_when_user_email_already_registered()
     {
         // Arrange
         $email = $this->faker->email();
