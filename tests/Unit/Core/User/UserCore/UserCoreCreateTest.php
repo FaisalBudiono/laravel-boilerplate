@@ -45,7 +45,7 @@ class UserCoreCreateTest extends TestCase
     }
 
     #[Test]
-    public function should_r_data()
+    public function should_successfully_save_and_return_user_data()
     {
         // Arrange
         $name = $this->faker->name;
