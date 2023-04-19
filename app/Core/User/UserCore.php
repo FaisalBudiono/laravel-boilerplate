@@ -7,6 +7,7 @@ use App\Exceptions\Core\User\UserEmailDuplicatedException;
 use App\Models\User\Enum\UserExceptionCode;
 use App\Models\User\User;
 use App\Port\Core\User\CreateUserPort;
+use App\Port\Core\User\GetUserPort;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
@@ -40,5 +41,10 @@ class UserCore implements UserCoreContract
             DB::rollBack();
             throw $e;
         }
+    }
+
+    public function get(GetUserPort $request): User
+    {
+        return $request->getUserModel();
     }
 }
