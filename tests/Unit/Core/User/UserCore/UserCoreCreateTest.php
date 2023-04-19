@@ -9,7 +9,6 @@ use App\Models\User\User;
 use App\Port\Core\User\CreateUserPort;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
-use Mockery\CompositeExpectation;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -21,7 +20,7 @@ class UserCoreCreateTest extends TestCase
     protected UserCore $core;
 
     protected CreateUserPort $mockRequest;
-    /** @var CompositeExpectation[] */
+    /** @var (\Mockery\ExpectationInterface|\Mockery\Expectation|\Mockery\HigherOrderMessage)[] */
     protected $mockedRequestMethods;
 
     protected function setUp(): void
@@ -31,9 +30,10 @@ class UserCoreCreateTest extends TestCase
         $this->core = new UserCore();
 
         $this->mockRequest = $this->mock(CreateUserPort::class, function (MockInterface $mock) {
-            $this->mockedRequestMethods['getName'] = $mock->shouldReceive('getName');
-            $this->mockedRequestMethods['getEmail'] = $mock->shouldReceive('getEmail');
-            $this->mockedRequestMethods['getUserPassword'] = $mock->shouldReceive('getUserPassword');
+            $this->getClassMethods(CreateUserPort::class)->each(
+                fn (string $methodName) =>
+                $this->mockedRequestMethods[$methodName] = $mock->shouldReceive($methodName)
+            );
         });
     }
 

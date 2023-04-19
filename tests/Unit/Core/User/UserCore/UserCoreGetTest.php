@@ -7,12 +7,8 @@ use App\Core\User\UserCoreContract;
 use App\Models\User\User;
 use App\Port\Core\User\GetUserPort;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Collection;
-use Mockery\CompositeExpectation;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
-use ReflectionClass;
-use ReflectionMethod;
 use Tests\TestCase;
 
 class UserCoreGetTest extends TestCase
@@ -32,7 +28,7 @@ class UserCoreGetTest extends TestCase
         $this->core = new UserCore();
 
         $this->mockRequest = $this->mock(GetUserPort::class, function (MockInterface $mock) {
-            $this->getMethodNames(GetUserPort::class)->each(
+            $this->getClassMethods(GetUserPort::class)->each(
                 fn (string $methodName) =>
                 $this->mockedRequestMethods[$methodName] = $mock->shouldReceive($methodName)
             );
@@ -70,13 +66,5 @@ class UserCoreGetTest extends TestCase
             $user->replicate()->refresh(),
             $result->replicate()->refresh()
         );
-    }
-
-    protected function getMethodNames(string $classname): Collection
-    {
-        $reflection = new ReflectionClass($classname);
-        return collect($reflection->getMethods())->map(fn (
-            ReflectionMethod $reflectionMethod
-        ) => $reflectionMethod->getName());
     }
 }
