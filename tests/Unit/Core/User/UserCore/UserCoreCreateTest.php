@@ -2,9 +2,11 @@
 
 namespace Tests\Unit\Core\User\UserCore;
 
+use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
 use App\Core\User\UserCore;
 use App\Core\User\UserCoreContract;
 use App\Exceptions\Core\User\UserEmailDuplicatedException;
+use App\Models\User\Enum\UserExceptionCode;
 use App\Models\User\User;
 use App\Port\Core\User\CreateUserPort;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -90,8 +92,11 @@ class UserCoreCreateTest extends TestCase
 
 
         // Assert
-        $this->expectException(UserEmailDuplicatedException::class);
-        $this->expectExceptionMessage('Email is duplicated');
+        $expectedException = new UserEmailDuplicatedException(new ExceptionMessageStandard(
+            'Email is duplicated',
+            UserExceptionCode::DUPLICATED->value,
+        ));
+        $this->expectExceptionObject($expectedException);
 
 
         // Act
