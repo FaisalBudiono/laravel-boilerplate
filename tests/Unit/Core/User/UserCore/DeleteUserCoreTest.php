@@ -11,7 +11,7 @@ use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
-class UserCoreDeleteTest extends TestCase
+class DeleteUserCoreTest extends TestCase
 {
     use RefreshDatabase;
 
