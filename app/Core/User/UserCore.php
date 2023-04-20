@@ -11,6 +11,7 @@ use App\Models\User\User;
 use App\Port\Core\User\CreateUserPort;
 use App\Port\Core\User\GetAllUserPort;
 use App\Port\Core\User\GetUserPort;
+use App\Port\Core\User\UpdateUserPort;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -62,5 +63,38 @@ class UserCore implements UserCoreContract
         return User::query()
             ->orderBy($orderBy->value, $orderDirection->value)
             ->paginate($perPage, ['*'], 'page', $page);
+    }
+
+    public function update(UpdateUserPort $request): User
+    {
+        try {
+            DB::beginTransaction();
+
+            $user = $request->getUserModel();
+            $email = $request->getEmail();
+
+            $isEmailExist = User::query()
+                ->where('email', $email)
+                ->where('id', '<>', $user->id)
+                ->exists();
+            if ($isEmailExist) {
+                throw new UserEmailDuplicatedException(new ExceptionMessageStandard(
+                    'Email is already in used',
+                    UserExceptionCode::DUPLICATED->value,
+                ));
+            }
+
+            $user->name = $request->getName();
+            $user->email = $email;
+            $user->password = Hash::make($request->getUserPassword());
+            $user->save();
+
+            DB::commit();
+
+            return $user;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 }
