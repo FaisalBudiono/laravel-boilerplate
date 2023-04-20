@@ -9,6 +9,7 @@ use App\Exceptions\Core\User\UserEmailDuplicatedException;
 use App\Models\User\Enum\UserExceptionCode;
 use App\Models\User\User;
 use App\Port\Core\User\CreateUserPort;
+use App\Port\Core\User\DeleteUserPort;
 use App\Port\Core\User\GetAllUserPort;
 use App\Port\Core\User\GetUserPort;
 use App\Port\Core\User\UpdateUserPort;
@@ -46,6 +47,12 @@ class UserCore implements UserCoreContract
             DB::rollBack();
             throw $e;
         }
+    }
+
+    public function delete(DeleteUserPort $request): void
+    {
+        $user = $request->getUserModel();
+        $user->delete();
     }
 
     public function get(GetUserPort $request): User
