@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Core\Formatter\ExceptionErrorCode;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
 use App\Exceptions\Http\UnauthorizedException;
 use App\Exceptions\Http\UnprocessableEntityException;
@@ -11,9 +12,6 @@ use Illuminate\Foundation\Http\FormRequest;
 
 abstract class BaseRequest extends FormRequest
 {
-    const ERROR_CODE_AUTHORIZATION = 'REQUIRE-AUTH';
-    const ERROR_CODE_VALIDATION = 'INVALID-STRUCTURE-VALIDATION';
-
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -30,7 +28,7 @@ abstract class BaseRequest extends FormRequest
     {
         throw new UnprocessableEntityException(new ExceptionMessageStandard(
             'Structure body/param might be invalid.',
-            self::ERROR_CODE_VALIDATION,
+            ExceptionErrorCode::INVALID_VALIDATION->value,
             $validator->errors()->jsonSerialize(),
         ));
     }
@@ -39,7 +37,7 @@ abstract class BaseRequest extends FormRequest
     {
         throw new UnauthorizedException(new ExceptionMessageStandard(
             'Authorization is required to access this resource.',
-            self::ERROR_CODE_AUTHORIZATION,
+            ExceptionErrorCode::REQUIRE_AUTHORIZATION->value,
         ));
     }
 
