@@ -6,6 +6,7 @@ use App\Core\Formatter\ExceptionErrorCode;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
 use App\Exceptions\Http\UnauthorizedException;
 use App\Exceptions\Http\UnprocessableEntityException;
+use App\Http\Middleware\XRequestIDMiddleware;
 use App\Models\User\User;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
@@ -23,6 +24,11 @@ abstract class BaseRequest extends FormRequest
      * @return array<string, \Illuminate\Contracts\Validation\Rule|array|string>
      */
     abstract public function rules(): array;
+
+    public function getXRequestID(): string
+    {
+        return $this->header(XRequestIDMiddleware::HEADER_NAME, '');
+    }
 
     protected function failedValidation(Validator $validator)
     {
