@@ -9,6 +9,7 @@ use Mockery;
 use Mockery\MockInterface;
 use Tests\TestCase;
 use Tests\Unit\Providers\CoreBinder\CoreBinderTestCaseAbstract;
+use Tests\Unit\Providers\CoreBinder\CoreBinderTestCaseFormatter;
 use Tests\Unit\Providers\CoreBinder\CoreBinderTestCaseUser;
 
 class CoreServiceProviderTest extends TestCase
@@ -41,6 +42,7 @@ class CoreServiceProviderTest extends TestCase
     {
         // Arrange
         $coreAssertionClassNames = [
+            CoreBinderTestCaseFormatter::class,
             CoreBinderTestCaseUser::class,
         ];
 
