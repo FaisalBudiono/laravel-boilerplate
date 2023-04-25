@@ -19,6 +19,11 @@ class RouteServiceProvider extends ServiceProvider
      */
     public const HOME = '/';
 
+    protected $modelBindings = [
+        \App\Providers\ModelBinding\ModelBindingUser::class,
+    ];
+
+
     /**
      * Define your route model bindings, pattern filters, and other route configuration.
      *
@@ -26,12 +31,24 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        $this->configureModelBindings();
         $this->configureRateLimiting();
 
         $this->routes(function () {
             Route::middleware('api')
                 ->group(base_path('routes/api.php'));
         });
+    }
+
+    protected function configureModelBindings(): void
+    {
+        foreach ($this->modelBindings as $binding) {
+            /** @var \App\Providers\ModelBinding\ModelBinding */
+            $bindingClass = new $binding;
+
+            $bindingClass->bindModel();
+            $bindingClass->registerPattern();
+        }
     }
 
     /**
