@@ -7,6 +7,7 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 use Mockery;
 use Mockery\MockInterface;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 use Tests\Unit\Providers\CoreBinder\CoreBinderTestCaseAbstract;
 use Tests\Unit\Providers\CoreBinder\CoreBinderTestCaseFormatter;
@@ -27,18 +28,14 @@ class CoreServiceProviderTest extends TestCase
         $this->serviceProvider = new CoreServiceProvider($this->applicationMock);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function should_be_able_to_be_contructed()
     {
         // Assert
         $this->assertInstanceOf(ServiceProvider::class, $this->serviceProvider);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function should_bind_core_service()
     {
         // Arrange
