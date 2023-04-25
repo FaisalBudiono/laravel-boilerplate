@@ -25,6 +25,11 @@ abstract class BaseRequest extends FormRequest
      */
     abstract public function rules(): array;
 
+    public function getEndpointInfo(): string
+    {
+        return $this->method() . ' ' . $this->fullUrl();
+    }
+
     public function getXRequestID(): string
     {
         return $this->header(XRequestIDMiddleware::HEADER_NAME, '');
