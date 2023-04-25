@@ -2,6 +2,9 @@
 
 namespace App\Models\User;
 
+use App\Core\Formatter\ExceptionErrorCode;
+use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
+use App\Exceptions\Models\ModelNotFoundException;
 use Carbon\Carbon;
 use Database\Factories\User\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -49,6 +52,21 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public static function findByIdOrFail(int $id): self
+    {
+        $user = self::query()->where('id', $id)->first();
+
+        if (is_null($user)) {
+
+            throw new ModelNotFoundException(new ExceptionMessageStandard(
+                'User ID is not found',
+                ExceptionErrorCode::MODEL_NOT_FOUND->value,
+            ));
+        }
+
+        return $user;
+    }
 
     protected static function newFactory()
     {
