@@ -13,6 +13,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\User\CreateUserRequest;
 use App\Http\Requests\User\DeleteUserRequest;
 use App\Http\Requests\User\GetUserRequest;
+use App\Http\Requests\User\UpdateUserRequest;
 use App\Http\Resources\User\UserResource;
 use Exception;
 use Illuminate\Support\Facades\Log;
@@ -146,6 +147,63 @@ class UserController extends Controller
             return UserResource::make($user)
                 ->response()
                 ->setStatusCode(Response::HTTP_CREATED);
+        } catch (UserEmailDuplicatedException $e) {
+            Log::error(
+                $this->loggerFormatter->makeGeneric(
+                    $request->getEndpointInfo(),
+                    $request->getXRequestID(),
+                    ProcessingStatus::ERROR,
+                    $e->getMessage(),
+                    [
+                        'trace' => $e->getTrace(),
+                    ],
+                )->getMessage()
+            );
+            throw new ConflictException($e->exceptionMessage);
+        } catch (Exception $e) {
+            Log::error(
+                $this->loggerFormatter->makeGeneric(
+                    $request->getEndpointInfo(),
+                    $request->getXRequestID(),
+                    ProcessingStatus::ERROR,
+                    $e->getMessage(),
+                    [
+                        'trace' => $e->getTrace(),
+                    ],
+                )->getMessage()
+            );
+            throw new InternalServerErrorException(new ExceptionMessageGeneric);
+        }
+    }
+
+    public function update(UpdateUserRequest $request)
+    {
+        try {
+            Log::info(
+                $this->loggerFormatter->makeGeneric(
+                    $request->getEndpointInfo(),
+                    $request->getXRequestID(),
+                    ProcessingStatus::BEGIN,
+                    'Update user endpoint',
+                    [
+                        'input' => $request->toArray(),
+                    ],
+                )->getMessage()
+            );
+
+            $user = $this->core->update($request);
+
+            Log::info(
+                $this->loggerFormatter->makeGeneric(
+                    $request->getEndpointInfo(),
+                    $request->getXRequestID(),
+                    ProcessingStatus::SUCCESS,
+                    'Update user endpoint',
+                    [],
+                )->getMessage()
+            );
+
+            return UserResource::make($user);
         } catch (UserEmailDuplicatedException $e) {
             Log::error(
                 $this->loggerFormatter->makeGeneric(

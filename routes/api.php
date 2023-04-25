@@ -7,3 +7,4 @@ use Illuminate\Support\Facades\Route;
 Route::post('users', [UserController::class, 'store'])->name('user.store');
 Route::delete('users/{userID}', [UserController::class, 'destroy'])->name('user.destroy');
 Route::get('users/{userID}', [UserController::class, 'show'])->name('user.show');
+Route::put('users/{userID}', [UserController::class, 'update'])->name('user.update');
