@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Exceptions\Core;
+namespace App\Exceptions;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessage;
 use Exception;

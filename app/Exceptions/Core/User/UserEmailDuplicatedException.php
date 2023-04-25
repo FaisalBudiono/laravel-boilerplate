@@ -2,7 +2,7 @@
 
 namespace App\Exceptions\Core\User;
 
-use App\Exceptions\Core\BaseException;
+use App\Exceptions\BaseException;
 
 class UserEmailDuplicatedException extends BaseException
 {
