@@ -212,6 +212,8 @@ class CreateUserTest extends BaseFeatureTestCase
                         $argProcessingStatus,
                         $argMessage,
                         $argMeta,
+                        $this->getEndpointInfo(),
+                        'Create user endpoint',
                         $input,
                     ))->andReturn(
                         $this->mock(
@@ -235,6 +237,7 @@ class CreateUserTest extends BaseFeatureTestCase
                         $argProcessingStatus,
                         $argMessage,
                         $argMeta,
+                        $this->getEndpointInfo(),
                         $mockException,
                     ))->andReturn(
                         $this->mock(
@@ -317,6 +320,8 @@ class CreateUserTest extends BaseFeatureTestCase
                         $argProcessingStatus,
                         $argMessage,
                         $argMeta,
+                        $this->getEndpointInfo(),
+                        'Create user endpoint',
                         $input,
                     ))->andReturn(
                         $this->mock(
@@ -340,6 +345,7 @@ class CreateUserTest extends BaseFeatureTestCase
                         $argProcessingStatus,
                         $argMessage,
                         $argMeta,
+                        $this->getEndpointInfo(),
                         $mockException,
                     ))->andReturn(
                         $this->mock(
@@ -423,6 +429,8 @@ class CreateUserTest extends BaseFeatureTestCase
                         $argProcessingStatus,
                         $argMessage,
                         $argMeta,
+                        $this->getEndpointInfo(),
+                        'Create user endpoint',
                         $input,
                     ))->andReturn(
                         $this->mock(
@@ -446,6 +454,8 @@ class CreateUserTest extends BaseFeatureTestCase
                         $argProcessingStatus,
                         $argMessage,
                         $argMeta,
+                        $this->getEndpointInfo(),
+                        'Create user endpoint',
                     ))->andReturn(
                         $this->mock(
                             LoggerMessageFormatter::class,
@@ -480,72 +490,14 @@ class CreateUserTest extends BaseFeatureTestCase
         $this->resourceAssertion->assertResource($this, $response);
     }
 
+    protected function getEndpointInfo(): string
+    {
+        return "POST {$this->getEndpointUrl()}";
+    }
+
     protected function getEndpointUrl(): string
     {
         return route('user.store');
-    }
-
-    protected function validateLoggingBegin(
-        string $argEndpoint,
-        string $argRequestID,
-        ProcessingStatus $argProcessingStatus,
-        string $argMessage,
-        array $argMeta,
-        array $input,
-    ): bool {
-        try {
-            $this->assertSame("POST {$this->getEndpointUrl()}", $argEndpoint);
-            $this->assertSame($this->getMockedRequestId(), $argRequestID);
-            $this->assertSame(ProcessingStatus::BEGIN, $argProcessingStatus);
-            $this->assertSame('Create user endpoint', $argMessage);
-            $this->assertSame([
-                'input' => $input,
-            ], $argMeta);
-            return true;
-        } catch (Exception $e) {
-            dd($e);
-        }
-    }
-
-    protected function validateLoggingError(
-        string $argEndpoint,
-        string $argRequestID,
-        ProcessingStatus $argProcessingStatus,
-        string $argMessage,
-        array $argMeta,
-        Exception $e,
-    ): bool {
-        try {
-            $this->assertSame("POST {$this->getEndpointUrl()}", $argEndpoint);
-            $this->assertSame($this->getMockedRequestId(), $argRequestID);
-            $this->assertSame(ProcessingStatus::ERROR, $argProcessingStatus);
-            $this->assertSame($e->getMessage(), $argMessage);
-            $this->assertSame([
-                'trace' => $e->getTrace(),
-            ], $argMeta);
-            return true;
-        } catch (Exception $e) {
-            dd($e);
-        }
-    }
-
-    protected function validateLoggingSuccess(
-        string $argEndpoint,
-        string $argRequestID,
-        ProcessingStatus $argProcessingStatus,
-        string $argMessage,
-        array $argMeta,
-    ): bool {
-        try {
-            $this->assertSame("POST {$this->getEndpointUrl()}", $argEndpoint);
-            $this->assertSame($this->getMockedRequestId(), $argRequestID);
-            $this->assertSame(ProcessingStatus::SUCCESS, $argProcessingStatus);
-            $this->assertSame('Create user endpoint', $argMessage);
-            $this->assertSame([], $argMeta);
-            return true;
-        } catch (Exception $e) {
-            dd($e);
-        }
     }
 
     protected function validateRequest(
