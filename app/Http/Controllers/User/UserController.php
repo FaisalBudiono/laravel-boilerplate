@@ -11,7 +11,9 @@ use App\Exceptions\Http\ConflictException;
 use App\Exceptions\Http\InternalServerErrorException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\CreateUserRequest;
+use App\Http\Requests\User\DeleteUserRequest;
 use App\Http\Resources\User\UserResource;
+use Exception;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -21,6 +23,50 @@ class UserController extends Controller
         protected UserCoreContract $core,
         protected LoggerMessageFormatterFactoryContract $loggerFormatter,
     ) {
+    }
+
+    public function destroy(DeleteUserRequest $request)
+    {
+        try {
+            Log::info(
+                $this->loggerFormatter->makeGeneric(
+                    $request->getEndpointInfo(),
+                    $request->getXRequestID(),
+                    ProcessingStatus::BEGIN,
+                    'Delete user endpoint',
+                    [
+                        'input' => $request->toArray(),
+                    ],
+                )->getMessage()
+            );
+
+            $this->core->delete($request);
+
+            Log::info(
+                $this->loggerFormatter->makeGeneric(
+                    $request->getEndpointInfo(),
+                    $request->getXRequestID(),
+                    ProcessingStatus::SUCCESS,
+                    'Delete user endpoint',
+                    [],
+                )->getMessage()
+            );
+
+            return response()->json([], Response::HTTP_NO_CONTENT);
+        } catch (Exception $e) {
+            Log::error(
+                $this->loggerFormatter->makeGeneric(
+                    $request->getEndpointInfo(),
+                    $request->getXRequestID(),
+                    ProcessingStatus::ERROR,
+                    $e->getMessage(),
+                    [
+                        'trace' => $e->getTrace(),
+                    ],
+                )->getMessage()
+            );
+            throw new InternalServerErrorException(new ExceptionMessageGeneric);
+        }
     }
 
     public function store(CreateUserRequest $request)
@@ -66,7 +112,7 @@ class UserController extends Controller
                 )->getMessage()
             );
             throw new ConflictException($e->exceptionMessage);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error(
                 $this->loggerFormatter->makeGeneric(
                     $request->getEndpointInfo(),
