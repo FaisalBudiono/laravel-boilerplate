@@ -12,6 +12,7 @@ use App\Exceptions\Http\InternalServerErrorException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\CreateUserRequest;
 use App\Http\Requests\User\DeleteUserRequest;
+use App\Http\Requests\User\GetUserRequest;
 use App\Http\Resources\User\UserResource;
 use Exception;
 use Illuminate\Support\Facades\Log;
@@ -53,6 +54,52 @@ class UserController extends Controller
             );
 
             return response()->json([], Response::HTTP_NO_CONTENT);
+        } catch (Exception $e) {
+            Log::error(
+                $this->loggerFormatter->makeGeneric(
+                    $request->getEndpointInfo(),
+                    $request->getXRequestID(),
+                    ProcessingStatus::ERROR,
+                    $e->getMessage(),
+                    [
+                        'trace' => $e->getTrace(),
+                    ],
+                )->getMessage()
+            );
+            throw new InternalServerErrorException(new ExceptionMessageGeneric);
+        }
+    }
+
+    public function show(GetUserRequest $request)
+    {
+        try {
+            Log::info(
+                $this->loggerFormatter->makeGeneric(
+                    $request->getEndpointInfo(),
+                    $request->getXRequestID(),
+                    ProcessingStatus::BEGIN,
+                    'Show user endpoint',
+                    [
+                        'input' => $request->toArray(),
+                    ],
+                )->getMessage()
+            );
+
+            $user = $this->core->get($request);
+
+            Log::info(
+                $this->loggerFormatter->makeGeneric(
+                    $request->getEndpointInfo(),
+                    $request->getXRequestID(),
+                    ProcessingStatus::SUCCESS,
+                    'Show user endpoint',
+                    [],
+                )->getMessage()
+            );
+
+            return UserResource::make($user)
+                ->response()
+                ->setStatusCode(Response::HTTP_OK);
         } catch (Exception $e) {
             Log::error(
                 $this->loggerFormatter->makeGeneric(
