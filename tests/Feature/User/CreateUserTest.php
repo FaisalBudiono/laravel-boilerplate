@@ -50,7 +50,7 @@ class CreateUserTest extends BaseFeatureTestCase
     ) {
         // Act
         $response = $this->postJson(
-            route('user.store'),
+            $this->getEndpointUrl(),
             $input
         );
 
@@ -260,7 +260,7 @@ class CreateUserTest extends BaseFeatureTestCase
 
         // Act
         $response = $this->postJson(
-            route('user.store'),
+            $this->getEndpointUrl(),
             $input
         );
 
@@ -365,7 +365,7 @@ class CreateUserTest extends BaseFeatureTestCase
 
         // Act
         $response = $this->postJson(
-            route('user.store'),
+            $this->getEndpointUrl(),
             $input
         );
 
@@ -470,7 +470,7 @@ class CreateUserTest extends BaseFeatureTestCase
 
         // Act
         $response = $this->postJson(
-            route('user.store'),
+            $this->getEndpointUrl(),
             $input
         );
 
