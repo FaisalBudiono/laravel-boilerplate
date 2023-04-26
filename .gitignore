@@ -21,4 +21,4 @@ yarn-error.log
 supervisord.log
 supervisord.pid
 
-*/**/Dummy*.php
+*/**/[Dd]ummy*
