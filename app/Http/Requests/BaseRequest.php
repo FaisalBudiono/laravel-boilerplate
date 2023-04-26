@@ -27,7 +27,7 @@ abstract class BaseRequest extends FormRequest
 
     public function getEndpointInfo(): string
     {
-        return $this->method() . ' ' . $this->fullUrl();
+        return $this->method() . ' ' . $this->url();
     }
 
     public function getXRequestID(): string
