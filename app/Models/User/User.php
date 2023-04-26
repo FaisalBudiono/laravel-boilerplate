@@ -58,7 +58,6 @@ class User extends Authenticatable
         $user = self::query()->where('id', $id)->first();
 
         if (is_null($user)) {
-
             throw new ModelNotFoundException(new ExceptionMessageStandard(
                 'User ID is not found',
                 ExceptionErrorCode::MODEL_NOT_FOUND->value,
