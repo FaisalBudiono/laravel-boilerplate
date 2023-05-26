@@ -8,6 +8,7 @@ class CoreServiceProvider extends ServiceProvider
 {
     protected $coreBinders = [
         \App\Providers\CoreBinder\CoreBinderFormatter::class,
+        \App\Providers\CoreBinder\CoreBinderHealthcheck::class,
         \App\Providers\CoreBinder\CoreBinderLogger::class,
         \App\Providers\CoreBinder\CoreBinderUser::class,
     ];
