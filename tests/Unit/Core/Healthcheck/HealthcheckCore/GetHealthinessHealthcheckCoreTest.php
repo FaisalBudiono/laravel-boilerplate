@@ -4,7 +4,9 @@ namespace Tests\Unit\Core\Healthcheck\HealthcheckCore;
 
 use App\Core\Healthcheck\HealthcheckCore;
 use App\Core\Healthcheck\HealthcheckCoreContract;
+use App\Core\Healthcheck\Healthchecker\HealthcheckerMysqlContract;
 use App\Core\Healthcheck\ValueObject\HealthcheckResponse;
+use App\Core\Healthcheck\ValueObject\HealthcheckStatus;
 use App\Core\Healthcheck\VersionFetcher\VersionFetcher;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
@@ -28,7 +30,6 @@ class GetHealthinessHealthcheckCoreTest extends TestCase
     {
         // Arrange
         $mockVersion = $this->faker->word;
-
         /** @var VersionFetcher */
         $mockVersionFetcher = $this->mock(
             VersionFetcher::class,
@@ -38,7 +39,17 @@ class GetHealthinessHealthcheckCoreTest extends TestCase
             }
         );
 
-        $service = $this->makeService($mockVersionFetcher);
+        $mockedMysqlStatus = new HealthcheckStatus('mysql', null);
+        /** @var HealthcheckerMysqlContract */
+        $mockHealthcheckerMysql = $this->mock(
+            HealthcheckerMysqlContract::class,
+            function (MockInterface $mock) use ($mockedMysqlStatus) {
+                $mock->shouldReceive('getStatus')
+                    ->andReturn($mockedMysqlStatus);
+            }
+        );
+
+        $service = $this->makeService($mockVersionFetcher, $mockHealthcheckerMysql);
 
 
         // Act
@@ -47,18 +58,26 @@ class GetHealthinessHealthcheckCoreTest extends TestCase
 
         // Assert
         $this->assertEquals(
-            new HealthcheckResponse($mockVersion),
+            new HealthcheckResponse($mockVersion, $mockedMysqlStatus),
             $result,
         );
     }
 
     protected function makeService(
-        ?VersionFetcher $versionFetcher = null
+        ?VersionFetcher $versionFetcher = null,
+        ?HealthcheckerMysqlContract $mysqlHealthchecker = null,
     ): HealthcheckCore {
         if (is_null($versionFetcher)) {
             $versionFetcher = $this->mock(VersionFetcher::class);
         }
 
-        return new HealthcheckCore($versionFetcher);
+        if (is_null($mysqlHealthchecker)) {
+            $mysqlHealthchecker = $this->mock(HealthcheckerMysqlContract::class);
+        }
+
+        return new HealthcheckCore(
+            $versionFetcher,
+            $mysqlHealthchecker,
+        );
     }
 }
