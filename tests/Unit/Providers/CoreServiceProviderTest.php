@@ -11,6 +11,7 @@ use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 use Tests\Unit\Providers\CoreBinder\CoreBinderTestCaseAbstract;
 use Tests\Unit\Providers\CoreBinder\CoreBinderTestCaseFormatter;
+use Tests\Unit\Providers\CoreBinder\CoreBinderTestCaseHealthcheck;
 use Tests\Unit\Providers\CoreBinder\CoreBinderTestCaseLogger;
 use Tests\Unit\Providers\CoreBinder\CoreBinderTestCaseUser;
 
@@ -41,6 +42,7 @@ class CoreServiceProviderTest extends TestCase
         // Arrange
         $coreAssertionClassNames = [
             CoreBinderTestCaseFormatter::class,
+            CoreBinderTestCaseHealthcheck::class,
             CoreBinderTestCaseLogger::class,
             CoreBinderTestCaseUser::class,
         ];

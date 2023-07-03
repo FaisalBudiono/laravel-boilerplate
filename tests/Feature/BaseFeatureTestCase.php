@@ -45,7 +45,7 @@ class BaseFeatureTestCase extends TestCase
         array $argMeta,
         string $endpoint,
         string $message,
-        array $input,
+        array $input = [],
     ): bool {
         try {
             $this->assertSame($endpoint, $argEndpoint);
