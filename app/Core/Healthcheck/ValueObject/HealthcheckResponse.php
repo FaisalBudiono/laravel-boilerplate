@@ -18,6 +18,11 @@ readonly class HealthcheckResponse implements Arrayable
         $this->dependencies = $dependencies;
     }
 
+    public function isHealthy(): bool
+    {
+        return $this->isOverallHealthy();
+    }
+
     public function toArray()
     {
         return [
