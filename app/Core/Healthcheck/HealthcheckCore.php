@@ -5,6 +5,7 @@ namespace App\Core\Healthcheck;
 use App\Core\Healthcheck\Healthchecker\HealthcheckerMysqlContract;
 use App\Core\Healthcheck\ValueObject\HealthcheckResponse;
 use App\Core\Healthcheck\VersionFetcher\VersionFetcher;
+use App\Port\Core\Healthcheck\GetHealthcheckPort;
 
 class HealthcheckCore implements HealthcheckCoreContract
 {
@@ -14,7 +15,7 @@ class HealthcheckCore implements HealthcheckCoreContract
     ) {
     }
 
-    public function getHealthiness(): HealthcheckResponse
+    public function getHealthiness(GetHealthcheckPort $request): HealthcheckResponse
     {
         return new HealthcheckResponse(
             $this->versionFetcher->fullVersion(),

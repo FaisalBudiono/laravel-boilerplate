@@ -8,12 +8,22 @@ use App\Core\Healthcheck\Healthchecker\HealthcheckerMysqlContract;
 use App\Core\Healthcheck\ValueObject\HealthcheckResponse;
 use App\Core\Healthcheck\ValueObject\HealthcheckStatus;
 use App\Core\Healthcheck\VersionFetcher\VersionFetcher;
+use App\Port\Core\Healthcheck\GetHealthcheckPort;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class GetHealthinessHealthcheckCoreTest extends TestCase
 {
+    protected GetHealthcheckPort $mockInput;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->mockInput = $this->mock(GetHealthcheckPort::class);
+    }
+
     #[Test]
     public function should_implement_right_interface()
     {
@@ -53,7 +63,7 @@ class GetHealthinessHealthcheckCoreTest extends TestCase
 
 
         // Act
-        $result = $service->getHealthiness();
+        $result = $service->getHealthiness($this->mockInput);
 
 
         // Assert
