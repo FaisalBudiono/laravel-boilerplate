@@ -17,7 +17,7 @@ use PHPUnit\Framework\Attributes\Test;
 use Tests\Helper\QueryDataProvider;
 use Tests\TestCase;
 
-class GetAllUserCoreTest extends TestCase
+class UserCore_GetAll_Test extends TestCase
 {
     use RefreshDatabase;
 

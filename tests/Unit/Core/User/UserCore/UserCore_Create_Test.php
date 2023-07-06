@@ -15,7 +15,7 @@ use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
-class CreateUserCoreTest extends TestCase
+class UserCore_Create_Test extends TestCase
 {
     use RefreshDatabase;
 

@@ -5,19 +5,19 @@ namespace Tests\Unit\Core\User\UserCore;
 use App\Core\User\UserCore;
 use App\Core\User\UserCoreContract;
 use App\Models\User\User;
-use App\Port\Core\User\GetUserPort;
+use App\Port\Core\User\DeleteUserPort;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
-class GetUserCoreTest extends TestCase
+class UserCore_Delete_Test extends TestCase
 {
     use RefreshDatabase;
 
     protected UserCore $core;
 
-    protected GetUserPort $mockRequest;
+    protected DeleteUserPort $mockRequest;
     /** @var (\Mockery\ExpectationInterface|\Mockery\Expectation|\Mockery\HigherOrderMessage)[] */
     protected $mockedRequestMethods;
 
@@ -27,8 +27,8 @@ class GetUserCoreTest extends TestCase
 
         $this->core = new UserCore();
 
-        $this->mockRequest = $this->mock(GetUserPort::class, function (MockInterface $mock) {
-            $this->getClassMethods(GetUserPort::class)->each(
+        $this->mockRequest = $this->mock(DeleteUserPort::class, function (MockInterface $mock) {
+            $this->getClassMethods(DeleteUserPort::class)->each(
                 fn (string $methodName) =>
                 $this->mockedRequestMethods[$methodName] = $mock->shouldReceive($methodName)
             );
@@ -43,28 +43,25 @@ class GetUserCoreTest extends TestCase
     }
 
     #[Test]
-    public function should_return_user_model()
+    public function should_successfully_soft_delete_requested_user()
     {
-        // Assert
-        User::factory()->count(5)->create();
+        // Arrange
+        $totalData = 5;
+        User::factory()->count($totalData)->create();
 
         /** @var User */
-        $user = User::find($this->faker->numberBetween(1, User::count()));
+        $user = User::find($this->faker()->numberBetween(1, User::count()));
 
-        $this->mockedRequestMethods['getUserModel']
-            ->once()
-            ->withNoArgs()
+        $this->mockedRequestMethods['getUserModel']->once()->withNoArgs()
             ->andReturn($user);
 
 
         // Act
-        $result = $this->core->get($this->mockRequest);
+        $this->core->delete($this->mockRequest);
 
 
         // Assert
-        $this->assertEquals(
-            $user->replicate()->refresh(),
-            $result->replicate()->refresh()
-        );
+        $this->assertSoftDeleted($user);
+        $this->assertDatabaseCount('users', $totalData);
     }
 }

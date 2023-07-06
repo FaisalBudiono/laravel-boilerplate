@@ -10,7 +10,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
-class UserFindByIdOrFailTest extends TestCase
+class User_FindByIdOrFail_Test extends TestCase
 {
     use RefreshDatabase;
 

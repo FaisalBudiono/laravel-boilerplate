@@ -13,7 +13,7 @@ use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
-class GetHealthinessHealthcheckCoreTest extends TestCase
+class HealthcheckCore_GetHealthiness_Test extends TestCase
 {
     protected GetHealthcheckPort $mockInput;
 
