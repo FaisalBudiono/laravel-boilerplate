@@ -3,6 +3,7 @@
 namespace App\Core\Auth\JWT;
 
 use App\Core\Auth\JWT\Parser\JWTParser;
+use App\Core\Auth\JWT\Signer\JWTSigner;
 use App\Models\User\User;
 use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -15,7 +16,8 @@ class JWTGuard implements Guard
 
     public function __construct(
         protected Request $request,
-        protected JWTParser $jwtParser,
+        protected JWTParser $parser,
+        protected JWTSigner $signer,
     ) {
     }
 
@@ -98,7 +100,7 @@ class JWTGuard implements Guard
                 return false;
             }
 
-            $this->setUserFromToken($token);
+            $this->setUserTokenOrFail($token);
 
             return true;
         } catch (Exception $e) {
@@ -147,14 +149,16 @@ class JWTGuard implements Guard
                 return;
             }
 
-            $this->setUserFromToken($this->parseAuthToken());
+            $this->setUserTokenOrFail($this->parseAuthToken());
         } catch (Exception $e) {
         }
     }
 
-    protected function setUserFromToken(string $token): void
+    protected function setUserTokenOrFail(string $token): void
     {
-        $claims = $this->jwtParser->issue($token);
+        $this->signer->validate($token);
+
+        $claims = $this->parser->parse($token);
         $user = User::findByIdOrFail($claims->user->id);
 
         $this->setUser($user);

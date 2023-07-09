@@ -3,6 +3,7 @@
 namespace Tests\Unit\Core\Auth\JWT\JWTGuard;
 
 use App\Core\Auth\JWT\Parser\JWTParser;
+use App\Core\Auth\JWT\Signer\JWTSigner;
 use App\Core\Auth\JWT\ValueObject\Claims;
 use App\Core\Auth\JWT\ValueObject\ClaimsUser;
 use App\Models\User\User;
@@ -51,7 +52,40 @@ class JWTGuard_HasUser_Test extends JWTGuardBaseTestCase
     }
 
     #[Test]
-    public function should_return_false_and_not_set_any_user_when_jwt_parser_is_throwing_exception()
+    public function should_return_false_and_not_set_any_user_when_jwt_signer_is_throwing_exception_when_validating_token()
+    {
+        // Arrange
+        $mockedToken = 'xxxxxxxxx';
+
+        $mockRequest = new Request();
+        $mockRequest->headers->set('Authorization', 'bearer ' . $mockedToken);
+
+        $mockedException = new Exception('some error');
+
+        /** @var JWTSigner */
+        $mockJWTSigner = $this->mock(
+            JWTSigner::class,
+            function (MockInterface $mock) use ($mockedException, $mockedToken) {
+                $mock->shouldReceive('validate')
+                    ->once()
+                    ->with($mockedToken)
+                    ->andThrow($mockedException);
+            }
+        );
+
+        $service = $this->makeService($mockRequest, null, $mockJWTSigner);
+
+
+        // Act
+        $result = $service->hasUser();
+
+
+        // Assert
+        $this->assertFalse($result);
+    }
+
+    #[Test]
+    public function should_return_false_and_not_set_any_user_when_jwt_parser_is_throwing_exception_when_parsing_token()
     {
         // Arrange
         $mockedToken = 'xxxxxxxxx';
@@ -65,14 +99,24 @@ class JWTGuard_HasUser_Test extends JWTGuardBaseTestCase
         $mockJwtParser = $this->mock(
             JWTParser::class,
             function (MockInterface $mock) use ($mockedException, $mockedToken) {
-                $mock->shouldReceive('issue')
+                $mock->shouldReceive('parse')
                     ->once()
                     ->with($mockedToken)
                     ->andThrow($mockedException);
             }
         );
 
-        $service = $this->makeService($mockRequest, $mockJwtParser);
+        /** @var JWTSigner */
+        $mockJWTSigner = $this->mock(
+            JWTSigner::class,
+            function (MockInterface $mock) {
+                $mock->shouldReceive('validate')
+                    ->once()
+                    ->andReturnNull();
+            }
+        );
+
+        $service = $this->makeService($mockRequest, $mockJwtParser, $mockJWTSigner);
 
 
         // Act
@@ -84,7 +128,7 @@ class JWTGuard_HasUser_Test extends JWTGuardBaseTestCase
     }
 
     #[Test]
-    public function should_return_true_and_set_logged_in_user_when_jwt_parser_can_parse_token()
+    public function should_return_true_and_set_logged_in_user_when_jwt_token_is_valid()
     {
         // Arrange
         $mockedUser = User::factory()->create()->fresh();
@@ -98,7 +142,7 @@ class JWTGuard_HasUser_Test extends JWTGuardBaseTestCase
         $mockJwtParser = $this->mock(
             JWTParser::class,
             function (MockInterface $mock) use ($mockedToken, $mockedUser) {
-                $mock->shouldReceive('issue')
+                $mock->shouldReceive('parse')
                     ->once()
                     ->with($mockedToken)
                     ->andReturn(new Claims(
@@ -111,7 +155,17 @@ class JWTGuard_HasUser_Test extends JWTGuardBaseTestCase
             }
         );
 
-        $service = $this->makeService($mockRequest, $mockJwtParser);
+        /** @var JWTSigner */
+        $mockJWTSigner = $this->mock(
+            JWTSigner::class,
+            function (MockInterface $mock) {
+                $mock->shouldReceive('validate')
+                    ->once()
+                    ->andReturnNull();
+            }
+        );
+
+        $service = $this->makeService($mockRequest, $mockJwtParser, $mockJWTSigner);
 
 
         // Act

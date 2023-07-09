@@ -6,6 +6,5 @@ use App\Core\Auth\JWT\ValueObject\Claims;
 
 interface JWTParser
 {
-    public function issue(string $token): Claims;
-    public function parse(Claims $claims): string;
+    public function parse(string $token): Claims;
 }

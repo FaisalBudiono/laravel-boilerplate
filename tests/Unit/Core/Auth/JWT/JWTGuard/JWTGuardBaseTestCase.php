@@ -4,6 +4,7 @@ namespace Tests\Unit\Core\Auth\JWT\JWTGuard;
 
 use App\Core\Auth\JWT\JWTGuard;
 use App\Core\Auth\JWT\Parser\JWTParser;
+use App\Core\Auth\JWT\Signer\JWTSigner;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Tests\TestCase;
@@ -46,6 +47,7 @@ abstract class JWTGuardBaseTestCase extends TestCase
     protected function makeService(
         ?Request $request = null,
         ?JWTParser $jwtParser = null,
+        ?JWTSigner $jwtSigner = null,
     ): JWTGuard {
         if (is_null($request)) {
             $request = new Request();
@@ -55,6 +57,10 @@ abstract class JWTGuardBaseTestCase extends TestCase
             $jwtParser = $this->mock(JWTParser::class);
         }
 
-        return new JwtGuard($request, $jwtParser);
+        if (is_null($jwtSigner)) {
+            $jwtSigner = $this->mock(JWTSigner::class);
+        }
+
+        return new JwtGuard($request, $jwtParser, $jwtSigner);
     }
 }
