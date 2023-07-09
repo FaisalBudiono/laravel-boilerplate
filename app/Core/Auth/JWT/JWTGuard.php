@@ -7,10 +7,9 @@ use App\Core\Auth\JWT\Signer\JWTSigner;
 use App\Models\User\User;
 use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
-use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Http\Request;
 
-class JWTGuard implements Guard
+class JWTGuard implements JWTGuardContract
 {
     protected ?Authenticatable $user = null;
 
