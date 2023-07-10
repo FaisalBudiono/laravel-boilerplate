@@ -12,7 +12,6 @@ use Tests\TestCase;
 
 abstract class HttpExceptionBaseTestCase extends TestCase
 {
-    protected string $mockedMessage;
     protected Collection $mockedJsonResponse;
     protected ExceptionMessage $mockExceptionMessage;
 
@@ -23,7 +22,6 @@ abstract class HttpExceptionBaseTestCase extends TestCase
     {
         parent::setUp();
 
-        $this->mockedMessage = 'some error message';
         $this->mockedJsonResponse = collect([
             'message' => 'something',
         ]);
@@ -31,7 +29,6 @@ abstract class HttpExceptionBaseTestCase extends TestCase
         $this->mockExceptionMessage = $this->mock(ExceptionMessage::class, function (
             MockInterface $mock
         ) {
-            $mock->shouldReceive('getMessage')->andReturn($this->mockedMessage);
             $mock->shouldReceive('getJsonResponse')->andReturn($this->mockedJsonResponse);
         });
     }
@@ -49,7 +46,7 @@ abstract class HttpExceptionBaseTestCase extends TestCase
     }
 
     #[Test]
-    public function getMessage_should_return_right_json_content()
+    public function getMessage_should_return_right_message()
     {
         // Act
         $exception = new ($this->makeHttpException())($this->mockExceptionMessage);
@@ -57,7 +54,7 @@ abstract class HttpExceptionBaseTestCase extends TestCase
 
 
         // Assert
-        $this->assertEquals($this->mockedMessage, $result);
+        $this->assertEquals($this->mockedJsonResponse->toJson(), $result);
     }
 
     #[Test]
