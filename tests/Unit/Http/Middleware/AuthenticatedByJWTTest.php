@@ -8,6 +8,7 @@ use App\Core\Auth\JWT\ValueObject\Claims;
 use App\Core\Auth\JWT\ValueObject\ClaimsUser;
 use App\Core\Formatter\ExceptionErrorCode;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
+use App\Exceptions\Core\Auth\JWT\FailedParsingException;
 use App\Exceptions\Http\UnauthorizedException;
 use App\Http\Middleware\AuthenticatedByJWT;
 use App\Models\User\User;
@@ -35,7 +36,7 @@ class AuthenticatedByJWTTest extends TestCase
 
         // Pre-Assert
         $expectedException = new UnauthorizedException(new ExceptionMessageStandard(
-            'Authentication is needed to proceed.',
+            'Authentication is needed to proceed',
             ExceptionErrorCode::AUTHENTICATION_NEEDED->value,
         ));
         $this->expectExceptionObject($expectedException);
@@ -68,18 +69,21 @@ class AuthenticatedByJWTTest extends TestCase
 
 
     #[Test]
-    public function should_throw_unauthorized_exception_when_failed_to_validate_with_jwt_signer()
-    {
+    #[DataProvider('jwtExceptionDataProvider')]
+    public function should_throw_unauthorized_exception_when_failed_to_validate_with_jwt_signer(
+        Exception $mockException,
+        Exception $expectedException,
+    ) {
         // Arrange
         $mockedToken = $this->faker->words(10, true);
 
         $mockJWTSigner = $this->mock(
             JWTSigner::class,
-            function (MockInterface $mock) use ($mockedToken) {
+            function (MockInterface $mock) use ($mockedToken, $mockException) {
                 $mock->shouldReceive('validate')
                     ->once()
                     ->with($mockedToken)
-                    ->andThrow(new Exception('some error'));
+                    ->andThrow($mockException);
             }
         );
         assert($mockJWTSigner instanceof JWTSigner);
@@ -91,10 +95,6 @@ class AuthenticatedByJWTTest extends TestCase
 
 
         // Pre-Assert
-        $expectedException = new UnauthorizedException(new ExceptionMessageStandard(
-            'Authentication is needed to proceed.',
-            ExceptionErrorCode::AUTHENTICATION_NEEDED->value,
-        ));
         $this->expectExceptionObject($expectedException);
 
 
@@ -107,11 +107,36 @@ class AuthenticatedByJWTTest extends TestCase
         );
     }
 
-    #[Test]
-    public function should_throw_unauthorized_exception_when_failed_to_parse_with_jwt_parser()
+    public static function jwtExceptionDataProvider(): array
     {
+        return [
+            'generic exception' => [
+                new Exception('some error'),
+                new UnauthorizedException(new ExceptionMessageStandard(
+                    'Failed to validate provided token',
+                    ExceptionErrorCode::AUTHENTICATION_NEEDED->value,
+                )),
+            ],
+            'JWT related exception' => [
+                new FailedParsingException(new ExceptionMessageStandard(
+                    'JWT related error message',
+                    'some error code'
+                )),
+                new UnauthorizedException(new ExceptionMessageStandard(
+                    'JWT related error message',
+                    'some error code'
+                )),
+            ],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('jwtExceptionDataProvider')]
+    public function should_throw_unauthorized_exception_when_failed_to_parse_with_jwt_parser(
+        Exception $mockException,
+        Exception $expectedException,
+    ) {
         // Arrange
-        $mockedException = new Exception('some error');
         $mockedToken = $this->faker->words(10, true);
 
         $mockJWTSigner = $this->mock(
@@ -127,11 +152,11 @@ class AuthenticatedByJWTTest extends TestCase
 
         $mockJWTParser = $this->mock(
             JWTParser::class,
-            function (MockInterface $mock) use ($mockedToken, $mockedException) {
+            function (MockInterface $mock) use ($mockedToken, $mockException) {
                 $mock->shouldReceive('parse')
                     ->once()
                     ->with($mockedToken)
-                    ->andThrow($mockedException);
+                    ->andThrow($mockException);
             }
         );
         assert($mockJWTParser instanceof JWTParser);
@@ -143,10 +168,6 @@ class AuthenticatedByJWTTest extends TestCase
 
 
         // Pre-Assert
-        $expectedException = new UnauthorizedException(new ExceptionMessageStandard(
-            'Authentication is needed to proceed.',
-            ExceptionErrorCode::AUTHENTICATION_NEEDED->value,
-        ));
         $this->expectExceptionObject($expectedException);
 
 
@@ -201,7 +222,7 @@ class AuthenticatedByJWTTest extends TestCase
 
         // Pre-Assert
         $expectedException = new UnauthorizedException(new ExceptionMessageStandard(
-            'Authentication is needed to proceed.',
+            'Failed to validate provided token',
             ExceptionErrorCode::AUTHENTICATION_NEEDED->value,
         ));
         $this->expectExceptionObject($expectedException);

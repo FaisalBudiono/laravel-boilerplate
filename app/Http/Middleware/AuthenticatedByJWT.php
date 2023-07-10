@@ -6,13 +6,13 @@ use App\Core\Auth\JWT\Parser\JWTParser;
 use App\Core\Auth\JWT\Signer\JWTSigner;
 use App\Core\Formatter\ExceptionErrorCode;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
+use App\Exceptions\Core\Auth\JWT\JWTException;
 use App\Exceptions\Http\UnauthorizedException;
 use App\Models\User\User;
 use Closure;
 use Exception;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Throwable;
 
 class AuthenticatedByJWT
 {
@@ -32,7 +32,10 @@ class AuthenticatedByJWT
         $authHeader = $request->headers->get('authentication', '');
 
         if (!$this->isTypeBearer($this->fetchTokenType($authHeader))) {
-            $this->throwForbiddenException();
+            throw new UnauthorizedException(new ExceptionMessageStandard(
+                'Authentication is needed to proceed',
+                ExceptionErrorCode::AUTHENTICATION_NEEDED->value,
+            ));
         }
 
         $this->validateToken($this->fetchBearerToken($authHeader));
@@ -58,14 +61,6 @@ class AuthenticatedByJWT
         return strtolower($tokenType) === 'bearer';
     }
 
-    protected function throwForbiddenException(?Throwable $e = null): never
-    {
-        throw new UnauthorizedException(new ExceptionMessageStandard(
-            'Authentication is needed to proceed.',
-            ExceptionErrorCode::AUTHENTICATION_NEEDED->value,
-        ));
-    }
-
     protected function validateToken(string $token): void
     {
         try {
@@ -73,8 +68,13 @@ class AuthenticatedByJWT
 
             $claims = $this->parser->parse($token);
             User::findByIdOrFail($claims->user->id);
+        } catch (JWTException $e) {
+            throw new UnauthorizedException($e->exceptionMessage);
         } catch (Exception $e) {
-            $this->throwForbiddenException($e);
+            throw new UnauthorizedException(new ExceptionMessageStandard(
+                'Failed to validate provided token',
+                ExceptionErrorCode::AUTHENTICATION_NEEDED->value,
+            ));
         }
     }
 }
