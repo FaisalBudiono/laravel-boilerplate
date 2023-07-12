@@ -7,4 +7,7 @@ return [
             'private' => base64_decode(env('JWT_RSA_BASE64_PRIVATE_KEY', '')),
         ],
     ],
+    'refresh' => [
+        'ttl' => env('JWT_REFRESH_TTL_IN_MINUTE', 1440),
+    ]
 ];
