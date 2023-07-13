@@ -57,7 +57,7 @@ class JWTGuard implements JWTGuardContract
      */
     public function id(): int | string | null
     {
-        return optional($this->user())->getAuthIdentifier();
+        return $this->user()?->getAuthIdentifier();
     }
 
     /**

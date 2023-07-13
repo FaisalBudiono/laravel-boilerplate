@@ -468,11 +468,11 @@ class GetAllUserTest extends BaseFeatureTestCase
         try {
             $this->assertSame(
                 $input['orderBy'] ?? null,
-                optional($argInput->getOrderBy())->value
+                $argInput->getOrderBy()?->value
             );
             $this->assertSame(
                 $input['orderDir'] ?? null,
-                optional($argInput->getOrderDirection())->value
+                $argInput->getOrderDirection()?->value
             );
             $this->assertSame(
                 $input['page'] ?? null,
