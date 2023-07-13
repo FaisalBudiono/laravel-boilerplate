@@ -6,6 +6,12 @@ use App\Core\Auth\JWT\JWTGuard;
 use App\Core\Auth\JWT\JWTGuardContract;
 use App\Core\Auth\JWT\Parser\JWTParser;
 use App\Core\Auth\JWT\Parser\JWTParserLcobucci;
+use App\Core\Auth\JWT\Refresh\Cacher\Cacher as RefreshTokenCacher;
+use App\Core\Auth\JWT\Refresh\Cacher\CacherLaravel as RefreshTokenCacherLaravel;
+use App\Core\Auth\JWT\Refresh\Mapper\UserTokenMapper as RefreshTokenUserTokenMapper;
+use App\Core\Auth\JWT\Refresh\Mapper\UserTokenMapperContract as RefreshTokenUserTokenMapperContract;
+use App\Core\Auth\JWT\Refresh\RefreshTokenManager;
+use App\Core\Auth\JWT\Refresh\RefreshTokenManagerContract;
 use App\Core\Auth\JWT\Signer\JWTSigner;
 use App\Core\Auth\JWT\Signer\JWTSignerLcobucci;
 use Illuminate\Http\Request;
@@ -30,6 +36,22 @@ class CoreBinderTestCaseJWT extends CoreBinderTestCaseAbstract
             ],
             JWTSigner::class => [
                 JWTSignerLcobucci::class,
+            ],
+
+            RefreshTokenCacher::class => [
+                RefreshTokenCacherLaravel::class,
+            ],
+
+            RefreshTokenManagerContract::class => [
+                RefreshTokenManager::class,
+                [
+                    new DependencyFactoryMockery($this->test, RefreshTokenUserTokenMapperContract::class),
+                    new DependencyFactoryMockery($this->test, RefreshTokenCacher::class),
+                ]
+            ],
+
+            RefreshTokenUserTokenMapperContract::class => [
+                RefreshTokenUserTokenMapper::class,
             ],
         ];
     }
