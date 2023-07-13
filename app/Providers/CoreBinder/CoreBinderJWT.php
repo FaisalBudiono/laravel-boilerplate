@@ -4,6 +4,8 @@ namespace App\Providers\CoreBinder;
 
 use App\Core\Auth\JWT\JWTGuard;
 use App\Core\Auth\JWT\JWTGuardContract;
+use App\Core\Auth\JWT\Mapper\JWTMapper;
+use App\Core\Auth\JWT\Mapper\JWTMapperContract;
 use App\Core\Auth\JWT\Parser\JWTParser;
 use App\Core\Auth\JWT\Parser\JWTParserLcobucci;
 use App\Core\Auth\JWT\Refresh\Cacher\Cacher as RefreshTokenCacher;
@@ -27,6 +29,10 @@ class CoreBinderJWT implements CoreBinder
                 $app->make(JWTParser::class),
                 $app->make(JWTSigner::class),
             );
+        });
+
+        $app->bind(JWTMapperContract::class, function (Application $app) {
+            return new JWTMapper;
         });
 
         $app->bind(JWTParser::class, function (Application $app) {

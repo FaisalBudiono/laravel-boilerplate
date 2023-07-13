@@ -4,6 +4,8 @@ namespace Tests\Unit\Providers\CoreBinder;
 
 use App\Core\Auth\JWT\JWTGuard;
 use App\Core\Auth\JWT\JWTGuardContract;
+use App\Core\Auth\JWT\Mapper\JWTMapper;
+use App\Core\Auth\JWT\Mapper\JWTMapperContract;
 use App\Core\Auth\JWT\Parser\JWTParser;
 use App\Core\Auth\JWT\Parser\JWTParserLcobucci;
 use App\Core\Auth\JWT\Refresh\Cacher\Cacher as RefreshTokenCacher;
@@ -30,6 +32,9 @@ class CoreBinderTestCaseJWT extends CoreBinderTestCaseAbstract
                     new DependencyFactoryMockery($this->test, JWTParser::class),
                     new DependencyFactoryMockery($this->test, JWTSigner::class),
                 ]
+            ],
+            JWTMapperContract::class => [
+                JWTMapper::class,
             ],
             JWTParser::class => [
                 JWTParserLcobucci::class,
