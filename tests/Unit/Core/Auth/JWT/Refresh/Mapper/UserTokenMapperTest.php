@@ -5,7 +5,7 @@ namespace Tests\Unit\Core\Auth\JWT\Refresh\Mapper;
 use App\Core\Auth\JWT\Refresh\Mapper\UserTokenMapper;
 use App\Core\Auth\JWT\Refresh\Mapper\UserTokenMapperContract;
 use App\Core\Auth\JWT\Refresh\ValueObject\RefreshTokenClaims;
-use App\Core\Auth\JWT\ValueObject\ClaimsUser;
+use App\Core\Auth\JWT\Refresh\ValueObject\RefreshTokenClaimsUser;
 use App\Models\User\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -49,7 +49,7 @@ class UserTokenMapperTest extends TestCase
         // Assert
         $expectedResult = new RefreshTokenClaims(
             $mockedUuid,
-            new ClaimsUser($user->id, $user->email),
+            new RefreshTokenClaimsUser($user->id, $user->email),
             now()->addMinutes(config('jwt.refresh.ttl')),
         );
         $this->assertEquals($expectedResult, $result);

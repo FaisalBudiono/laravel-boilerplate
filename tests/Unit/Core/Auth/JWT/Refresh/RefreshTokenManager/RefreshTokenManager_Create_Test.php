@@ -5,7 +5,7 @@ namespace Tests\Unit\Core\Auth\JWT\Refresh\RefreshTokenManager;
 use App\Core\Auth\JWT\Refresh\Cacher\Cacher;
 use App\Core\Auth\JWT\Refresh\Mapper\UserTokenMapperContract;
 use App\Core\Auth\JWT\Refresh\ValueObject\RefreshTokenClaims;
-use App\Core\Auth\JWT\ValueObject\ClaimsUser;
+use App\Core\Auth\JWT\Refresh\ValueObject\RefreshTokenClaimsUser;
 use App\Models\User\User;
 use Carbon\Carbon;
 use Mockery\MockInterface;
@@ -21,7 +21,7 @@ class RefreshTokenManager_Create_Test extends RefreshTokenManagerBaseTestCase
 
         $mockedRefreshTokenClaims = new RefreshTokenClaims(
             $this->faker->numerify,
-            new ClaimsUser($this->faker->numerify, $this->faker->email),
+            new RefreshTokenClaimsUser($this->faker->numerify, $this->faker->email),
             Carbon::parse($this->faker->dateTime),
             null,
         );

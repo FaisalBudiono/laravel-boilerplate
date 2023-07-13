@@ -4,7 +4,7 @@ namespace Tests\Unit\Core\Auth\JWT\Refresh\Cacher\CacherLaravel;
 
 use App\Core\Auth\JWT\Refresh\RefreshTokenExceptionCode;
 use App\Core\Auth\JWT\Refresh\ValueObject\RefreshTokenClaims;
-use App\Core\Auth\JWT\ValueObject\ClaimsUser;
+use App\Core\Auth\JWT\Refresh\ValueObject\RefreshTokenClaimsUser;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
 use App\Exceptions\Core\Auth\JWT\InvalidTokenException;
 use Carbon\Carbon;
@@ -48,7 +48,7 @@ class CacherLaravel_Find_Test extends CacherLaravelBaseTestCase
         $mockedID = $this->faker->uuid();
         $expectedToken = new RefreshTokenClaims(
             $mockedID,
-            new ClaimsUser($this->faker->uuid(), $this->faker->email),
+            new RefreshTokenClaimsUser($this->faker->uuid(), $this->faker->email),
             Carbon::parse(intval($mockedExpiredAtUnix)),
             $this->faker->uuid,
         );
@@ -100,7 +100,7 @@ class CacherLaravel_Find_Test extends CacherLaravelBaseTestCase
         $mockedID = $this->faker->uuid();
         $expectedToken = new RefreshTokenClaims(
             $mockedID,
-            new ClaimsUser($this->faker->uuid(), $this->faker->email),
+            new RefreshTokenClaimsUser($this->faker->uuid(), $this->faker->email),
             Carbon::parse($this->faker->dateTime),
         );
 
@@ -141,7 +141,7 @@ class CacherLaravel_Find_Test extends CacherLaravelBaseTestCase
         $mockedID = $this->faker->uuid();
         $expectedToken = new RefreshTokenClaims(
             $mockedID,
-            new ClaimsUser('', ''),
+            new RefreshTokenClaimsUser('', ''),
             Carbon::parse($this->faker->dateTime),
         );
 

@@ -4,7 +4,7 @@ namespace App\Core\Auth\JWT\Refresh\Cacher;
 
 use App\Core\Auth\JWT\Refresh\RefreshTokenExceptionCode;
 use App\Core\Auth\JWT\Refresh\ValueObject\RefreshTokenClaims;
-use App\Core\Auth\JWT\ValueObject\ClaimsUser;
+use App\Core\Auth\JWT\Refresh\ValueObject\RefreshTokenClaimsUser;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
 use App\Exceptions\Core\Auth\JWT\InvalidTokenException;
 use Carbon\Carbon;
@@ -40,7 +40,7 @@ class CacherLaravel implements Cacher
 
         return new RefreshTokenClaims(
             $tokenID,
-            new ClaimsUser(
+            new RefreshTokenClaimsUser(
                 $values[$this->getUserIDKey($tokenID)] ?? '',
                 $values[$this->getUserEmailKey($tokenID)] ?? '',
             ),

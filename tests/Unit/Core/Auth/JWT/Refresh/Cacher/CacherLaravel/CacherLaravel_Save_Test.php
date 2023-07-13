@@ -3,7 +3,7 @@
 namespace Tests\Unit\Core\Auth\JWT\Refresh\Cacher\CacherLaravel;
 
 use App\Core\Auth\JWT\Refresh\ValueObject\RefreshTokenClaims;
-use App\Core\Auth\JWT\ValueObject\ClaimsUser;
+use App\Core\Auth\JWT\Refresh\ValueObject\RefreshTokenClaimsUser;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use PHPUnit\Framework\Attributes\Test;
@@ -16,7 +16,7 @@ class CacherLaravel_Save_Test extends CacherLaravelBaseTestCase
         // Arrange
         $mockedToken = new RefreshTokenClaims(
             $this->faker->uuid(),
-            new ClaimsUser($this->faker->uuid(), $this->faker->email),
+            new RefreshTokenClaimsUser($this->faker->uuid(), $this->faker->email),
             Carbon::parse($this->faker->dateTimeBetween('1 years', '10 years')),
         );
 
