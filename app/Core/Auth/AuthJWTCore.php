@@ -12,6 +12,7 @@ use App\Exceptions\Models\ModelNotFoundException;
 use App\Models\User\Enum\UserExceptionCode;
 use App\Models\User\User;
 use App\Port\Core\Auth\LoginPort;
+use App\Port\Core\Auth\LogoutPort;
 use Exception;
 use Illuminate\Support\Facades\Hash;
 
@@ -44,6 +45,13 @@ class AuthJWTCore implements AuthJWTCoreContract
         } catch (Exception $e) {
             throw $e;
         }
+    }
+
+    public function logout(LogoutPort $request): void
+    {
+        $this->refreshTokenManager->invalidate($request->getRefreshToken());
+    }
+
     }
 
     protected function throwInvalidCredential(): never
