@@ -4,7 +4,6 @@ namespace Tests\Unit\Core\Auth\JWT\Parser;
 
 use App\Core\Auth\JWT\Parser\JWTParserExceptionCode;
 use App\Core\Auth\JWT\Parser\JWTParserLcobucci;
-use App\Core\Auth\JWT\Signer\JWTSignerLcobucci;
 use App\Core\Auth\JWT\ValueObject\Claims;
 use App\Core\Auth\JWT\ValueObject\ClaimsUser;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
@@ -15,12 +14,9 @@ use Lcobucci\JWT\Encoding\ChainedFormatter;
 use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key\InMemory;
-use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Token\Builder;
-use Lcobucci\JWT\Token\Parser;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
-use SebastianBergmann\CodeUnit\ClassUnit;
 use Tests\TestCase;
 
 class JWTParserLcobucciTest extends TestCase

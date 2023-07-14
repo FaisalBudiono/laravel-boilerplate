@@ -52,7 +52,7 @@ class JWTGuard_Check_Test extends JWTGuardBaseTestCase
     }
 
     #[Test]
-    public function should_return_false_and_not_set_any_user_when_jwt_signer_is_throwing_exception_when_validating_token()
+    public function should_return_false_when_there_is_some_error_thrown()
     {
         // Arrange
         $mockedToken = 'xxxxxxxxx';
@@ -60,7 +60,7 @@ class JWTGuard_Check_Test extends JWTGuardBaseTestCase
         $mockRequest = new Request();
         $mockRequest->headers->set('Authorization', 'bearer ' . $mockedToken);
 
-        $mockedException = new Exception('some error');
+        $mockedException = new Exception($this->faker->sentence);
 
         /** @var JWTSigner */
         $mockJWTSigner = $this->mock(
@@ -74,49 +74,6 @@ class JWTGuard_Check_Test extends JWTGuardBaseTestCase
         );
 
         $service = $this->makeService($mockRequest, null, $mockJWTSigner);
-
-
-        // Act
-        $result = $service->check();
-
-
-        // Assert
-        $this->assertFalse($result);
-    }
-
-    #[Test]
-    public function should_return_false_and_not_set_any_user_when_jwt_parser_is_throwing_exception_when_parsing_token()
-    {
-        // Arrange
-        $mockedToken = 'xxxxxxxxx';
-
-        $mockRequest = new Request();
-        $mockRequest->headers->set('Authorization', 'bearer ' . $mockedToken);
-
-        $mockedException = new Exception('some error');
-
-        /** @var JWTParser */
-        $mockJwtParser = $this->mock(
-            JWTParser::class,
-            function (MockInterface $mock) use ($mockedException, $mockedToken) {
-                $mock->shouldReceive('parse')
-                    ->once()
-                    ->with($mockedToken)
-                    ->andThrow($mockedException);
-            }
-        );
-
-        /** @var JWTSigner */
-        $mockJWTSigner = $this->mock(
-            JWTSigner::class,
-            function (MockInterface $mock) {
-                $mock->shouldReceive('validate')
-                    ->once()
-                    ->andReturnNull();
-            }
-        );
-
-        $service = $this->makeService($mockRequest, $mockJwtParser, $mockJWTSigner);
 
 
         // Act

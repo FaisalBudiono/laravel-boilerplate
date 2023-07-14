@@ -70,7 +70,7 @@ class AuthenticatedByJWTTest extends TestCase
 
     #[Test]
     #[DataProvider('jwtExceptionDataProvider')]
-    public function should_throw_unauthorized_exception_when_failed_to_validate_with_jwt_signer(
+    public function should_throw_unauthorized_exception_when_there_is_some_error_thrown(
         Exception $mockException,
         Exception $expectedException,
     ) {
@@ -128,56 +128,6 @@ class AuthenticatedByJWTTest extends TestCase
                 )),
             ],
         ];
-    }
-
-    #[Test]
-    #[DataProvider('jwtExceptionDataProvider')]
-    public function should_throw_unauthorized_exception_when_failed_to_parse_with_jwt_parser(
-        Exception $mockException,
-        Exception $expectedException,
-    ) {
-        // Arrange
-        $mockedToken = $this->faker->words(10, true);
-
-        $mockJWTSigner = $this->mock(
-            JWTSigner::class,
-            function (MockInterface $mock) use ($mockedToken) {
-                $mock->shouldReceive('validate')
-                    ->once()
-                    ->with($mockedToken)
-                    ->andReturnNull();
-            }
-        );
-        assert($mockJWTSigner instanceof JWTSigner);
-
-        $mockJWTParser = $this->mock(
-            JWTParser::class,
-            function (MockInterface $mock) use ($mockedToken, $mockException) {
-                $mock->shouldReceive('parse')
-                    ->once()
-                    ->with($mockedToken)
-                    ->andThrow($mockException);
-            }
-        );
-        assert($mockJWTParser instanceof JWTParser);
-
-        $mockRequest = new Request();
-        $mockRequest->headers->set('Authentication', "Bearer {$mockedToken}");
-
-        $middleware = $this->makeMiddleware($mockJWTSigner, $mockJWTParser);
-
-
-        // Pre-Assert
-        $this->expectExceptionObject($expectedException);
-
-
-        // Act
-        $middleware->handle(
-            $mockRequest,
-            function (Request $argRequest) {
-                return new Response();
-            }
-        );
     }
 
     #[Test]

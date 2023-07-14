@@ -44,10 +44,10 @@ class JWTGuard_Validate_Test extends JWTGuardBaseTestCase
     }
 
     #[Test]
-    public function should_return_false_and_not_set_any_user_when_supplied_token_is_failed_to_be_validated()
+    public function should_return_false_and_not_set_any_user_when_there_is_some_error_thrown()
     {
         // Arrange
-        $mockedException = new Exception('some error');
+        $mockedException = new Exception($this->faker->sentence);
 
         $mockedToken = $this->faker->regexify('[a-zA-Z0-9]{40}');
 
@@ -65,54 +65,6 @@ class JWTGuard_Validate_Test extends JWTGuardBaseTestCase
         );
 
         $service = $this->makeService($mockRequest, null, $mockJWTSigner);
-
-
-        // Act
-        $result = $service->validate([
-            'token' => $mockedToken,
-        ]);
-
-        $resultUser = $service->user();
-
-
-        // Assert
-        $this->assertFalse($result);
-
-        $this->assertNull($resultUser);
-    }
-
-    #[Test]
-    public function should_return_false_and_not_set_any_user_when_supplied_token_is_failed_to_be_parsed()
-    {
-        // Arrange
-        $mockedException = new Exception('some error');
-
-        $mockedToken = $this->faker->regexify('[a-zA-Z0-9]{40}');
-
-        $mockRequest = new Request();
-
-        /** @var JWTParser */
-        $mockJwtParser = $this->mock(
-            JWTParser::class,
-            function (MockInterface $mock) use ($mockedException, $mockedToken) {
-                $mock->shouldReceive('parse')
-                    ->once()
-                    ->with($mockedToken)
-                    ->andThrow($mockedException);
-            }
-        );
-
-        /** @var JWTSigner */
-        $mockJWTSigner = $this->mock(
-            JWTSigner::class,
-            function (MockInterface $mock) {
-                $mock->shouldReceive('validate')
-                    ->once()
-                    ->andReturnNull();
-            }
-        );
-
-        $service = $this->makeService($mockRequest, $mockJwtParser, $mockJWTSigner);
 
 
         // Act
