@@ -53,7 +53,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public static function findByIdOrFail(int $id): self
+    public static function findByIDOrFail(int $id): self
     {
         $user = self::query()->where('id', $id)->first();
 

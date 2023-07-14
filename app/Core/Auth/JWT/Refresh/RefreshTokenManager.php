@@ -52,7 +52,7 @@ class RefreshTokenManager implements RefreshTokenManagerContract
         }
 
         $refreshedToken = $this->userTokenMapper->map(
-            User::findByIdOrFail($token->user->id)
+            User::findByIDOrFail($token->user->id)
         );
 
         $this->cacher->save($refreshedToken);

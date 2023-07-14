@@ -10,7 +10,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
-class User_FindByIdOrFail_Test extends TestCase
+class User_FindByIDOrFail_Test extends TestCase
 {
     use RefreshDatabase;
 
@@ -29,7 +29,7 @@ class User_FindByIdOrFail_Test extends TestCase
     public function should_successfully_return_user_instance()
     {
         // Act
-        $user = User::findByIdOrFail($this->user->id);
+        $user = User::findByIDOrFail($this->user->id);
 
 
         // Assert
@@ -48,6 +48,6 @@ class User_FindByIdOrFail_Test extends TestCase
 
 
         // Act
-        User::findByIdOrFail(1000);
+        User::findByIDOrFail(1000);
     }
 }

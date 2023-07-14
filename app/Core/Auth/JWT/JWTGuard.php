@@ -158,7 +158,7 @@ class JWTGuard implements JWTGuardContract
         $this->signer->validate($token);
 
         $claims = $this->parser->parse($token);
-        $user = User::findByIdOrFail($claims->user->id);
+        $user = User::findByIDOrFail($claims->user->id);
 
         $this->setUser($user);
     }

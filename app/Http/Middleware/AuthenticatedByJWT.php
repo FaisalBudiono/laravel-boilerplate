@@ -67,7 +67,7 @@ class AuthenticatedByJWT
             $this->signer->validate($token);
 
             $claims = $this->parser->parse($token);
-            User::findByIdOrFail($claims->user->id);
+            User::findByIDOrFail($claims->user->id);
         } catch (JWTException $e) {
             throw new UnauthorizedException($e->exceptionMessage);
         } catch (Exception $e) {
