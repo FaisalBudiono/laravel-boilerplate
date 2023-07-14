@@ -17,8 +17,6 @@ class CacherLaravel_IsUnused_Test extends CacherLaravelBaseTestCase
         // Arrange
         $mockedID = $this->faker->uuid();
 
-        $service = $this->makeService();
-
 
         // Assert
         Cache::shouldReceive('has')
@@ -34,17 +32,17 @@ class CacherLaravel_IsUnused_Test extends CacherLaravelBaseTestCase
 
 
         // Act
-        $service->isUnused($mockedID);
+        $this->makeService()->isUnused($mockedID);
     }
 
     #[Test]
     #[DataProvider('isUnusedDataProvider')]
-    public function should_return_whether_token_is_used_or_not_when_key_value(mixed $mockedInvalidValue, bool $expectedResult)
-    {
+    public function should_return_whether_token_is_used_or_not_when_key_value(
+        mixed $mockedInvalidValue,
+        bool $expectedResult,
+    ) {
         // Arrange
         $mockedID = $this->faker->uuid();
-
-        $service = $this->makeService();
 
 
         // Assert
@@ -61,7 +59,7 @@ class CacherLaravel_IsUnused_Test extends CacherLaravelBaseTestCase
 
 
         // Act
-        $result = $service->isUnused($mockedID);
+        $result = $this->makeService()->isUnused($mockedID);
 
 
         // Assert

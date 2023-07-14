@@ -46,10 +46,10 @@ class AuthJWTCore_Login_Test extends AuthJWTCoreBaseTestCase
         $user = User::factory()->create()->fresh();
         $notFoundEmail = $user->email . 'notemail';
 
-        $this->mockedRequestMethods['getUserEmail']->once()->andReturn($notFoundEmail);
-
 
         // Assert
+        $this->mockedRequestMethods['getUserEmail']->once()->andReturn($notFoundEmail);
+
         $expectedException = new InvalidCredentialException(new ExceptionMessageStandard(
             'Credential is invalid',
             UserExceptionCode::INVALID_CREDENTIAL->value,
@@ -68,6 +68,8 @@ class AuthJWTCore_Login_Test extends AuthJWTCoreBaseTestCase
         $user = User::factory()->create()->fresh();
         $invalidPassword = $this->faker->words(3, true);
 
+
+        // Assert
         $this->mockedRequestMethods['getUserEmail']
             ->once()
             ->andReturn($user->email);
@@ -80,8 +82,6 @@ class AuthJWTCore_Login_Test extends AuthJWTCoreBaseTestCase
             ->with($invalidPassword, $user->password)
             ->andReturn(false);
 
-
-        // Assert
         $expectedException = new InvalidCredentialException(new ExceptionMessageStandard(
             'Credential is invalid',
             UserExceptionCode::INVALID_CREDENTIAL->value,
@@ -100,6 +100,8 @@ class AuthJWTCore_Login_Test extends AuthJWTCoreBaseTestCase
         $user = User::factory()->create()->fresh();
         $validPassword = $this->faker->words(3, true);
 
+
+        // Assert
         $this->mockedRequestMethods['getUserEmail']
             ->once()
             ->andReturn($user->email);

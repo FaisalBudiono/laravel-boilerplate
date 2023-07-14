@@ -37,11 +37,9 @@ class JWTMapperTest extends TestCase
         // Arrange
         $user = User::factory()->create()->fresh();
 
-        $service = $this->makeService();
-
 
         // Act
-        $result = $service->map($user);
+        $result = $this->makeService()->map($user);
 
 
         // Assert

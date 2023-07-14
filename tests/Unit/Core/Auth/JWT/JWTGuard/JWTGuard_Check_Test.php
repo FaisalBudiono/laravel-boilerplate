@@ -19,12 +19,8 @@ class JWTGuard_Check_Test extends JWTGuardBaseTestCase
     #[DataProvider('noAuthorizationHeaderDataProvider')]
     public function should_return_false_when_no_authorization_header(Request $mockRequest)
     {
-        // Arrange
-        $service = $this->makeService($mockRequest);
-
-
         // Act
-        $result = $service->check();
+        $result = $this->makeService($mockRequest)->check();
 
 
         // Assert
@@ -40,11 +36,9 @@ class JWTGuard_Check_Test extends JWTGuardBaseTestCase
         $mockRequest = new Request();
         $mockRequest->headers->set('Authorization', $mockedToken);
 
-        $service = $this->makeService($mockRequest);
-
 
         // Act
-        $result = $service->check();
+        $result = $this->makeService($mockRequest)->check();
 
 
         // Assert
@@ -62,7 +56,8 @@ class JWTGuard_Check_Test extends JWTGuardBaseTestCase
 
         $mockedException = new Exception($this->faker->sentence);
 
-        /** @var JWTSigner */
+
+        // Assert
         $mockJWTSigner = $this->mock(
             JWTSigner::class,
             function (MockInterface $mock) use ($mockedException, $mockedToken) {
@@ -72,12 +67,11 @@ class JWTGuard_Check_Test extends JWTGuardBaseTestCase
                     ->andThrow($mockedException);
             }
         );
-
-        $service = $this->makeService($mockRequest, null, $mockJWTSigner);
+        assert($mockJWTSigner instanceof JWTSigner);
 
 
         // Act
-        $result = $service->check();
+        $result = $this->makeService($mockRequest, null, $mockJWTSigner)->check();
 
 
         // Assert
@@ -95,7 +89,8 @@ class JWTGuard_Check_Test extends JWTGuardBaseTestCase
         $mockRequest = new Request();
         $mockRequest->headers->set('Authorization', 'bearer ' . $mockedToken);
 
-        /** @var JWTParser */
+
+        // Assert
         $mockJwtParser = $this->mock(
             JWTParser::class,
             function (MockInterface $mock) use ($mockedToken, $mockedUser) {
@@ -111,8 +106,8 @@ class JWTGuard_Check_Test extends JWTGuardBaseTestCase
                     ));
             }
         );
+        assert($mockJwtParser instanceof JWTParser);
 
-        /** @var JWTSigner */
         $mockJWTSigner = $this->mock(
             JWTSigner::class,
             function (MockInterface $mock) {
@@ -121,12 +116,11 @@ class JWTGuard_Check_Test extends JWTGuardBaseTestCase
                     ->andReturnNull();
             }
         );
-
-        $service = $this->makeService($mockRequest, $mockJwtParser, $mockJWTSigner);
+        assert($mockJWTSigner instanceof JWTSigner);
 
 
         // Act
-        $result = $service->check();
+        $result = $this->makeService($mockRequest, $mockJwtParser, $mockJWTSigner)->check();
 
 
         // Assert

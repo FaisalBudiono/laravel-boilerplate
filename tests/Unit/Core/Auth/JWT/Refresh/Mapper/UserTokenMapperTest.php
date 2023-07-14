@@ -39,11 +39,9 @@ class UserTokenMapperTest extends TestCase
         $mockedUuid = Str::freezeUuids();
         $user = User::factory()->create()->fresh();
 
-        $service = $this->makeService();
-
 
         // Act
-        $result = $service->map($user);
+        $result = $this->makeService()->map($user);
 
 
         // Assert

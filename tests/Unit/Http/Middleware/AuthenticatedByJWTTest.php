@@ -77,6 +77,11 @@ class AuthenticatedByJWTTest extends TestCase
         // Arrange
         $mockedToken = $this->faker->words(10, true);
 
+        $mockRequest = new Request();
+        $mockRequest->headers->set('Authentication', "Bearer {$mockedToken}");
+
+
+        // Pre-Assert
         $mockJWTSigner = $this->mock(
             JWTSigner::class,
             function (MockInterface $mock) use ($mockedToken, $mockException) {
@@ -88,18 +93,11 @@ class AuthenticatedByJWTTest extends TestCase
         );
         assert($mockJWTSigner instanceof JWTSigner);
 
-        $mockRequest = new Request();
-        $mockRequest->headers->set('Authentication', "Bearer {$mockedToken}");
-
-        $middleware = $this->makeMiddleware($mockJWTSigner);
-
-
-        // Pre-Assert
         $this->expectExceptionObject($expectedException);
 
 
         // Act
-        $middleware->handle(
+        $this->makeMiddleware($mockJWTSigner)->handle(
             $mockRequest,
             function (Request $argRequest) {
                 return new Response();
@@ -136,6 +134,11 @@ class AuthenticatedByJWTTest extends TestCase
         // Arrange
         $mockedToken = $this->faker->words(10, true);
 
+        $mockRequest = new Request();
+        $mockRequest->headers->set('Authentication', "Bearer {$mockedToken}");
+
+
+        // Assert
         $mockJWTSigner = $this->mock(
             JWTSigner::class,
             function (MockInterface $mock) use ($mockedToken) {
@@ -164,11 +167,6 @@ class AuthenticatedByJWTTest extends TestCase
         );
         assert($mockJWTParser instanceof JWTParser);
 
-        $mockRequest = new Request();
-        $mockRequest->headers->set('Authentication', "Bearer {$mockedToken}");
-
-        $middleware = $this->makeMiddleware($mockJWTSigner, $mockJWTParser);
-
 
         // Pre-Assert
         $expectedException = new UnauthorizedException(new ExceptionMessageStandard(
@@ -179,7 +177,7 @@ class AuthenticatedByJWTTest extends TestCase
 
 
         // Act
-        $middleware->handle(
+        $this->makeMiddleware($mockJWTSigner, $mockJWTParser)->handle(
             $mockRequest,
             function (Request $argRequest) {
                 return new Response();
@@ -198,6 +196,13 @@ class AuthenticatedByJWTTest extends TestCase
 
         $mockedToken = $this->faker->words(10, true);
 
+        $mockRequest = new Request();
+        $mockRequest->headers->set($headerName, "{$tokenType} {$mockedToken}");
+
+        $mockResponse = new Response();
+
+
+        // Assert
         $mockJWTSigner = $this->mock(
             JWTSigner::class,
             function (MockInterface $mock) use ($mockedToken) {
@@ -226,16 +231,9 @@ class AuthenticatedByJWTTest extends TestCase
         );
         assert($mockJWTParser instanceof JWTParser);
 
-        $mockRequest = new Request();
-        $mockRequest->headers->set($headerName, "{$tokenType} {$mockedToken}");
-
-        $mockResponse = new Response();
-
-        $middleware = $this->makeMiddleware($mockJWTSigner, $mockJWTParser);
-
 
         // Act
-        $result = $middleware->handle(
+        $result = $this->makeMiddleware($mockJWTSigner, $mockJWTParser)->handle(
             $mockRequest,
             function (Request $argRequest) use ($mockResponse) {
                 return $mockResponse;

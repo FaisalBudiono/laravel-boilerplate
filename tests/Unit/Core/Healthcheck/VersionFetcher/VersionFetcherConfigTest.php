@@ -21,11 +21,9 @@ class VersionFetcherConfigTest extends TestCase
         Config::set('version.minor', $mockMinor);
         Config::set('version.patch', $mockPatch);
 
-        $service = $this->makeService();
-
 
         // Act
-        $result = $service->fullVersion();
+        $result = $this->makeService()->fullVersion();
 
 
         // Assert
@@ -41,11 +39,9 @@ class VersionFetcherConfigTest extends TestCase
 
         Config::set('version.major', $mockMajor);
 
-        $service = $this->makeService();
-
 
         // Act
-        $result = $service->major();
+        $result = $this->makeService()->major();
 
 
         // Assert
@@ -60,11 +56,9 @@ class VersionFetcherConfigTest extends TestCase
 
         Config::set('version.minor', $mockMinor);
 
-        $service = $this->makeService();
-
 
         // Act
-        $result = $service->minor();
+        $result = $this->makeService()->minor();
 
 
         // Assert
@@ -79,11 +73,9 @@ class VersionFetcherConfigTest extends TestCase
 
         Config::set('version.patch', $mockPatch);
 
-        $service = $this->makeService();
-
 
         // Act
-        $result = $service->patch();
+        $result = $this->makeService()->patch();
 
 
         // Assert

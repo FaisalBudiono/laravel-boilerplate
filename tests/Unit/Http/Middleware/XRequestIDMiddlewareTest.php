@@ -20,7 +20,10 @@ class XRequestIDMiddlewareTest extends TestCase
 
         $mockedRandomString = $this->faker()->uuid;
 
-        /** @var Randomizer */
+        $mockRequest = new Request();
+
+
+        // Assert
         $mockRandomizer = $this->mock(
             Randomizer::class,
             function (MockInterface $mock) use ($mockedRandomString) {
@@ -29,12 +32,12 @@ class XRequestIDMiddlewareTest extends TestCase
                     ->andReturn($mockedRandomString);
             }
         );
-
-        $mockRequest = new Request();
-        $middleware = new XRequestIDMiddleware($mockRandomizer);
+        assert($mockRandomizer instanceof Randomizer);
 
 
         // Act
+        $middleware = new XRequestIDMiddleware($mockRandomizer);
+
         $response = $middleware->handle(
             $mockRequest,
             function (Request $argRequest) use ($mockedRandomString, $headerName) {

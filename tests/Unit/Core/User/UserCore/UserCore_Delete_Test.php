@@ -18,6 +18,7 @@ class UserCore_Delete_Test extends TestCase
     protected UserCore $core;
 
     protected DeleteUserPort $mockRequest;
+
     /** @var (\Mockery\ExpectationInterface|\Mockery\Expectation|\Mockery\HigherOrderMessage)[] */
     protected $mockedRequestMethods;
 
@@ -52,6 +53,8 @@ class UserCore_Delete_Test extends TestCase
         /** @var User */
         $user = User::find($this->faker()->numberBetween(1, User::count()));
 
+
+        // Assert
         $this->mockedRequestMethods['getUserModel']->once()->withNoArgs()
             ->andReturn($user);
 

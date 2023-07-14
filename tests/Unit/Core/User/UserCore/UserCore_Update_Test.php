@@ -22,6 +22,7 @@ class UserCore_Update_Test extends TestCase
     protected UserCore $core;
 
     protected UpdateUserPort $mockRequest;
+
     /** @var (\Mockery\ExpectationInterface|\Mockery\Expectation|\Mockery\HigherOrderMessage)[] */
     protected $mockedRequestMethods;
 
@@ -49,21 +50,23 @@ class UserCore_Update_Test extends TestCase
     #[Test]
     public function should_throw_user_email_duplicated_exception_when_email_is_used_by_other_user()
     {
-        // Assert
+        // Arrange
         User::factory()->count(5)->create();
-        /** @var User */
-        $duplicatedUser = User::find(1);
 
-        /** @var User */
+        $duplicatedUser = User::find(1);
+        assert($duplicatedUser instanceof User);
+
         $user = User::find($this->faker()->numberBetween(2, User::count()));
+        assert($user instanceof User);
+
+
+        // Assert
         $this->mockedRequestMethods['getUserModel']->once()->withNoArgs()
             ->andReturn($user);
 
         $this->mockedRequestMethods['getEmail']->once()->withNoArgs()
             ->andReturn($duplicatedUser->email);
 
-
-        // Assert
         $expectedException = new UserEmailDuplicatedException(new ExceptionMessageStandard(
             'Email is already in used',
             UserExceptionCode::DUPLICATED->value,
@@ -87,23 +90,25 @@ class UserCore_Update_Test extends TestCase
     #[Test]
     public function should_update_user_detail_successfully()
     {
-        // Assert
+        // Arrange
         User::factory()->count(5)->create();
-
-        /** @var User */
         $user = User::find($this->faker()->numberBetween(1, User::count()));
+        $email = $this->faker()->email();
+        $name = $this->faker()->name();
+        $password = $this->faker()->words(3, true);
+
+
+        // Assert
+        assert($user instanceof User);
         $this->mockedRequestMethods['getUserModel']->once()->withNoArgs()
             ->andReturn($user);
 
-        $email = $this->faker()->email();
         $this->mockedRequestMethods['getEmail']->once()->withNoArgs()
             ->andReturn($email);
 
-        $name = $this->faker()->name();
         $this->mockedRequestMethods['getName']->once()->withNoArgs()
             ->andReturn($name);
 
-        $password = $this->faker()->words(3, true);
         $this->mockedRequestMethods['getUserPassword']->once()->withNoArgs()
             ->andReturn($password);
 
@@ -131,8 +136,11 @@ class UserCore_Update_Test extends TestCase
         // Assert
         User::factory()->count(5)->create();
 
-        /** @var User */
+
+        // Arrange
         $user = User::find($this->faker()->numberBetween(1, User::count()));
+        assert($user instanceof User);
+
         $this->mockedRequestMethods['getUserModel']->once()->withNoArgs()
             ->andReturn($user);
 

@@ -88,7 +88,6 @@ class JWTParserLcobucciTest extends TestCase
         Claims $expectedClaim
     ) {
         // Arrange
-
         $service = $this->makeService();
 
 

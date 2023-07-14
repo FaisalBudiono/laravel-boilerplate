@@ -22,6 +22,7 @@ class UserCore_Create_Test extends TestCase
     protected UserCore $core;
 
     protected CreateUserPort $mockRequest;
+
     /** @var (\Mockery\ExpectationInterface|\Mockery\Expectation|\Mockery\HigherOrderMessage)[] */
     protected $mockedRequestMethods;
 
@@ -54,9 +55,11 @@ class UserCore_Create_Test extends TestCase
         $email = $this->faker->email;
         $password = $this->faker->password;
 
-        $this->mockedRequestMethods['getName']->andReturn($name);
-        $this->mockedRequestMethods['getEmail']->andReturn($email);
-        $this->mockedRequestMethods['getUserPassword']->andReturn($password);
+
+        // Assert
+        $this->mockedRequestMethods['getName']->once()->andReturn($name);
+        $this->mockedRequestMethods['getEmail']->once()->andReturn($email);
+        $this->mockedRequestMethods['getUserPassword']->once()->andReturn($password);
 
         $hashedPassword = $this->faker->words(7, true);
         Hash::shouldReceive('make')->with($password)->andReturn($hashedPassword);
@@ -88,10 +91,10 @@ class UserCore_Create_Test extends TestCase
             'email' => $email,
         ]);
 
-        $this->mockedRequestMethods['getEmail']->andReturn($email);
-
 
         // Assert
+        $this->mockedRequestMethods['getEmail']->once()->andReturn($email);
+
         $expectedException = new UserEmailDuplicatedException(new ExceptionMessageStandard(
             'Email is duplicated',
             UserExceptionCode::DUPLICATED->value,

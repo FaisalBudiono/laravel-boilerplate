@@ -48,9 +48,11 @@ class UserCore_Get_Test extends TestCase
         // Assert
         User::factory()->count(5)->create();
 
-        /** @var User */
         $user = User::find($this->faker->numberBetween(1, User::count()));
+        assert($user instanceof User);
 
+
+        // Assert
         $this->mockedRequestMethods['getUserModel']
             ->once()
             ->withNoArgs()

@@ -20,8 +20,6 @@ class CacherLaravel_Save_Test extends CacherLaravelBaseTestCase
             Carbon::parse($this->faker->dateTimeBetween('1 years', '10 years')),
         );
 
-        $service = $this->makeService();
-
 
         // Assert
         Cache::shouldReceive('putMany')
@@ -38,6 +36,6 @@ class CacherLaravel_Save_Test extends CacherLaravelBaseTestCase
 
 
         // Act
-        $service->save($mockedToken);
+        $this->makeService()->save($mockedToken);
     }
 }

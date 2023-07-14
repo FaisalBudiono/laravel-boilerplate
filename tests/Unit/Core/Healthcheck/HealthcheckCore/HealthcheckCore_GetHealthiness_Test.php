@@ -27,12 +27,8 @@ class HealthcheckCore_GetHealthiness_Test extends TestCase
     #[Test]
     public function should_implement_right_interface()
     {
-        // Arrange
-        $service = $this->makeService();
-
-
         // Assert
-        $this->assertInstanceOf(HealthcheckCoreContract::class, $service);
+        $this->assertInstanceOf(HealthcheckCoreContract::class, $this->makeService());
     }
 
     #[Test]
@@ -40,7 +36,9 @@ class HealthcheckCore_GetHealthiness_Test extends TestCase
     {
         // Arrange
         $mockVersion = $this->faker->word;
-        /** @var VersionFetcher */
+
+
+        // Assert
         $mockVersionFetcher = $this->mock(
             VersionFetcher::class,
             function (MockInterface $mock) use ($mockVersion) {
@@ -48,9 +46,9 @@ class HealthcheckCore_GetHealthiness_Test extends TestCase
                     ->andReturn($mockVersion);
             }
         );
+        assert($mockVersionFetcher instanceof VersionFetcher);
 
         $mockedMysqlStatus = new HealthcheckStatus('mysql', null);
-        /** @var HealthcheckerMysqlContract */
         $mockHealthcheckerMysql = $this->mock(
             HealthcheckerMysqlContract::class,
             function (MockInterface $mock) use ($mockedMysqlStatus) {
@@ -58,12 +56,14 @@ class HealthcheckCore_GetHealthiness_Test extends TestCase
                     ->andReturn($mockedMysqlStatus);
             }
         );
-
-        $service = $this->makeService($mockVersionFetcher, $mockHealthcheckerMysql);
+        assert($mockHealthcheckerMysql instanceof HealthcheckerMysqlContract);
 
 
         // Act
-        $result = $service->getHealthiness($this->mockInput);
+        $result = $this->makeService(
+            $mockVersionFetcher,
+            $mockHealthcheckerMysql,
+        )->getHealthiness($this->mockInput);
 
 
         // Assert

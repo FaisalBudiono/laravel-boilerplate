@@ -18,8 +18,6 @@ class CacherLaravel_SetChildID_Test extends CacherLaravelBaseTestCase
         $mockedID = $this->faker->uuid();
         $mockedChildID = $this->faker->uuid();
 
-        $service = $this->makeService();
-
 
         // Assert
         Cache::shouldReceive('has')
@@ -35,7 +33,7 @@ class CacherLaravel_SetChildID_Test extends CacherLaravelBaseTestCase
 
 
         // Act
-        $service->setChildID($mockedID, $mockedChildID);
+        $this->makeService()->setChildID($mockedID, $mockedChildID);
     }
 
     #[Test]
@@ -44,8 +42,6 @@ class CacherLaravel_SetChildID_Test extends CacherLaravelBaseTestCase
         // Arrange
         $mockedID = $this->faker->uuid();
         $mockedChildID = $this->faker->uuid();
-
-        $service = $this->makeService();
 
 
         // Assert
@@ -67,7 +63,7 @@ class CacherLaravel_SetChildID_Test extends CacherLaravelBaseTestCase
 
 
         // Act
-        $service->setChildID($mockedID, $mockedChildID);
+        $this->makeService()->setChildID($mockedID, $mockedChildID);
     }
 
     #[Test]
@@ -77,8 +73,6 @@ class CacherLaravel_SetChildID_Test extends CacherLaravelBaseTestCase
         $mockedID = $this->faker->uuid();
         $mockedChildID = $this->faker->uuid();
         $mockedExpiredAt = Carbon::parse($this->faker->dateTime);
-
-        $service = $this->makeService();
 
 
         // Assert
@@ -115,6 +109,6 @@ class CacherLaravel_SetChildID_Test extends CacherLaravelBaseTestCase
 
 
         // Act
-        $service->setChildID($mockedID, $mockedChildID);
+        $this->makeService()->setChildID($mockedID, $mockedChildID);
     }
 }

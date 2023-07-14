@@ -18,8 +18,6 @@ class CacherLaravel_Invalidate_Test extends CacherLaravelBaseTestCase
         // Arrange
         $mockedID = $this->faker->uuid();
 
-        $service = $this->makeService();
-
 
         // Assert
         Cache::shouldReceive('has')
@@ -35,7 +33,7 @@ class CacherLaravel_Invalidate_Test extends CacherLaravelBaseTestCase
 
 
         // Act
-        $service->invalidate($mockedID);
+        $this->makeService()->invalidate($mockedID);
     }
 
     #[Test]
@@ -43,8 +41,6 @@ class CacherLaravel_Invalidate_Test extends CacherLaravelBaseTestCase
     {
         // Arrange
         $mockedID = $this->faker->uuid();
-
-        $service = $this->makeService();
 
 
         // Assert
@@ -66,7 +62,7 @@ class CacherLaravel_Invalidate_Test extends CacherLaravelBaseTestCase
 
 
         // Act
-        $service->invalidate($mockedID);
+        $this->makeService()->invalidate($mockedID);
     }
 
     #[Test]
@@ -75,8 +71,6 @@ class CacherLaravel_Invalidate_Test extends CacherLaravelBaseTestCase
     {
         // Arrange
         $mockedID = $this->faker->uuid();
-
-        $service = $this->makeService();
 
 
         // Assert
@@ -113,7 +107,7 @@ class CacherLaravel_Invalidate_Test extends CacherLaravelBaseTestCase
 
 
         // Act
-        $service->invalidate($mockedID);
+        $this->makeService()->invalidate($mockedID);
     }
 
     public static function expiredAtValueDataProvider(): array

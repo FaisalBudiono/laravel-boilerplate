@@ -21,6 +21,8 @@ class RefreshTokenManager_Refresh_Test extends RefreshTokenManagerBaseTestCase
         // Arrange
         $mockedTokenID = $this->faker->uuid();
 
+
+        // Assert
         $mockCacher = $this->mock(
             Cacher::class,
             function (MockInterface $mock) use (
@@ -39,8 +41,6 @@ class RefreshTokenManager_Refresh_Test extends RefreshTokenManagerBaseTestCase
         );
         assert($mockCacher instanceof Cacher);
 
-        $service = $this->makeService(null, $mockCacher);
-
 
         // Assert
         $expectedException =  new InvalidTokenException(new ExceptionMessageStandard(
@@ -51,7 +51,7 @@ class RefreshTokenManager_Refresh_Test extends RefreshTokenManagerBaseTestCase
 
 
         // Act
-        $service->refresh($mockedTokenID);
+        $this->makeService(null, $mockCacher)->refresh($mockedTokenID);
     }
 
     #[Test]
@@ -69,6 +69,9 @@ class RefreshTokenManager_Refresh_Test extends RefreshTokenManagerBaseTestCase
             ),
             now()->subYear(),
         );
+
+
+        // Assert
         $mockCacher = $this->mock(
             Cacher::class,
             function (MockInterface $mock) use ($mockedToken, $mockedTokenID) {
@@ -85,8 +88,6 @@ class RefreshTokenManager_Refresh_Test extends RefreshTokenManagerBaseTestCase
         );
         assert($mockCacher instanceof Cacher);
 
-        $service = $this->makeService(null, $mockCacher);
-
 
         // Assert
         $expectedException = new InvalidTokenException(new ExceptionMessageStandard(
@@ -97,7 +98,7 @@ class RefreshTokenManager_Refresh_Test extends RefreshTokenManagerBaseTestCase
 
 
         // Act
-        $service->refresh($mockedTokenID);
+        $this->makeService(null, $mockCacher)->refresh($mockedTokenID);
     }
 
     #[Test]
@@ -115,6 +116,9 @@ class RefreshTokenManager_Refresh_Test extends RefreshTokenManagerBaseTestCase
             ),
             now()->addYear(),
         );
+
+
+        // Assert
         $mockMapper = $this->mock(
             UserTokenMapperContract::class,
             function (MockInterface $mock) use ($mockedRefreshToken) {
@@ -169,11 +173,12 @@ class RefreshTokenManager_Refresh_Test extends RefreshTokenManagerBaseTestCase
         );
         assert($mockCacher instanceof Cacher);
 
-        $service = $this->makeService($mockMapper, $mockCacher);
-
 
         // Act
-        $result = $service->refresh($mockedTokenID);
+        $result = $this->makeService(
+            $mockMapper,
+            $mockCacher,
+        )->refresh($mockedTokenID);
 
 
         // Assert

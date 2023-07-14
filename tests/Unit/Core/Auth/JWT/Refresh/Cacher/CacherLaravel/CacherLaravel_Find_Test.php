@@ -20,8 +20,6 @@ class CacherLaravel_Find_Test extends CacherLaravelBaseTestCase
         // Arrange
         $mockedID = $this->faker->uuid();
 
-        $service = $this->makeService();
-
 
         // Assert
         Cache::shouldReceive('has')
@@ -37,7 +35,7 @@ class CacherLaravel_Find_Test extends CacherLaravelBaseTestCase
 
 
         // Act
-        $service->find($mockedID);
+        $this->makeService()->find($mockedID);
     }
 
     #[Test]
@@ -52,8 +50,6 @@ class CacherLaravel_Find_Test extends CacherLaravelBaseTestCase
             Carbon::parse(intval($mockedExpiredAtUnix)),
             $this->faker->uuid,
         );
-
-        $service = $this->makeService();
 
 
         // Assert
@@ -75,7 +71,7 @@ class CacherLaravel_Find_Test extends CacherLaravelBaseTestCase
 
 
         // Act
-        $result = $service->find($mockedID);
+        $result = $this->makeService()->find($mockedID);
 
 
         // Assert
@@ -104,8 +100,6 @@ class CacherLaravel_Find_Test extends CacherLaravelBaseTestCase
             Carbon::parse($this->faker->dateTime),
         );
 
-        $service = $this->makeService();
-
 
         // Assert
         Cache::shouldReceive('has')
@@ -126,7 +120,7 @@ class CacherLaravel_Find_Test extends CacherLaravelBaseTestCase
 
 
         // Act
-        $result = $service->find($mockedID);
+        $result = $this->makeService()->find($mockedID);
 
 
         // Assert
@@ -144,8 +138,6 @@ class CacherLaravel_Find_Test extends CacherLaravelBaseTestCase
             new RefreshTokenClaimsUser('', ''),
             Carbon::parse($this->faker->dateTime),
         );
-
-        $service = $this->makeService();
 
 
         // Assert
@@ -169,7 +161,7 @@ class CacherLaravel_Find_Test extends CacherLaravelBaseTestCase
 
 
         // Act
-        $result = $service->find($mockedID);
+        $result = $this->makeService()->find($mockedID);
 
 
         // Assert

@@ -53,12 +53,12 @@ class JWTSignerLcobucciTest extends TestCase
         $parser = new Parser(new JoseEncoder);
         $validator = new Validator;
 
-        $service = $this->makeService();
-
 
         // Act
-        $result = $service->sign($mockedClaim);
+        $result = $this->makeService()->sign($mockedClaim);
 
+
+        // Assert
         $token  = $parser->parse($result);
         assert($token instanceof UnencryptedToken);
 
@@ -99,8 +99,6 @@ class JWTSignerLcobucciTest extends TestCase
         $invalidToken = $this->makeBuilder()
             ->getToken($this->makeSigner(), InMemory::plainText($invalidPrivateKey));
 
-        $service = $this->makeService();
-
 
         // Pre-Assert
         $expectedException = new InvalidSignatureException(new ExceptionMessageStandard(
@@ -111,7 +109,7 @@ class JWTSignerLcobucciTest extends TestCase
 
 
         // Act
-        $service->validate($invalidToken->toString());
+        $this->makeService()->validate($invalidToken->toString());
     }
 
     #[Test]
@@ -128,8 +126,6 @@ class JWTSignerLcobucciTest extends TestCase
             ->expiresAt($mockedExpiredAt->toImmutable())
             ->getToken($this->makeSigner(), InMemory::plainText($this->getPrivateKey()));
 
-        $service = $this->makeService();
-
 
         // Pre-Assert
         $expectedException = new InvalidTimeRelatedClaimException(new ExceptionMessageStandard(
@@ -140,7 +136,7 @@ class JWTSignerLcobucciTest extends TestCase
 
 
         // Act
-        $service->validate($invalidToken->toString());
+        $this->makeService()->validate($invalidToken->toString());
     }
 
     public static function invalidTimeClaimDataProvider(): array
@@ -174,15 +170,13 @@ class JWTSignerLcobucciTest extends TestCase
             ->expiresAt(now()->addYear()->toImmutable())
             ->getToken($this->makeSigner(), InMemory::plainText($this->getPrivateKey()));
 
-        $service = $this->makeService();
-
 
         // Pre-Assert
         $this->expectNotToPerformAssertions();
 
 
         // Act
-        $service->validate($validToken->toString());
+        $this->makeService()->validate($validToken->toString());
     }
 
     protected function getPrivateKey(): string

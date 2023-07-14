@@ -67,7 +67,7 @@ class GetUserTest extends BaseFeatureTestCase
         // Arrange
         $exceptionMessage = new ExceptionMessageGeneric;
 
-        $mockException = new Exception('generic error');
+        $mockException = new Exception($this->faker->sentence());
 
         $mockCore = $this->mock(
             UserCoreContract::class,
@@ -170,10 +170,11 @@ class GetUserTest extends BaseFeatureTestCase
     #[Test]
     public function should_show_200_when_successfully_get_user_instance()
     {
-        // Assert
-        /** @var User */
-        $mockedUser = User::factory()->create();
+        // Arrange
+        $mockedUser = User::factory()->create()->fresh();
 
+
+        // Assert
         $mockCore = $this->mock(
             UserCoreContract::class,
             function (MockInterface $mock) use ($mockedUser) {

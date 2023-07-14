@@ -24,6 +24,7 @@ class UserCore_GetAll_Test extends TestCase
     protected UserCore $core;
 
     protected GetAllUserPort $mockRequest;
+
     /** @var (\Mockery\ExpectationInterface|\Mockery\Expectation|\Mockery\HigherOrderMessage)[] */
     protected $mockedRequestMethods;
 
@@ -52,9 +53,11 @@ class UserCore_GetAll_Test extends TestCase
     #[Test]
     public function should_return_30_latest_data_when_called_with_no_parameter()
     {
-        // Assert
+        // Arrange
         $this->makeMockUsers(35);
 
+
+        // Assert
         $this->mockedRequestMethods['getPerPage']
             ->once()
             ->withNoArgs()
@@ -85,10 +88,13 @@ class UserCore_GetAll_Test extends TestCase
     #[Test]
     public function should_return_data_with_requested_per_page()
     {
-        // Assert
+        // Arrange
         $this->makeMockUsers(12);
 
         $perPage = 10;
+
+
+        // Assert
         $this->mockedRequestMethods['getPerPage']
             ->once()
             ->withNoArgs()
@@ -119,11 +125,14 @@ class UserCore_GetAll_Test extends TestCase
     #[Test]
     public function should_return_data_with_requested_page()
     {
-        // Assert
+        // Arrange
         $this->makeMockUsers(65);
 
         $defaultPerPage = 30;
         $page = 3;
+
+
+        // Assert
         $this->mockedRequestMethods['getPage']
             ->once()
             ->withNoArgs()
@@ -157,11 +166,13 @@ class UserCore_GetAll_Test extends TestCase
     public function should_return_data_with_requested_order_direction(
         OrderDirection $orderDirection
     ) {
-        // Assert
+        // Arrange
         $this->makeMockUsers(30);
 
         $defaultPerPage = 30;
 
+
+        // Assert
         $this->mockedRequestMethods['getOrderDirection']
             ->once()
             ->withNoArgs()
@@ -195,11 +206,13 @@ class UserCore_GetAll_Test extends TestCase
     public function should_return_data_with_requested_order_by(
         UserOrderBy $orderBy
     ) {
-        // Assert
+        // Arrange
         $this->makeMockUsers(30);
 
         $defaultPerPage = 30;
 
+
+        // Assert
         $this->mockedRequestMethods['getOrderBy']
             ->once()
             ->withNoArgs()

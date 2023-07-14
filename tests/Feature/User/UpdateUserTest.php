@@ -181,11 +181,12 @@ class UpdateUserTest extends BaseFeatureTestCase
     #[Test]
     public function should_show_409_when_thrown_duplicated_email_exception()
     {
-        // Assert
+        // Arrange
         $input = $this->validRequestInput();
 
+
+        // Assert
         $mockedExceptionResponse = collect(['foo' => 'bar']);
-        /** @var ExceptionMessage */
         $mockExceptionMessage = $this->mock(
             ExceptionMessage::class,
             function (MockInterface $mock) use ($mockedExceptionResponse) {
@@ -194,6 +195,8 @@ class UpdateUserTest extends BaseFeatureTestCase
                 $mock->shouldReceive('getMessage');
             }
         );
+        assert($mockExceptionMessage instanceof ExceptionMessage);
+
         $mockException = new UserEmailDuplicatedException($mockExceptionMessage);
 
         $mockCore = $this->mock(
@@ -298,11 +301,13 @@ class UpdateUserTest extends BaseFeatureTestCase
     #[Test]
     public function should_show_500_when_generic_error_is_thrown()
     {
-        // Assert
+        // Arrange
         $input = $this->validRequestInput();
-        $exceptionMessage = new ExceptionMessageGeneric;
 
-        $mockException = new Exception('generic error');
+
+        // Assert
+        $exceptionMessage = new ExceptionMessageGeneric;
+        $mockException = new Exception($this->faker->sentence);
 
         $mockCore = $this->mock(
             UserCoreContract::class,
@@ -409,11 +414,12 @@ class UpdateUserTest extends BaseFeatureTestCase
     #[Test]
     public function should_show_200_when_successfully_update_user()
     {
-        // Assert
+        // Arrange
         $input = $this->validRequestInput();
-        /** @var User */
         $mockedUser = User::factory()->create();
 
+
+        // Assert
         $mockCore = $this->mock(
             UserCoreContract::class,
             function (MockInterface $mock) use ($input, $mockedUser) {

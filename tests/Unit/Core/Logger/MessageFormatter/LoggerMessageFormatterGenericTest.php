@@ -33,8 +33,10 @@ class LoggerMessageFormatterGenericTest extends TestCase
         // Arrange
         $endpoint = $this->faker()->sentence;
         $requestId = $this->faker()->uuid;
-        /** @var ProcessingStatus */
+
         $processingStatus = $this->faker()->randomElement(ProcessingStatus::cases());
+        assert($processingStatus instanceof ProcessingStatus);
+
         $message = $this->faker()->sentence;
         $meta = $this->faker()->sentences();
 

@@ -25,6 +25,9 @@ class RefreshTokenManager_Create_Test extends RefreshTokenManagerBaseTestCase
             Carbon::parse($this->faker->dateTime),
             null,
         );
+
+
+        // Assert
         $mockUserTokenMapper = $this->mock(
             UserTokenMapperContract::class,
             function (MockInterface $mock) use ($mockUser, $mockedRefreshTokenClaims) {
@@ -50,11 +53,12 @@ class RefreshTokenManager_Create_Test extends RefreshTokenManagerBaseTestCase
         );
         assert($mockCacher instanceof Cacher);
 
-        $service = $this->makeService($mockUserTokenMapper, $mockCacher);
-
 
         // Act
-        $result = $service->create($mockUser);
+        $result = $this->makeService(
+            $mockUserTokenMapper,
+            $mockCacher,
+        )->create($mockUser);
 
 
         // Assert

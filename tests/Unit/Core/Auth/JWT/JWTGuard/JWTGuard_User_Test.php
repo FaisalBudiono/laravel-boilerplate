@@ -40,11 +40,9 @@ class JWTGuard_User_Test extends JWTGuardBaseTestCase
         $mockRequest = new Request();
         $mockRequest->headers->set('Authorization', $mockedToken);
 
-        $service = $this->makeService($mockRequest);
-
 
         // Act
-        $result = $service->user();
+        $result = $this->makeService($mockRequest)->user();
 
 
         // Assert
@@ -62,7 +60,8 @@ class JWTGuard_User_Test extends JWTGuardBaseTestCase
 
         $mockedException = new Exception($this->faker->sentence);
 
-        /** @var JWTSigner */
+
+        // Assert
         $mockJWTSigner = $this->mock(
             JWTSigner::class,
             function (MockInterface $mock) use ($mockedException, $mockedToken) {
@@ -72,12 +71,11 @@ class JWTGuard_User_Test extends JWTGuardBaseTestCase
                     ->andThrow($mockedException);
             }
         );
-
-        $service = $this->makeService($mockRequest, null, $mockJWTSigner);
+        assert($mockJWTSigner instanceof JWTSigner);
 
 
         // Act
-        $result = $service->user();
+        $result = $this->makeService($mockRequest, null, $mockJWTSigner)->user();
 
 
         // Assert
@@ -95,8 +93,9 @@ class JWTGuard_User_Test extends JWTGuardBaseTestCase
         $mockRequest = new Request();
         $mockRequest->headers->set('Authorization', 'bearer ' . $mockedToken);
 
-        /** @var JWTParser */
-        $mockJwtParser = $this->mock(
+
+        // Assert
+        $mockJWTParser = $this->mock(
             JWTParser::class,
             function (MockInterface $mock) use ($mockedToken, $mockedUser) {
                 $mock->shouldReceive('parse')
@@ -111,8 +110,8 @@ class JWTGuard_User_Test extends JWTGuardBaseTestCase
                     ));
             }
         );
+        assert($mockJWTParser instanceof JWTParser);
 
-        /** @var JWTSigner */
         $mockJWTSigner = $this->mock(
             JWTSigner::class,
             function (MockInterface $mock) {
@@ -121,12 +120,15 @@ class JWTGuard_User_Test extends JWTGuardBaseTestCase
                     ->andReturnNull();
             }
         );
-
-        $service = $this->makeService($mockRequest, $mockJwtParser, $mockJWTSigner);
+        assert($mockJWTSigner instanceof JWTSigner);
 
 
         // Act
-        $result = $service->user();
+        $result = $this->makeService(
+            $mockRequest,
+            $mockJWTParser,
+            $mockJWTSigner,
+        )->user();
 
 
         // Assert
@@ -144,8 +146,9 @@ class JWTGuard_User_Test extends JWTGuardBaseTestCase
         $mockRequest = new Request();
         $mockRequest->headers->set('Authorization', 'bearer ' . $mockedToken);
 
-        /** @var JWTParser */
-        $mockJwtParser = $this->mock(
+
+        // Assert
+        $mockJWTParser = $this->mock(
             JWTParser::class,
             function (MockInterface $mock) use ($mockedToken, $mockedUser) {
                 $mock->shouldReceive('parse')
@@ -160,8 +163,8 @@ class JWTGuard_User_Test extends JWTGuardBaseTestCase
                     ));
             }
         );
+        assert($mockJWTParser instanceof JWTParser);
 
-        /** @var JWTSigner */
         $mockJWTSigner = $this->mock(
             JWTSigner::class,
             function (MockInterface $mock) {
@@ -170,11 +173,12 @@ class JWTGuard_User_Test extends JWTGuardBaseTestCase
                     ->andReturnNull();
             }
         );
-
-        $service = $this->makeService($mockRequest, $mockJwtParser, $mockJWTSigner);
+        assert($mockJWTSigner instanceof JWTSigner);
 
 
         // Act
+        $service = $this->makeService($mockRequest, $mockJWTParser, $mockJWTSigner);
+
         $service->user();
         $result = $service->user();
 

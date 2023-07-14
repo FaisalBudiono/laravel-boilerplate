@@ -38,7 +38,7 @@ class HealthcheckTest extends BaseFeatureTestCase
     public function should_show_500_when_generic_error_is_thrown()
     {
         // Assert
-        $mockException = new Exception('generic error');
+        $mockException = new Exception($this->faker->sentence);
         $mockCore = $this->mock(
             HealthcheckCoreContract::class,
             function (MockInterface $mock)  use ($mockException) {

@@ -112,7 +112,6 @@ class DeleteUserTest extends BaseFeatureTestCase
                         )
                     );
 
-
                 $mock->shouldReceive('makeGeneric')
                     ->once()
                     ->withArgs(fn (

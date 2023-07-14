@@ -147,8 +147,9 @@ class GetAllUserTest extends BaseFeatureTestCase
         $input = $this->validRequestInput();
         $exceptionMessage = new ExceptionMessageGeneric;
 
-        $mockException = new Exception('generic error');
+        $mockException = new Exception($this->faker->sentence);
 
+        // Assert
         $mockCore = $this->mock(
             UserCoreContract::class,
             function (MockInterface $mock) use ($input, $mockException) {

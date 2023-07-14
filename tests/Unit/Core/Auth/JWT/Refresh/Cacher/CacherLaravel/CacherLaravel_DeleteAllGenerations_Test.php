@@ -15,8 +15,6 @@ class CacherLaravel_DeleteAllGenerations_Test extends CacherLaravelBaseTestCase
         // Arrange
         $mockToken1 = $this->faker->uuid();
 
-        $service = $this->makeService();
-
 
         // Assert
         Cache::shouldReceive('get')
@@ -42,17 +40,13 @@ class CacherLaravel_DeleteAllGenerations_Test extends CacherLaravelBaseTestCase
 
 
         // Act
-        $service->deleteAllGenerations($mockToken1);
+        $this->makeService()->deleteAllGenerations($mockToken1);
     }
 
     #[Test]
     #[DataProvider('tokenGenerationDataProvider')]
     public function should_delete_token_with_some_children(Collection $mockTokenIDs)
     {
-        // Arrange
-        $service = $this->makeService();
-
-
         // Assert
         $mockTokenIDs->each(function (string $tokenID, int $index) use ($mockTokenIDs) {
             $nextChildTokenID = $mockTokenIDs[$index + 1] ?? null;
@@ -80,7 +74,7 @@ class CacherLaravel_DeleteAllGenerations_Test extends CacherLaravelBaseTestCase
 
 
         // Act
-        $service->deleteAllGenerations($mockTokenIDs[0]);
+        $this->makeService()->deleteAllGenerations($mockTokenIDs[0]);
     }
 
     public static function tokenGenerationDataProvider(): array
