@@ -67,6 +67,20 @@ class User extends Authenticatable
         return $user;
     }
 
+    public static function findByEmailOrFail(string $email): self
+    {
+        $user = self::query()->where('email', $email)->first();
+
+        if (is_null($user)) {
+            throw new ModelNotFoundException(new ExceptionMessageStandard(
+                'User email is not found',
+                ExceptionErrorCode::MODEL_NOT_FOUND->value,
+            ));
+        }
+
+        return $user;
+    }
+
     protected static function newFactory()
     {
         return UserFactory::new();
