@@ -2,6 +2,8 @@
 
 namespace App\Providers\CoreBinder;
 
+use App\Core\Auth\AuthJWTCore;
+use App\Core\Auth\AuthJWTCoreContract;
 use App\Core\Auth\JWT\JWTGuard;
 use App\Core\Auth\JWT\JWTGuardContract;
 use App\Core\Auth\JWT\Mapper\JWTMapper;
@@ -23,6 +25,14 @@ class CoreBinderAuth implements CoreBinder
 {
     public function bootCore(Application $app): void
     {
+        $app->bind(AuthJWTCoreContract::class, function (Application $app) {
+            return new AuthJWTCore(
+                $app->make(JWTMapperContract::class),
+                $app->make(JWTSigner::class),
+                $app->make(RefreshTokenManagerContract::class),
+            );
+        });
+
         $app->bind(JWTGuardContract::class, function (Application $app) {
             return new JWTGuard(
                 $app->make(Request::class),

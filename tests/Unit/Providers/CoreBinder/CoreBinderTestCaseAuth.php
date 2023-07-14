@@ -2,6 +2,8 @@
 
 namespace Tests\Unit\Providers\CoreBinder;
 
+use App\Core\Auth\AuthJWTCore;
+use App\Core\Auth\AuthJWTCoreContract;
 use App\Core\Auth\JWT\JWTGuard;
 use App\Core\Auth\JWT\JWTGuardContract;
 use App\Core\Auth\JWT\Mapper\JWTMapper;
@@ -25,6 +27,15 @@ class CoreBinderTestCaseAuth extends CoreBinderTestCaseAbstract
     protected function abstractWithImplementationList(): array
     {
         return [
+            AuthJWTCoreContract::class => [
+                AuthJWTCore::class,
+                [
+                    new DependencyFactoryMockery($this->test, JWTMapperContract::class),
+                    new DependencyFactoryMockery($this->test, JWTSigner::class),
+                    new DependencyFactoryMockery($this->test, RefreshTokenManagerContract::class),
+                ],
+            ],
+
             JWTGuardContract::class => [
                 JWTGuard::class,
                 [
