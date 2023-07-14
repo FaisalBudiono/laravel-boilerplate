@@ -40,9 +40,9 @@ class CoreServiceProviderTest extends TestCase
     {
         // Arrange
         $coreAssertionClassNames = [
+            \Tests\Unit\Providers\CoreBinder\CoreBinderTestCaseAuth::class,
             \Tests\Unit\Providers\CoreBinder\CoreBinderTestCaseFormatter::class,
             \Tests\Unit\Providers\CoreBinder\CoreBinderTestCaseHealthcheck::class,
-            \Tests\Unit\Providers\CoreBinder\CoreBinderTestCaseJWT::class,
             \Tests\Unit\Providers\CoreBinder\CoreBinderTestCaseLogger::class,
             \Tests\Unit\Providers\CoreBinder\CoreBinderTestCaseUser::class,
         ];

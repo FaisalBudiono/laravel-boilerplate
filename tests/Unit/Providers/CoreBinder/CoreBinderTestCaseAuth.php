@@ -20,7 +20,7 @@ use Illuminate\Http\Request;
 use Tests\Unit\Providers\CoreBinder\Dependencies\DependencyFactoryMockery;
 use Tests\Unit\Providers\CoreBinder\Dependencies\DependencyFactoryRaw;
 
-class CoreBinderTestCaseJWT extends CoreBinderTestCaseAbstract
+class CoreBinderTestCaseAuth extends CoreBinderTestCaseAbstract
 {
     protected function abstractWithImplementationList(): array
     {

@@ -19,7 +19,7 @@ use App\Core\Auth\JWT\Signer\JWTSignerLcobucci;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\Request;
 
-class CoreBinderJWT implements CoreBinder
+class CoreBinderAuth implements CoreBinder
 {
     public function bootCore(Application $app): void
     {
