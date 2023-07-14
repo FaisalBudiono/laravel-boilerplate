@@ -11,6 +11,7 @@ use App\Exceptions\Core\Auth\InvalidCredentialException;
 use App\Exceptions\Models\ModelNotFoundException;
 use App\Models\User\Enum\UserExceptionCode;
 use App\Models\User\User;
+use App\Port\Core\Auth\GetRefreshTokenPort;
 use App\Port\Core\Auth\LoginPort;
 use App\Port\Core\Auth\LogoutPort;
 use Exception;
@@ -52,6 +53,16 @@ class AuthJWTCore implements AuthJWTCoreContract
         $this->refreshTokenManager->invalidate($request->getRefreshToken());
     }
 
+    public function refresh(GetRefreshTokenPort $request): TokenPair
+    {
+        $refreshTokenClaims = $this->refreshTokenManager->refresh($request->getRefreshToken());
+
+        $user = User::findByIDOrFail($refreshTokenClaims->user->id);
+
+        return new TokenPair(
+            $this->jwtSigner->sign($this->jwtMapper->map($user)),
+            $refreshTokenClaims->id,
+        );
     }
 
     protected function throwInvalidCredential(): never
