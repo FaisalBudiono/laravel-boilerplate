@@ -4,8 +4,6 @@ namespace App\Http\Controllers\User;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
 use App\Core\Logger\Message\LoggerMessageFactoryContract;
-use App\Core\Logger\MessageFormatter\LoggerMessageFormatterFactoryContract;
-use App\Core\Logger\MessageFormatter\ProcessingStatus;
 use App\Core\User\UserCoreContract;
 use App\Exceptions\Core\User\UserEmailDuplicatedException;
 use App\Exceptions\Http\ConflictException;
@@ -25,8 +23,7 @@ class UserController extends Controller
 {
     public function __construct(
         protected UserCoreContract $core,
-        protected LoggerMessageFormatterFactoryContract $loggerFormatter,
-        protected LoggerMessageFactoryContract $loggerMessage,
+        protected LoggerMessageFactoryContract $logFormatter,
     ) {
     }
 
@@ -34,7 +31,7 @@ class UserController extends Controller
     {
         try {
             Log::info(
-                $this->loggerMessage->makeHTTPStart(
+                $this->logFormatter->makeHTTPStart(
                     'Delete user endpoint',
                     [],
                 ),
@@ -43,13 +40,13 @@ class UserController extends Controller
             $this->core->delete($request);
 
             Log::info(
-                $this->loggerMessage->makeHTTPSuccess('Delete user endpoint'),
+                $this->logFormatter->makeHTTPSuccess('Delete user endpoint'),
             );
 
             return response()->json([], Response::HTTP_NO_CONTENT);
         } catch (Exception $e) {
             Log::error(
-                $this->loggerMessage->makeHTTPError($e)
+                $this->logFormatter->makeHTTPError($e)
             );
             throw new InternalServerErrorException(new ExceptionMessageGeneric);
         }
@@ -59,7 +56,7 @@ class UserController extends Controller
     {
         try {
             Log::info(
-                $this->loggerMessage->makeHTTPStart(
+                $this->logFormatter->makeHTTPStart(
                     'Get all user endpoint',
                     $request->toArray(),
                 )
@@ -67,11 +64,11 @@ class UserController extends Controller
 
             $users = $this->core->getAll($request);
 
-            Log::info($this->loggerMessage->makeHTTPSuccess('Get all user endpoint'));
+            Log::info($this->logFormatter->makeHTTPSuccess('Get all user endpoint'));
 
             return UserResource::collection($users);
         } catch (Exception $e) {
-            Log::error($this->loggerMessage->makeHTTPError($e));
+            Log::error($this->logFormatter->makeHTTPError($e));
             throw new InternalServerErrorException(new ExceptionMessageGeneric);
         }
     }
@@ -80,7 +77,7 @@ class UserController extends Controller
     {
         try {
             Log::info(
-                $this->loggerMessage->makeHTTPStart(
+                $this->logFormatter->makeHTTPStart(
                     'Show user endpoint',
                     $request->toArray()
                 ),
@@ -88,13 +85,13 @@ class UserController extends Controller
 
             $user = $this->core->get($request);
 
-            Log::info($this->loggerMessage->makeHTTPSuccess('Show user endpoint'));
+            Log::info($this->logFormatter->makeHTTPSuccess('Show user endpoint'));
 
             return UserResource::make($user)
                 ->response()
                 ->setStatusCode(Response::HTTP_OK);
         } catch (Exception $e) {
-            Log::error($this->loggerMessage->makeHTTPError($e));
+            Log::error($this->logFormatter->makeHTTPError($e));
             throw new InternalServerErrorException(new ExceptionMessageGeneric);
         }
     }
@@ -103,7 +100,7 @@ class UserController extends Controller
     {
         try {
             Log::info(
-                $this->loggerMessage->makeHTTPStart(
+                $this->logFormatter->makeHTTPStart(
                     'Create user endpoint',
                     $request->toArray(),
                 ),
@@ -111,16 +108,16 @@ class UserController extends Controller
 
             $user = $this->core->create($request);
 
-            Log::info($this->loggerMessage->makeHTTPSuccess('Create user endpoint'));
+            Log::info($this->logFormatter->makeHTTPSuccess('Create user endpoint'));
 
             return UserResource::make($user)
                 ->response()
                 ->setStatusCode(Response::HTTP_CREATED);
         } catch (UserEmailDuplicatedException $e) {
-            Log::warning($this->loggerMessage->makeHTTPError($e));
+            Log::warning($this->logFormatter->makeHTTPError($e));
             throw new ConflictException($e->exceptionMessage);
         } catch (Exception $e) {
-            Log::error($this->loggerMessage->makeHTTPError($e));
+            Log::error($this->logFormatter->makeHTTPError($e));
             throw new InternalServerErrorException(new ExceptionMessageGeneric);
         }
     }
@@ -129,55 +126,22 @@ class UserController extends Controller
     {
         try {
             Log::info(
-                $this->loggerFormatter->makeGeneric(
-                    $request->getEndpointInfo(),
-                    $request->getXRequestID(),
-                    ProcessingStatus::BEGIN,
+                $this->logFormatter->makeHTTPStart(
                     'Update user endpoint',
-                    [
-                        'input' => $request->toArray(),
-                    ],
-                )->getMessage()
+                    $request->toArray(),
+                )
             );
 
             $user = $this->core->update($request);
 
-            Log::info(
-                $this->loggerFormatter->makeGeneric(
-                    $request->getEndpointInfo(),
-                    $request->getXRequestID(),
-                    ProcessingStatus::SUCCESS,
-                    'Update user endpoint',
-                    [],
-                )->getMessage()
-            );
+            Log::info($this->logFormatter->makeHTTPSuccess('Update user endpoint'));
 
             return UserResource::make($user);
         } catch (UserEmailDuplicatedException $e) {
-            Log::error(
-                $this->loggerFormatter->makeGeneric(
-                    $request->getEndpointInfo(),
-                    $request->getXRequestID(),
-                    ProcessingStatus::ERROR,
-                    $e->getMessage(),
-                    [
-                        'trace' => $e->getTrace(),
-                    ],
-                )->getMessage()
-            );
+            Log::warning($this->logFormatter->makeHTTPError($e));
             throw new ConflictException($e->exceptionMessage);
         } catch (Exception $e) {
-            Log::error(
-                $this->loggerFormatter->makeGeneric(
-                    $request->getEndpointInfo(),
-                    $request->getXRequestID(),
-                    ProcessingStatus::ERROR,
-                    $e->getMessage(),
-                    [
-                        'trace' => $e->getTrace(),
-                    ],
-                )->getMessage()
-            );
+            Log::error($this->logFormatter->makeHTTPError($e));
             throw new InternalServerErrorException(new ExceptionMessageGeneric);
         }
     }
