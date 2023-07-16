@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
+use App\Core\Logger\Message\LoggerMessageFactoryContract;
 use App\Core\Logger\MessageFormatter\LoggerMessageFormatterFactoryContract;
 use App\Core\Logger\MessageFormatter\ProcessingStatus;
 use App\Core\User\UserCoreContract;
@@ -25,6 +26,7 @@ class UserController extends Controller
     public function __construct(
         protected UserCoreContract $core,
         protected LoggerMessageFormatterFactoryContract $loggerFormatter,
+        protected LoggerMessageFactoryContract $loggerMessage,
     ) {
     }
 
@@ -32,41 +34,22 @@ class UserController extends Controller
     {
         try {
             Log::info(
-                $this->loggerFormatter->makeGeneric(
-                    $request->getEndpointInfo(),
-                    $request->getXRequestID(),
-                    ProcessingStatus::BEGIN,
+                $this->loggerMessage->makeHTTPStart(
                     'Delete user endpoint',
-                    [
-                        'input' => $request->toArray(),
-                    ],
-                )->getMessage()
+                    [],
+                ),
             );
 
             $this->core->delete($request);
 
             Log::info(
-                $this->loggerFormatter->makeGeneric(
-                    $request->getEndpointInfo(),
-                    $request->getXRequestID(),
-                    ProcessingStatus::SUCCESS,
-                    'Delete user endpoint',
-                    [],
-                )->getMessage()
+                $this->loggerMessage->makeHTTPSuccess('Delete user endpoint'),
             );
 
             return response()->json([], Response::HTTP_NO_CONTENT);
         } catch (Exception $e) {
             Log::error(
-                $this->loggerFormatter->makeGeneric(
-                    $request->getEndpointInfo(),
-                    $request->getXRequestID(),
-                    ProcessingStatus::ERROR,
-                    $e->getMessage(),
-                    [
-                        'trace' => $e->getTrace(),
-                    ],
-                )->getMessage()
+                $this->loggerMessage->makeHTTPError($e)
             );
             throw new InternalServerErrorException(new ExceptionMessageGeneric);
         }

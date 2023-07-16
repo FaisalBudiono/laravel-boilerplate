@@ -3,9 +3,7 @@
 namespace Tests\Feature\User;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
-use App\Core\Logger\MessageFormatter\LoggerMessageFormatter;
-use App\Core\Logger\MessageFormatter\LoggerMessageFormatterFactoryContract;
-use App\Core\Logger\MessageFormatter\ProcessingStatus;
+use App\Core\Logger\Message\LoggerMessageFactoryContract;
 use App\Core\User\UserCoreContract;
 use App\Models\User\User;
 use App\Port\Core\User\DeleteUserPort;
@@ -16,6 +14,7 @@ use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Feature\BaseFeatureTestCase;
+use Tests\Helper\MockInstance\MockerLoggerMessageFactory;
 
 class DeleteUserTest extends BaseFeatureTestCase
 {
@@ -33,8 +32,8 @@ class DeleteUserTest extends BaseFeatureTestCase
 
         $this->instance(UserCoreContract::class, $this->mock(UserCoreContract::class));
         $this->instance(
-            LoggerMessageFormatterFactoryContract::class,
-            $this->mock(LoggerMessageFormatterFactoryContract::class)
+            LoggerMessageFactoryContract::class,
+            $this->mock(LoggerMessageFactoryContract::class),
         );
         Log::partialMock();
     }
@@ -62,8 +61,12 @@ class DeleteUserTest extends BaseFeatureTestCase
         // Arrange
         $exceptionMessage = new ExceptionMessageGeneric;
 
+        $logInfoMessage = $this->faker->sentence;
+        $logErrorMessage = $this->faker->sentence;
         $mockException = new Exception('generic error');
 
+
+        // Assert
         $mockCore = $this->mock(
             UserCoreContract::class,
             function (MockInterface $mock) use ($mockException) {
@@ -77,77 +80,34 @@ class DeleteUserTest extends BaseFeatureTestCase
         );
         $this->instance(UserCoreContract::class, $mockCore);
 
-        $logInfoValue = $this->faker->sentence;
-        $logErrorValue = $this->faker->sentence;
-
-        $mockLoggerFormatterFactory = $this->mock(
-            LoggerMessageFormatterFactoryContract::class,
-            function (MockInterface $mock) use (
-                $logInfoValue,
-                $logErrorValue,
+        MockerLoggerMessageFactory::make($this)
+            ->setHTTPStart(
+                'Delete user endpoint',
+                [],
+                $logInfoMessage,
+            )->setHTTPError(
                 $mockException,
-            ) {
-                $mock->shouldReceive('makeGeneric')
-                    ->once()
-                    ->withArgs(fn (
-                        string $argEndpoint,
-                        string $argRequestID,
-                        ProcessingStatus $argProcessingStatus,
-                        string $argMessage,
-                        array $argMeta,
-                    ) => $this->validateLoggingBegin(
-                        $argEndpoint,
-                        $argRequestID,
-                        $argProcessingStatus,
-                        $argMessage,
-                        $argMeta,
-                        $this->getEndpointInfo($this->user->id),
-                        'Delete user endpoint',
-                        [],
-                    ))->andReturn(
-                        $this->mock(
-                            LoggerMessageFormatter::class,
-                            fn (MockInterface $mock) => $mock->shouldReceive('getMessage')
-                                ->once()->andReturn($logInfoValue)
-                        )
-                    );
-
-                $mock->shouldReceive('makeGeneric')
-                    ->once()
-                    ->withArgs(fn (
-                        string $argEndpoint,
-                        string $argRequestID,
-                        ProcessingStatus $argProcessingStatus,
-                        string $argMessage,
-                        array $argMeta,
-                    ) => $this->validateLoggingError(
-                        $argEndpoint,
-                        $argRequestID,
-                        $argProcessingStatus,
-                        $argMessage,
-                        $argMeta,
-                        $this->getEndpointInfo($this->user->id),
-                        $mockException,
-                    ))->andReturn(
-                        $this->mock(
-                            LoggerMessageFormatter::class,
-                            fn (MockInterface $mock) => $mock->shouldReceive('getMessage')
-                                ->once()->andReturn($logErrorValue)
-                        )
-                    );
-            }
-        );
-        $this->instance(
-            LoggerMessageFormatterFactoryContract::class,
-            $mockLoggerFormatterFactory
-        );
+                $logErrorMessage,
+            )->bindInstance();
 
         Log::shouldReceive('info')
-            ->with($logInfoValue)
-            ->once();
+            ->withArgs(function ($argLogMessage) use ($logInfoMessage) {
+                try {
+                    $this->assertEquals($logInfoMessage, $argLogMessage);
+                    return true;
+                } catch (Exception $e) {
+                    dd($e);
+                }
+            })->once();
         Log::shouldReceive('error')
-            ->with($logErrorValue)
-            ->once();
+            ->withArgs(function ($argLogMessage) use ($logErrorMessage) {
+                try {
+                    $this->assertEquals($logErrorMessage, $argLogMessage);
+                    return true;
+                } catch (Exception $e) {
+                    dd($e);
+                }
+            })->once();
 
 
         // Act
@@ -165,6 +125,11 @@ class DeleteUserTest extends BaseFeatureTestCase
     public function should_show_204_when_successfully_delete_user()
     {
         // Arrange
+        $logInfoMessage = $this->faker->sentence;
+        $logSuccessMessage = $this->faker->sentence;
+
+
+        // Assert
         $mockCore = $this->mock(
             UserCoreContract::class,
             function (MockInterface $mock) {
@@ -177,76 +142,35 @@ class DeleteUserTest extends BaseFeatureTestCase
         );
         $this->instance(UserCoreContract::class, $mockCore);
 
-        $logInfoValue = $this->faker->sentence;
-        $logSuccessValue = $this->faker->sentence;
-
-        $mockLoggerFormatterFactory = $this->mock(
-            LoggerMessageFormatterFactoryContract::class,
-            function (MockInterface $mock) use (
-                $logInfoValue,
-                $logSuccessValue,
-            ) {
-                $mock->shouldReceive('makeGeneric')
-                    ->once()
-                    ->withArgs(fn (
-                        string $argEndpoint,
-                        string $argRequestID,
-                        ProcessingStatus $argProcessingStatus,
-                        string $argMessage,
-                        array $argMeta,
-                    ) => $this->validateLoggingBegin(
-                        $argEndpoint,
-                        $argRequestID,
-                        $argProcessingStatus,
-                        $argMessage,
-                        $argMeta,
-                        $this->getEndpointInfo($this->user->id),
-                        'Delete user endpoint',
-                        [],
-                    ))->andReturn(
-                        $this->mock(
-                            LoggerMessageFormatter::class,
-                            fn (MockInterface $mock) => $mock->shouldReceive('getMessage')
-                                ->once()->andReturn($logInfoValue)
-                        )
-                    );
-
-                $mock->shouldReceive('makeGeneric')
-                    ->once()
-                    ->withArgs(fn (
-                        string $argEndpoint,
-                        string $argRequestID,
-                        ProcessingStatus $argProcessingStatus,
-                        string $argMessage,
-                        array $argMeta,
-                    ) => $this->validateLoggingSuccess(
-                        $argEndpoint,
-                        $argRequestID,
-                        $argProcessingStatus,
-                        $argMessage,
-                        $argMeta,
-                        $this->getEndpointInfo($this->user->id),
-                        'Delete user endpoint',
-                    ))->andReturn(
-                        $this->mock(
-                            LoggerMessageFormatter::class,
-                            fn (MockInterface $mock) => $mock->shouldReceive('getMessage')
-                                ->once()->andReturn($logSuccessValue)
-                        )
-                    );
-            }
-        );
-        $this->instance(
-            LoggerMessageFormatterFactoryContract::class,
-            $mockLoggerFormatterFactory
-        );
+        MockerLoggerMessageFactory::make($this)
+            ->setHTTPStart(
+                'Delete user endpoint',
+                [],
+                $logInfoMessage,
+            )->setHTTPSuccess(
+                'Delete user endpoint',
+                $logSuccessMessage
+            )->bindInstance();
 
         Log::shouldReceive('info')
-            ->with($logInfoValue)
-            ->once();
+            ->withArgs(function ($argMessage) use ($logInfoMessage) {
+                try {
+                    $this->assertEquals($logInfoMessage, $argMessage);
+                    return true;
+                } catch (Exception $e) {
+                    dd($e);
+                }
+            })->once();
         Log::shouldReceive('info')
-            ->with($logSuccessValue)
-            ->once();
+            ->withArgs(function ($argMessage) use ($logSuccessMessage) {
+                try {
+                    $this->assertEquals($logSuccessMessage, $argMessage);
+                    return true;
+                } catch (Exception $e) {
+                    dd($e);
+                }
+            })->once();
+
 
         // Act
         $response = $this->deleteJson(
@@ -256,11 +180,6 @@ class DeleteUserTest extends BaseFeatureTestCase
 
         // Assert
         $response->assertNoContent();
-    }
-
-    protected function getEndpointInfo(int $userId): string
-    {
-        return "DELETE {$this->getEndpointUrl($userId)}";
     }
 
     protected function getEndpointUrl(int $userId): string
