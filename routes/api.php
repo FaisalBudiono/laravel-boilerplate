@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('', [HealthcheckController::class, 'index'])->name('healthcheck');
 
 Route::post('login', [AuthController::class, 'login'])->name('login');
+Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('users', [UserController::class, 'index'])->name('user.index');
 Route::post('users', [UserController::class, 'store'])->name('user.store');

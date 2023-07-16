@@ -6,10 +6,12 @@ use App\Core\Auth\AuthJWTCoreContract;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
 use App\Core\Logger\Message\LoggerMessageFactoryContract;
 use App\Exceptions\Core\Auth\InvalidCredentialException;
+use App\Exceptions\Core\Auth\JWT\JWTException;
 use App\Exceptions\Http\InternalServerErrorException;
 use App\Exceptions\Http\UnauthorizedException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\LogoutRequest;
 use Exception;
 use Illuminate\Support\Facades\Log;
 
@@ -43,6 +45,30 @@ class AuthController extends Controller
             throw new UnauthorizedException($e->exceptionMessage);
         } catch (Exception $e) {
             Log::error($this->logFormatter->makeHTTPError($e));
+            throw new InternalServerErrorException(new ExceptionMessageGeneric);
+        }
+    }
+
+    public function logout(LogoutRequest $request)
+    {
+        try {
+            Log::info(
+                $this->logFormatter->makeHTTPStart(
+                    'Logout',
+                    $request->toArray()
+                ),
+            );
+
+            $this->core->logout($request);
+
+            Log::info($this->logFormatter->makeHTTPSuccess('Logout'));
+
+            return response()->noContent();
+        } catch (JWTException $e) {
+            Log::warning($this->logFormatter->makeHTTPError($e));
+            throw new UnauthorizedException($e->exceptionMessage);
+        } catch (Exception $e) {
+            Log::warning($this->logFormatter->makeHTTPError($e));
             throw new InternalServerErrorException(new ExceptionMessageGeneric);
         }
     }
