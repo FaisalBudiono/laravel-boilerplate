@@ -4,8 +4,7 @@ namespace App\Http\Controllers\Healthcheck;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
 use App\Core\Healthcheck\HealthcheckCoreContract;
-use App\Core\Logger\MessageFormatter\LoggerMessageFormatterFactoryContract;
-use App\Core\Logger\MessageFormatter\ProcessingStatus;
+use App\Core\Logger\Message\LoggerMessageFactoryContract;
 use App\Exceptions\Http\InternalServerErrorException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Healthcheck\HealthcheckRequest;
@@ -17,7 +16,7 @@ class HealthcheckController extends Controller
 {
     public function __construct(
         protected HealthcheckCoreContract $core,
-        protected LoggerMessageFormatterFactoryContract $loggerFormatter,
+        protected LoggerMessageFactoryContract $logFormatter,
     ) {
     }
 
@@ -25,28 +24,15 @@ class HealthcheckController extends Controller
     {
         try {
             Log::info(
-                $this->loggerFormatter->makeGeneric(
-                    $request->getEndpointInfo(),
-                    $request->getXRequestID(),
-                    ProcessingStatus::BEGIN,
+                $this->logFormatter->makeHTTPStart(
                     'Healthcheck endpoint',
-                    [
-                        'input' => $request->toArray(),
-                    ],
-                )->getMessage()
+                    [],
+                ),
             );
 
             $status = $this->core->getHealthiness($request);
 
-            Log::info(
-                $this->loggerFormatter->makeGeneric(
-                    $request->getEndpointInfo(),
-                    $request->getXRequestID(),
-                    ProcessingStatus::SUCCESS,
-                    'Healthcheck endpoint',
-                    [],
-                )->getMessage()
-            );
+            Log::info($this->logFormatter->makeHTTPSuccess('Healthcheck endpoint'));
 
             return response()
                 ->json($status->toArray())
@@ -56,17 +42,7 @@ class HealthcheckController extends Controller
                         : Response::HTTP_INTERNAL_SERVER_ERROR
                 );
         } catch (Exception $e) {
-            Log::error(
-                $this->loggerFormatter->makeGeneric(
-                    $request->getEndpointInfo(),
-                    $request->getXRequestID(),
-                    ProcessingStatus::ERROR,
-                    $e->getMessage(),
-                    [
-                        'trace' => $e->getTrace(),
-                    ],
-                )->getMessage()
-            );
+            Log::error($this->logFormatter->makeHTTPError($e));
             throw new InternalServerErrorException(new ExceptionMessageGeneric);
         }
     }
