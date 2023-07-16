@@ -149,57 +149,24 @@ class UserController extends Controller
     {
         try {
             Log::info(
-                $this->loggerFormatter->makeGeneric(
-                    $request->getEndpointInfo(),
-                    $request->getXRequestID(),
-                    ProcessingStatus::BEGIN,
+                $this->loggerMessage->makeHTTPStart(
                     'Create user endpoint',
-                    [
-                        'input' => $request->toArray(),
-                    ],
-                )->getMessage()
+                    $request->toArray(),
+                ),
             );
 
             $user = $this->core->create($request);
 
-            Log::info(
-                $this->loggerFormatter->makeGeneric(
-                    $request->getEndpointInfo(),
-                    $request->getXRequestID(),
-                    ProcessingStatus::SUCCESS,
-                    'Create user endpoint',
-                    [],
-                )->getMessage()
-            );
+            Log::info($this->loggerMessage->makeHTTPSuccess('Create user endpoint'));
 
             return UserResource::make($user)
                 ->response()
                 ->setStatusCode(Response::HTTP_CREATED);
         } catch (UserEmailDuplicatedException $e) {
-            Log::error(
-                $this->loggerFormatter->makeGeneric(
-                    $request->getEndpointInfo(),
-                    $request->getXRequestID(),
-                    ProcessingStatus::ERROR,
-                    $e->getMessage(),
-                    [
-                        'trace' => $e->getTrace(),
-                    ],
-                )->getMessage()
-            );
+            Log::warning($this->loggerMessage->makeHTTPError($e));
             throw new ConflictException($e->exceptionMessage);
         } catch (Exception $e) {
-            Log::error(
-                $this->loggerFormatter->makeGeneric(
-                    $request->getEndpointInfo(),
-                    $request->getXRequestID(),
-                    ProcessingStatus::ERROR,
-                    $e->getMessage(),
-                    [
-                        'trace' => $e->getTrace(),
-                    ],
-                )->getMessage()
-            );
+            Log::error($this->loggerMessage->makeHTTPError($e));
             throw new InternalServerErrorException(new ExceptionMessageGeneric);
         }
     }
