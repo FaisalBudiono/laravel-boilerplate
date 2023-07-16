@@ -59,42 +59,19 @@ class UserController extends Controller
     {
         try {
             Log::info(
-                $this->loggerFormatter->makeGeneric(
-                    $request->getEndpointInfo(),
-                    $request->getXRequestID(),
-                    ProcessingStatus::BEGIN,
+                $this->loggerMessage->makeHTTPStart(
                     'Get all user endpoint',
-                    [
-                        'input' => $request->toArray(),
-                    ],
-                )->getMessage()
+                    $request->toArray(),
+                )
             );
 
             $users = $this->core->getAll($request);
 
-            Log::info(
-                $this->loggerFormatter->makeGeneric(
-                    $request->getEndpointInfo(),
-                    $request->getXRequestID(),
-                    ProcessingStatus::SUCCESS,
-                    'Get all user endpoint',
-                    [],
-                )->getMessage()
-            );
+            Log::info($this->loggerMessage->makeHTTPSuccess('Get all user endpoint'));
 
             return UserResource::collection($users);
         } catch (Exception $e) {
-            Log::error(
-                $this->loggerFormatter->makeGeneric(
-                    $request->getEndpointInfo(),
-                    $request->getXRequestID(),
-                    ProcessingStatus::ERROR,
-                    $e->getMessage(),
-                    [
-                        'trace' => $e->getTrace(),
-                    ],
-                )->getMessage()
-            );
+            Log::error($this->loggerMessage->makeHTTPError($e));
             throw new InternalServerErrorException(new ExceptionMessageGeneric);
         }
     }
