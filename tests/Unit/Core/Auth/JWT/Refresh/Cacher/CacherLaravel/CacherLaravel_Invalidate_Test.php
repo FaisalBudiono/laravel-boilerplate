@@ -112,7 +112,7 @@ class CacherLaravel_Invalidate_Test extends CacherLaravelBaseTestCase
 
     public static function expiredAtValueDataProvider(): array
     {
-        $expiredAt = Carbon::parse(self::makeFaker()->dateTime);
+        $expiredAt = Carbon::parse(self::makeFaker()->dateTime());
 
         return [
             'unix as integer' => [$expiredAt->unix()],
