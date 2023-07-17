@@ -7,8 +7,6 @@ use App\Core\Healthcheck\HealthcheckCoreContract;
 use App\Core\Healthcheck\ValueObject\HealthcheckResponse;
 use App\Core\Healthcheck\ValueObject\HealthcheckStatus;
 use App\Core\Logger\Message\LoggerMessageFactoryContract;
-use App\Core\User\UserCoreContract;
-use App\Port\Core\User\CreateUserPort;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Mockery\MockInterface;
@@ -50,7 +48,7 @@ class HealthcheckTest extends BaseFeatureTestCase
                     ->andThrow($mockException);
             }
         );
-        $this->instance(UserCoreContract::class, $mockCore);
+        $this->instance(HealthcheckCoreContract::class, $mockCore);
 
         MockerLoggerMessageFactory::make($this)
             ->setHTTPStart(
@@ -203,15 +201,5 @@ class HealthcheckTest extends BaseFeatureTestCase
     protected function getEndpointUrl(): string
     {
         return route('healthcheck');
-    }
-
-    protected function validateRequest(
-        CreateUserPort $argInput,
-        array $input
-    ): bool {
-        $this->assertSame($input['email'], $argInput->getEmail());
-        $this->assertSame($input['name'], $argInput->getName());
-        $this->assertSame($input['password'], $argInput->getUserPassword());
-        return true;
     }
 }
