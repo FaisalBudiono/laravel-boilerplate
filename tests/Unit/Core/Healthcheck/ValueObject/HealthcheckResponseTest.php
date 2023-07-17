@@ -76,11 +76,16 @@ class HealthcheckResponseTest extends TestCase
     }
 
     #[Test]
-    public function toArray_should_map_value_object_to_arrray_correctly_when_no_dependency_status()
-    {
+    #[DataProvider('healthcheckStatusDataProvider')]
+    public function toArray_should_map_value_object_to_array_correctly(
+        string $mockVersion,
+        array $healthcheckStatuses,
+        array $expectedResult,
+    ) {
         // Arrange
         $valueObject = new HealthcheckResponse(
-            $version = $this->faker->word,
+            $mockVersion,
+            ...$healthcheckStatuses
         );
 
 
@@ -89,81 +94,116 @@ class HealthcheckResponseTest extends TestCase
 
 
         // Arrange
-        $this->assertEquals([
-            'version' => $version,
-            'isHealthy' => true,
-            'dependencies' => [],
-        ], $result);
+        $this->assertEquals($expectedResult, $result);
     }
 
-    #[Test]
-    public function toArray_should_map_value_object_to_arrray_correctly_when_all_status_is_healthy()
+    public static function healthcheckStatusDataProvider(): array
     {
-        // Arrange
-        $valueObject = new HealthcheckResponse(
-            $version = $this->faker->word,
-            new HealthcheckStatus('mysql', null),
-            new HealthcheckStatus('redis', null),
+        $faker = self::makeFaker();
+
+        $version = $faker->sentence();
+
+        $dependencyHealthy1 = new HealthcheckStatus($faker->sentence(), null);
+        $dependencyHealthy2 = new HealthcheckStatus($faker->sentence(), null);
+
+        $exceptionDependecy = new Exception($faker->sentence());
+        $dependencyBad = new HealthcheckStatus(
+            $faker->sentence(),
+            $exceptionDependecy,
         );
 
-
-        // Act
-        $result = $valueObject->toArray();
-
-
-        // Arrange
-        $this->assertEquals([
-            'version' => $version,
-            'isHealthy' => true,
-            'dependencies' => [
+        return [
+            'no dependency' => [
+                $version,
+                [],
                 [
-                    'name' => 'mysql',
+                    'version' => $version,
                     'isHealthy' => true,
-                    'reason' => null,
+                    'dependencies' => [],
+                ],
+            ],
+
+            '1 dependency and all healthy' => [
+                $version,
+                [
+                    $dependencyHealthy1,
                 ],
                 [
-                    'name' => 'redis',
+                    'version' => $version,
                     'isHealthy' => true,
-                    'reason' => null,
+                    'dependencies' => [
+                        [
+                            'name' => $dependencyHealthy1->name,
+                            'isHealthy' => true,
+                            'reason' => null,
+                        ],
+                    ],
                 ],
-            ]
-        ], $result);
-    }
-
-    #[Test]
-    public function toArray_should_map_value_object_to_arrray_correctly_when_all_status_is_bad()
-    {
-        // Arrange
-        $mockMysqlError = new Exception('mysql error');
-        $mockRedisError = new Exception('redis error');
-
-        $valueObject = new HealthcheckResponse(
-            $version = $this->faker->word,
-            new HealthcheckStatus('mysql', $mockMysqlError),
-            new HealthcheckStatus('redis', $mockRedisError),
-        );
-
-
-        // Act
-        $result = $valueObject->toArray();
-
-
-        // Arrange
-        $this->assertEquals([
-            'version' => $version,
-            'isHealthy' => false,
-            'dependencies' => [
+            ],
+            '2 dependencies and all healthy' => [
+                $version,
                 [
-                    'name' => 'mysql',
-                    'isHealthy' => false,
-                    'reason' => $mockMysqlError->getMessage(),
+                    $dependencyHealthy1,
+                    $dependencyHealthy2,
                 ],
                 [
-                    'name' => 'redis',
-                    'isHealthy' => false,
-                    'reason' => $mockRedisError->getMessage(),
+                    'version' => $version,
+                    'isHealthy' => true,
+                    'dependencies' => [
+                        [
+                            'name' => $dependencyHealthy1->name,
+                            'isHealthy' => true,
+                            'reason' => null,
+                        ],
+                        [
+                            'name' => $dependencyHealthy2->name,
+                            'isHealthy' => true,
+                            'reason' => null,
+                        ],
+                    ],
                 ],
-            ]
-        ], $result);
+            ],
+
+            '1 dependency and all bad' => [
+                $version,
+                [
+                    $dependencyBad,
+                ],
+                [
+                    'version' => $version,
+                    'isHealthy' => false,
+                    'dependencies' => [
+                        [
+                            'name' => $dependencyBad->name,
+                            'isHealthy' => false,
+                            'reason' => $exceptionDependecy->getMessage(),
+                        ],
+                    ],
+                ],
+            ],
+            '2 dependencies and partially bad' => [
+                $version,
+                [
+                    $dependencyHealthy1,
+                    $dependencyBad,
+                ],
+                [
+                    'version' => $version,
+                    'isHealthy' => false,
+                    'dependencies' => [
+                        [
+                            'name' => $dependencyHealthy1->name,
+                            'isHealthy' => true,
+                            'reason' => null,
+                        ],
+                        [
+                            'name' => $dependencyBad->name,
+                            'isHealthy' => false,
+                            'reason' => $exceptionDependecy->getMessage(),
+                        ],
+                    ],
+                ],
+            ],
+        ];
     }
 }
