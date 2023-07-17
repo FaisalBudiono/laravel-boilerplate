@@ -12,6 +12,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\User\CreateUserRequest;
 use App\Http\Requests\User\DeleteUserRequest;
 use App\Http\Requests\User\GetAllUserRequest;
+use App\Http\Requests\User\GetMyInfoRequest;
 use App\Http\Requests\User\GetUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Http\Resources\User\UserResource;
@@ -67,6 +68,29 @@ class UserController extends Controller
             Log::info($this->logFormatter->makeHTTPSuccess('Get all user endpoint'));
 
             return UserResource::collection($users);
+        } catch (Exception $e) {
+            Log::error($this->logFormatter->makeHTTPError($e));
+            throw new InternalServerErrorException(new ExceptionMessageGeneric);
+        }
+    }
+
+    public function me(GetMyInfoRequest $request)
+    {
+        try {
+            Log::info(
+                $this->logFormatter->makeHTTPStart(
+                    'Get my information',
+                    [],
+                ),
+            );
+
+            $user = $this->core->get($request);
+
+            Log::info($this->logFormatter->makeHTTPSuccess('Get my information'),);
+
+            return UserResource::make($user)
+                ->response()
+                ->setStatusCode(Response::HTTP_OK);
         } catch (Exception $e) {
             Log::error($this->logFormatter->makeHTTPError($e));
             throw new InternalServerErrorException(new ExceptionMessageGeneric);
