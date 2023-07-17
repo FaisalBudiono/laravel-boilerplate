@@ -32,6 +32,15 @@ readonly class HealthcheckResponse implements Arrayable
         ];
     }
 
+    public function toArrayDetail()
+    {
+        return [
+            'version' => $this->version,
+            'isHealthy' => $this->isOverallHealthy(),
+            'dependencies' => $this->mapDetailDependencies(),
+        ];
+    }
+
     protected function isDependencyHealthy(HealthcheckStatus $dependency): bool
     {
         return is_null($dependency->error);
@@ -49,6 +58,24 @@ readonly class HealthcheckResponse implements Arrayable
         return collect($this->dependencies)->map(
             fn (HealthcheckStatus $dependency) => $this->mapDependencyStatus($dependency)
         )->toArray();
+    }
+
+    protected function mapDetailDependencies(): array
+    {
+        return collect($this->dependencies)->map(
+            fn (HealthcheckStatus $dependency) => $this->mapDetailDependencyStatus($dependency)
+        )->toArray();
+    }
+
+    protected function mapDetailDependencyStatus(
+        HealthcheckStatus $dependency,
+    ): array {
+        return [
+            'name' => $dependency->name,
+            'isHealthy' => $this->isDependencyHealthy($dependency),
+            'reason' => $dependency->error?->getMessage(),
+            'trace' => $dependency->error?->getTrace(),
+        ];
     }
 
     protected function mapDependencyStatus(

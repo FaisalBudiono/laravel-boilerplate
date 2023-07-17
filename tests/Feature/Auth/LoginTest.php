@@ -305,6 +305,7 @@ class LoginTest extends BaseFeatureTestCase
                 $logInfoMessage,
             )->setHTTPSuccess(
                 'Login',
+                [],
                 $logSuccessMessage,
             )->bindInstance();
 

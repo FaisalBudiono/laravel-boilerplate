@@ -43,9 +43,12 @@ class MockerLoggerMessageFactory
         return $this;
     }
 
-    public function setHTTPSuccess(string $message, string $logMessage): self
-    {
-        $this->implementor->setHTTPSuccess($message, $logMessage);
+    public function setHTTPSuccess(
+        string $message,
+        array $meta,
+        string $logMessage,
+    ): self {
+        $this->implementor->setHTTPSuccess($message, $meta, $logMessage);
 
         return $this;
     }

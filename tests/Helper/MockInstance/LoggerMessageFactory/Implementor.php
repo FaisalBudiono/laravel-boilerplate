@@ -78,15 +78,20 @@ class Implementor extends TestCase
         return $this;
     }
 
-    public function setHTTPSuccess(string $message, string $logMessage): self
-    {
+    public function setHTTPSuccess(
+        string $message,
+        array $meta,
+        string $logMessage,
+    ): self {
         $this->mockInterface->shouldReceive('makeHTTPSuccess')
             ->once()
             ->withArgs(function (
                 string $argMessage,
-            ) use ($message) {
+                array $argMeta,
+            ) use ($message, $meta) {
                 try {
                     $this->assertSame($message, $argMessage);
+                    $this->assertSame($meta, $argMeta);
                     return true;
                 } catch (Exception $e) {
                     dd($e);

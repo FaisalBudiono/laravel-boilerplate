@@ -41,7 +41,7 @@ class UserController extends Controller
             $this->core->delete($request);
 
             Log::info(
-                $this->logFormatter->makeHTTPSuccess('Delete user endpoint'),
+                $this->logFormatter->makeHTTPSuccess('Delete user endpoint', []),
             );
 
             return response()->json([], Response::HTTP_NO_CONTENT);
@@ -65,7 +65,7 @@ class UserController extends Controller
 
             $users = $this->core->getAll($request);
 
-            Log::info($this->logFormatter->makeHTTPSuccess('Get all user endpoint'));
+            Log::info($this->logFormatter->makeHTTPSuccess('Get all user endpoint', []));
 
             return UserResource::collection($users);
         } catch (Exception $e) {
@@ -86,7 +86,7 @@ class UserController extends Controller
 
             $user = $this->core->get($request);
 
-            Log::info($this->logFormatter->makeHTTPSuccess('Get my information'),);
+            Log::info($this->logFormatter->makeHTTPSuccess('Get my information', []));
 
             return UserResource::make($user)
                 ->response()
@@ -109,7 +109,7 @@ class UserController extends Controller
 
             $user = $this->core->get($request);
 
-            Log::info($this->logFormatter->makeHTTPSuccess('Show user endpoint'));
+            Log::info($this->logFormatter->makeHTTPSuccess('Show user endpoint', []));
 
             return UserResource::make($user)
                 ->response()
@@ -132,7 +132,7 @@ class UserController extends Controller
 
             $user = $this->core->create($request);
 
-            Log::info($this->logFormatter->makeHTTPSuccess('Create user endpoint'));
+            Log::info($this->logFormatter->makeHTTPSuccess('Create user endpoint', []));
 
             return UserResource::make($user)
                 ->response()
@@ -158,7 +158,7 @@ class UserController extends Controller
 
             $user = $this->core->update($request);
 
-            Log::info($this->logFormatter->makeHTTPSuccess('Update user endpoint'));
+            Log::info($this->logFormatter->makeHTTPSuccess('Update user endpoint', []));
 
             return UserResource::make($user);
         } catch (UserEmailDuplicatedException $e) {

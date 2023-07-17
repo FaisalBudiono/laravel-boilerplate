@@ -334,6 +334,7 @@ class CreateUserTest extends BaseFeatureTestCase
                 $logInfoMessage,
             )->setHTTPSuccess(
                 'Create user endpoint',
+                [],
                 $logSuccessMessage,
             )->bindInstance();
 

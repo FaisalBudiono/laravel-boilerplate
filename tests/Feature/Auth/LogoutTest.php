@@ -283,6 +283,7 @@ class LogoutTest extends BaseFeatureTestCase
                 $logInfoMessage,
             )->setHTTPSuccess(
                 'Logout',
+                [],
                 $logSuccessMessage,
             )->bindInstance();
 

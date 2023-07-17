@@ -179,6 +179,7 @@ class GetMyInformationTest extends BaseFeatureTestCase
                 $logInfoMessage,
             )->setHTTPSuccess(
                 'Get my information',
+                [],
                 $logSuccessMessage,
             )->bindInstance();
 

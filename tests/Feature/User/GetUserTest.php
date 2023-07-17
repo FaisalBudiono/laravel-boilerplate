@@ -158,6 +158,7 @@ class GetUserTest extends BaseFeatureTestCase
                 $logInfoMessage,
             )->setHTTPSuccess(
                 'Show user endpoint',
+                [],
                 $logSuccessMessage,
             )->bindInstance();
 

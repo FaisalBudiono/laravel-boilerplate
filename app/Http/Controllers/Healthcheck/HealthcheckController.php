@@ -32,15 +32,21 @@ class HealthcheckController extends Controller
 
             $status = $this->core->getHealthiness($request);
 
-            Log::info($this->logFormatter->makeHTTPSuccess('Healthcheck endpoint'));
+            if ($status->isHealthy()) {
+                Log::info($this->logFormatter->makeHTTPSuccess('Healthcheck endpoint', []));
+
+                return response()
+                    ->json($status->toArray())
+                    ->setStatusCode(Response::HTTP_OK);
+            }
+
+            Log::emergency($this->logFormatter->makeHTTPSuccess('Healthcheck endpoint', [
+                'detail' => $status->toArrayDetail(),
+            ]));
 
             return response()
                 ->json($status->toArray())
-                ->setStatusCode(
-                    $status->isHealthy()
-                        ? Response::HTTP_OK
-                        : Response::HTTP_INTERNAL_SERVER_ERROR
-                );
+                ->setStatusCode(Response::HTTP_SERVICE_UNAVAILABLE);
         } catch (Exception $e) {
             Log::error($this->logFormatter->makeHTTPError($e));
             throw new InternalServerErrorException(new ExceptionMessageGeneric);
