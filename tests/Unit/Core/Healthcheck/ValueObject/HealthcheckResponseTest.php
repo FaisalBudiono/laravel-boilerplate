@@ -76,7 +76,7 @@ class HealthcheckResponseTest extends TestCase
     }
 
     #[Test]
-    #[DataProvider('healthcheckStatusDataProvider')]
+    #[DataProvider('toArrayHealthcheckStatusDataProvider')]
     public function toArray_should_map_value_object_to_array_correctly(
         string $mockVersion,
         array $healthcheckStatuses,
@@ -97,7 +97,7 @@ class HealthcheckResponseTest extends TestCase
         $this->assertEquals($expectedResult, $result);
     }
 
-    public static function healthcheckStatusDataProvider(): array
+    public static function toArrayHealthcheckStatusDataProvider(): array
     {
         $faker = self::makeFaker();
 
@@ -200,6 +200,144 @@ class HealthcheckResponseTest extends TestCase
                             'name' => $dependencyBad->name,
                             'isHealthy' => false,
                             'reason' => $exceptionDependecy->getMessage(),
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('toArrayDetailHealthcheckStatusDataProvider')]
+    public function toArrayDetail_should_map_value_object_to_array_correctly(
+        string $mockVersion,
+        array $healthcheckStatuses,
+        array $expectedResult,
+    ) {
+        // Arrange
+        $valueObject = new HealthcheckResponse(
+            $mockVersion,
+            ...$healthcheckStatuses
+        );
+
+
+        // Act
+        $result = $valueObject->toArrayDetail();
+
+
+        // Arrange
+        $this->assertEquals($expectedResult, $result);
+    }
+
+    public static function toArrayDetailHealthcheckStatusDataProvider(): array
+    {
+        $faker = self::makeFaker();
+
+        $version = $faker->sentence();
+
+        $dependencyHealthy1 = new HealthcheckStatus($faker->sentence(), null);
+        $dependencyHealthy2 = new HealthcheckStatus($faker->sentence(), null);
+
+        $exceptionDependecy = new Exception($faker->sentence());
+        $dependencyBad = new HealthcheckStatus(
+            $faker->sentence(),
+            $exceptionDependecy,
+        );
+
+        return [
+            'no dependency' => [
+                $version,
+                [],
+                [
+                    'version' => $version,
+                    'isHealthy' => true,
+                    'dependencies' => [],
+                ],
+            ],
+
+            '1 dependency and all healthy' => [
+                $version,
+                [
+                    $dependencyHealthy1,
+                ],
+                [
+                    'version' => $version,
+                    'isHealthy' => true,
+                    'dependencies' => [
+                        [
+                            'name' => $dependencyHealthy1->name,
+                            'isHealthy' => true,
+                            'reason' => null,
+                            'trace' => null,
+                        ],
+                    ],
+                ],
+            ],
+            '2 dependencies and all healthy' => [
+                $version,
+                [
+                    $dependencyHealthy1,
+                    $dependencyHealthy2,
+                ],
+                [
+                    'version' => $version,
+                    'isHealthy' => true,
+                    'dependencies' => [
+                        [
+                            'name' => $dependencyHealthy1->name,
+                            'isHealthy' => true,
+                            'reason' => null,
+                            'trace' => null,
+                        ],
+                        [
+                            'name' => $dependencyHealthy2->name,
+                            'isHealthy' => true,
+                            'reason' => null,
+                            'trace' => null,
+                        ],
+                    ],
+                ],
+            ],
+
+            '1 dependency and all bad' => [
+                $version,
+                [
+                    $dependencyBad,
+                ],
+                [
+                    'version' => $version,
+                    'isHealthy' => false,
+                    'dependencies' => [
+                        [
+                            'name' => $dependencyBad->name,
+                            'isHealthy' => false,
+                            'reason' => $exceptionDependecy->getMessage(),
+                            'trace' => $exceptionDependecy->getTrace(),
+                        ],
+                    ],
+                ],
+            ],
+            '2 dependencies and partially bad' => [
+                $version,
+                [
+                    $dependencyHealthy1,
+                    $dependencyBad,
+                ],
+                [
+                    'version' => $version,
+                    'isHealthy' => false,
+                    'dependencies' => [
+                        [
+                            'name' => $dependencyHealthy1->name,
+                            'isHealthy' => true,
+                            'reason' => null,
+                            'trace' => null,
+                        ],
+                        [
+                            'name' => $dependencyBad->name,
+                            'isHealthy' => false,
+                            'reason' => $exceptionDependecy->getMessage(),
+                            'trace' => $exceptionDependecy->getTrace(),
                         ],
                     ],
                 ],
