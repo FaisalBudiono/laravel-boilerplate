@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Http\Controllers\Healthcheck\HealthcheckController;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Http\Request;
@@ -35,6 +36,8 @@ class RouteServiceProvider extends ServiceProvider
         $this->configureRateLimiting();
 
         $this->routes(function () {
+            $this->createHealthcheckEndpoint();
+
             Route::middleware('api')
                 ->group(base_path('routes/api.php'));
         });
@@ -61,5 +64,10 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
+    }
+
+    protected function createHealthcheckEndpoint(): void
+    {
+        Route::get('', [HealthcheckController::class, 'index'])->name('healthcheck');
     }
 }
