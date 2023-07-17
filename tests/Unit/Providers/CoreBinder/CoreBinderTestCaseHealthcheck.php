@@ -22,6 +22,7 @@ class CoreBinderTestCaseHealthcheck extends CoreBinderTestCaseAbstract
                 [
                     new DependencyFactoryMockery($this->test, VersionFetcher::class),
                     new DependencyFactoryMockery($this->test, HealthcheckerMysqlContract::class),
+                    new DependencyFactoryMockery($this->test, HealthcheckerRedisContract::class),
                 ],
             ],
             HealthcheckerMysqlContract::class => [

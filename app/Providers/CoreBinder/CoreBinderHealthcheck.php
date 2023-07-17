@@ -20,6 +20,7 @@ class CoreBinderHealthcheck implements CoreBinder
             return new HealthcheckCore(
                 $app->make(VersionFetcher::class),
                 $app->make(HealthcheckerMysqlContract::class),
+                $app->make(HealthcheckerRedisContract::class),
             );
         });
 
