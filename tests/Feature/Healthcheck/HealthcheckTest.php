@@ -98,10 +98,9 @@ class HealthcheckTest extends BaseFeatureTestCase
     }
 
     #[Test]
-    #[DataProvider('healthStatusDataProvider')]
-    public function should_show_health_status_with_correct_http_status(
+    #[DataProvider('healthyHealthStatusDataProvider')]
+    public function should_show_200_when_all_dependencies_is_healthy(
         HealthcheckResponse $mockedHealthcheckResponse,
-        int $expectedHTTPStatus,
     ) {
         // Arrange
         $logInfoMessage = $this->faker->sentence;
@@ -157,11 +156,11 @@ class HealthcheckTest extends BaseFeatureTestCase
 
 
         // Assert
-        $response->assertStatus($expectedHTTPStatus);
+        $response->assertOk();
         $response->assertExactJson($mockedHealthcheckResponse->toArray());
     }
 
-    public static function healthStatusDataProvider(): array
+    public static function healthyHealthStatusDataProvider(): array
     {
         return [
             'when all dependencies is healthy (1 dependency)' => [
@@ -169,7 +168,6 @@ class HealthcheckTest extends BaseFeatureTestCase
                     'v1.0.0',
                     new HealthcheckStatus('mysql', null),
                 ),
-                Response::HTTP_OK,
             ],
             'when all dependencies is healthy (2 dependency)' => [
                 new HealthcheckResponse(
@@ -177,16 +175,101 @@ class HealthcheckTest extends BaseFeatureTestCase
                     new HealthcheckStatus('mysql', null),
                     new HealthcheckStatus('redis', null),
                 ),
-                Response::HTTP_OK,
             ],
 
+            // 'when one of dependencies is NOT healthy' => [
+            //     new HealthcheckResponse(
+            //         'v1.0.0',
+            //         new HealthcheckStatus('mysql', new Exception('foo bar')),
+            //         new HealthcheckStatus('redis', null),
+            //     ),
+            //     Response::HTTP_INTERNAL_SERVER_ERROR,
+            // ],
+            // 'when all dependencies is NOT healthy' => [
+            //     new HealthcheckResponse(
+            //         'v1.0.0',
+            //         new HealthcheckStatus('mysql', new Exception('foo bar')),
+            //         new HealthcheckStatus('redis', new Exception('foo bar')),
+            //     ),
+            //     Response::HTTP_INTERNAL_SERVER_ERROR,
+            // ],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('badHealthStatusDataProvider')]
+    public function should_show_503_when_some_dependency_is_bad(
+        HealthcheckResponse $mockedHealthcheckResponse,
+    ) {
+        // Arrange
+        $logInfoMessage = $this->faker->sentence;
+        $logErrorMessage = $this->faker->sentence;
+
+
+        // Assert
+        $mockCore = $this->mock(
+            HealthcheckCoreContract::class,
+            function (MockInterface $mock) use ($mockedHealthcheckResponse) {
+                $mock->shouldReceive('getHealthiness')
+                    ->once()
+                    ->andReturn($mockedHealthcheckResponse);
+            }
+        );
+        $this->instance(HealthcheckCoreContract::class, $mockCore);
+
+        MockerLoggerMessageFactory::make($this)
+            ->setHTTPStart(
+                'Healthcheck endpoint',
+                [],
+                $logInfoMessage,
+            )->setHTTPSuccess(
+                'Healthcheck endpoint',
+                [
+                    'detail' => $mockedHealthcheckResponse->toArrayDetail(),
+                ],
+                $logErrorMessage,
+            )->bindInstance();
+
+        Log::shouldReceive('info')
+            ->withArgs(function ($argMessage) use ($logInfoMessage) {
+                try {
+                    $this->assertEquals($logInfoMessage, $argMessage);
+                    return true;
+                } catch (Exception $e) {
+                    dd($e);
+                }
+            })->once();
+        Log::shouldReceive('emergency')
+            ->withArgs(function ($argMessage) use ($logErrorMessage) {
+                try {
+                    $this->assertEquals($logErrorMessage, $argMessage);
+                    return true;
+                } catch (Exception $e) {
+                    dd($e);
+                }
+            })->once();
+
+
+        // Act
+        $response = $this->getJson(
+            $this->getEndpointUrl(),
+        );
+
+
+        // Assert
+        $response->assertStatus(Response::HTTP_SERVICE_UNAVAILABLE);
+        $response->assertExactJson($mockedHealthcheckResponse->toArray());
+    }
+
+    public static function badHealthStatusDataProvider(): array
+    {
+        return [
             'when one of dependencies is NOT healthy' => [
                 new HealthcheckResponse(
                     'v1.0.0',
                     new HealthcheckStatus('mysql', new Exception('foo bar')),
                     new HealthcheckStatus('redis', null),
                 ),
-                Response::HTTP_INTERNAL_SERVER_ERROR,
             ],
             'when all dependencies is NOT healthy' => [
                 new HealthcheckResponse(
@@ -194,7 +277,6 @@ class HealthcheckTest extends BaseFeatureTestCase
                     new HealthcheckStatus('mysql', new Exception('foo bar')),
                     new HealthcheckStatus('redis', new Exception('foo bar')),
                 ),
-                Response::HTTP_INTERNAL_SERVER_ERROR,
             ],
         ];
     }
