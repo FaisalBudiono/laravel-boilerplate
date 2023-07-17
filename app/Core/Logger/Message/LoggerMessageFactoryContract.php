@@ -16,5 +16,6 @@ interface LoggerMessageFactoryContract
 
     public function makeHTTPSuccess(
         string $message,
+        array $meta,
     ): Stringable;
 }

@@ -149,6 +149,7 @@ class DeleteUserTest extends BaseFeatureTestCase
                 $logInfoMessage,
             )->setHTTPSuccess(
                 'Delete user endpoint',
+                [],
                 $logSuccessMessage
             )->bindInstance();
 

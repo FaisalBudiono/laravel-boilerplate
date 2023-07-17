@@ -360,6 +360,7 @@ class UpdateUserTest extends BaseFeatureTestCase
                 $logInfoMessage,
             )->setHTTPSuccess(
                 'Update user endpoint',
+                [],
                 $logSuccessMessage,
             )->bindInstance();
 

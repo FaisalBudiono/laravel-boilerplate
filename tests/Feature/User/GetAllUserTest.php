@@ -242,6 +242,7 @@ class GetAllUserTest extends BaseFeatureTestCase
                 $logInfoMessage,
             )->setHTTPSuccess(
                 'Get all user endpoint',
+                [],
                 $logSuccessMessage,
             )->bindInstance();
 

@@ -32,7 +32,7 @@ class HealthcheckController extends Controller
 
             $status = $this->core->getHealthiness($request);
 
-            Log::info($this->logFormatter->makeHTTPSuccess('Healthcheck endpoint'));
+            Log::info($this->logFormatter->makeHTTPSuccess('Healthcheck endpoint', []));
 
             return response()
                 ->json($status->toArray())

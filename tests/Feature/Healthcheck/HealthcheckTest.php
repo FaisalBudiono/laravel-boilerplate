@@ -126,6 +126,7 @@ class HealthcheckTest extends BaseFeatureTestCase
                 $logInfoMessage,
             )->setHTTPSuccess(
                 'Healthcheck endpoint',
+                [],
                 $logSuccessMessage,
             )->bindInstance();
 

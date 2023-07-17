@@ -31,8 +31,8 @@ class LoggerMessageFactory implements LoggerMessageFactoryContract
         ]);
     }
 
-    public function makeHTTPSuccess(string $message): Stringable
+    public function makeHTTPSuccess(string $message, array $meta): Stringable
     {
-        return new LoggingHTTPSuccess($this->request, $message, []);
+        return new LoggingHTTPSuccess($this->request, $message, $meta);
     }
 }

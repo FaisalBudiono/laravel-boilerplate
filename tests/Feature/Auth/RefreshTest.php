@@ -287,7 +287,7 @@ class RefreshTest extends BaseFeatureTestCase
                 'Get refresh token',
                 $input,
                 $logInfoMessage,
-            )->setHTTPSuccess('Get refresh token', $logSuccessMessage)
+            )->setHTTPSuccess('Get refresh token', [], $logSuccessMessage)
             ->bindInstance();
 
         Log::shouldReceive('info')

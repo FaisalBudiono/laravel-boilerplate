@@ -76,14 +76,15 @@ class LoggerMessageFactoryTest extends TestCase
         assert($request instanceof Request);
 
         $message = $this->faker->sentence;
+        $meta = $this->faker->sentences();
 
 
         // Act
-        $result = $this->makeService()->makeHTTPSuccess($message);
+        $result = $this->makeService()->makeHTTPSuccess($message, $meta);
 
 
         // Assert
-        $expectedResult = new LoggingHTTPSuccess($request, $message, []);
+        $expectedResult = new LoggingHTTPSuccess($request, $message, $meta);
         $this->assertEquals($expectedResult, $result);
     }
 

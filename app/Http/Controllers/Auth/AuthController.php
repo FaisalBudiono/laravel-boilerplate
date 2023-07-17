@@ -36,7 +36,7 @@ class AuthController extends Controller
 
             $tokenPair = $this->core->login($request);
 
-            Log::info($this->logFormatter->makeHTTPSuccess('Login'));
+            Log::info($this->logFormatter->makeHTTPSuccess('Login', []));
 
             return response()->json([
                 'data' => $tokenPair->toArray(),
@@ -62,7 +62,7 @@ class AuthController extends Controller
 
             $this->core->logout($request);
 
-            Log::info($this->logFormatter->makeHTTPSuccess('Logout'));
+            Log::info($this->logFormatter->makeHTTPSuccess('Logout', []));
 
             return response()->noContent();
         } catch (JWTException $e) {
@@ -86,7 +86,7 @@ class AuthController extends Controller
 
             $tokenPair = $this->core->refresh($request);
 
-            Log::info($this->logFormatter->makeHTTPSuccess('Get refresh token'));
+            Log::info($this->logFormatter->makeHTTPSuccess('Get refresh token', []));
 
             return response()->json([
                 'data' => $tokenPair->toArray()
