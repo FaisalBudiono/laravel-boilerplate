@@ -6,6 +6,8 @@ use App\Core\Healthcheck\HealthcheckCore;
 use App\Core\Healthcheck\HealthcheckCoreContract;
 use App\Core\Healthcheck\Healthchecker\HealthcheckerMysql;
 use App\Core\Healthcheck\Healthchecker\HealthcheckerMysqlContract;
+use App\Core\Healthcheck\Healthchecker\HealthcheckerRedis;
+use App\Core\Healthcheck\Healthchecker\HealthcheckerRedisContract;
 use App\Core\Healthcheck\VersionFetcher\VersionFetcher;
 use App\Core\Healthcheck\VersionFetcher\VersionFetcherConfig;
 use Tests\Unit\Providers\CoreBinder\Dependencies\DependencyFactoryMockery;
@@ -24,6 +26,9 @@ class CoreBinderTestCaseHealthcheck extends CoreBinderTestCaseAbstract
             ],
             HealthcheckerMysqlContract::class => [
                 HealthcheckerMysql::class,
+            ],
+            HealthcheckerRedisContract::class => [
+                HealthcheckerRedis::class,
             ],
             VersionFetcher::class => [
                 VersionFetcherConfig::class,

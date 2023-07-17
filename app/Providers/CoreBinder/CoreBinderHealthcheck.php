@@ -6,6 +6,8 @@ use App\Core\Healthcheck\HealthcheckCore;
 use App\Core\Healthcheck\HealthcheckCoreContract;
 use App\Core\Healthcheck\Healthchecker\HealthcheckerMysql;
 use App\Core\Healthcheck\Healthchecker\HealthcheckerMysqlContract;
+use App\Core\Healthcheck\Healthchecker\HealthcheckerRedis;
+use App\Core\Healthcheck\Healthchecker\HealthcheckerRedisContract;
 use App\Core\Healthcheck\VersionFetcher\VersionFetcher;
 use App\Core\Healthcheck\VersionFetcher\VersionFetcherConfig;
 use Illuminate\Contracts\Foundation\Application;
@@ -23,6 +25,10 @@ class CoreBinderHealthcheck implements CoreBinder
 
         $app->bind(HealthcheckerMysqlContract::class, function (Application $app) {
             return new HealthcheckerMysql();
+        });
+
+        $app->bind(HealthcheckerRedisContract::class, function (Application $app) {
+            return new HealthcheckerRedis();
         });
 
         $app->bind(VersionFetcher::class, function (Application $app) {
