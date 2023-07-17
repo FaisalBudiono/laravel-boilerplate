@@ -23,8 +23,8 @@ class UserResource extends JsonResource
             'id' => $resource->id,
             'name' => $resource->name,
             'email' => $resource->email,
-            'created_at' => optional($resource->created_at)->format(DatetimeFormat::ISO_WITH_MILLIS->value),
-            'updated_at' => optional($resource->updated_at)->format(DatetimeFormat::ISO_WITH_MILLIS->value),
+            'created_at' => $resource->created_at?->format(DatetimeFormat::ISO_WITH_MILLIS->value),
+            'updated_at' => $resource->updated_at?->format(DatetimeFormat::ISO_WITH_MILLIS->value),
         ];
     }
 }

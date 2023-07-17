@@ -4,9 +4,7 @@ namespace Tests\Feature\User;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessage;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
-use App\Core\Logger\MessageFormatter\LoggerMessageFormatter;
-use App\Core\Logger\MessageFormatter\LoggerMessageFormatterFactoryContract;
-use App\Core\Logger\MessageFormatter\ProcessingStatus;
+use App\Core\Logger\Message\LoggerMessageFactoryContract;
 use App\Core\User\UserCoreContract;
 use App\Exceptions\Core\User\UserEmailDuplicatedException;
 use App\Models\User\User;
@@ -19,6 +17,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Feature\BaseFeatureTestCase;
+use Tests\Helper\MockInstance\MockerLoggerMessageFactory;
 use Tests\Helper\ResourceAssertion\ResourceAssertion;
 use Tests\Helper\ResourceAssertion\User\ResourceAssertionUser;
 
@@ -36,8 +35,8 @@ class CreateUserTest extends BaseFeatureTestCase
 
         $this->instance(UserCoreContract::class, $this->mock(UserCoreContract::class));
         $this->instance(
-            LoggerMessageFormatterFactoryContract::class,
-            $this->mock(LoggerMessageFormatterFactoryContract::class)
+            LoggerMessageFactoryContract::class,
+            $this->mock(LoggerMessageFactoryContract::class),
         );
         Log::partialMock();
     }
@@ -159,19 +158,25 @@ class CreateUserTest extends BaseFeatureTestCase
     #[Test]
     public function should_show_409_when_thrown_duplicated_email()
     {
-        // Assert
+        // Arrange
         $input = $this->validRequestInput();
 
+        $logInfoMessage = $this->faker->sentence;
+        $logErrorMessage = $this->faker->sentence;
+
+
+        // Assert
         $mockedExceptionResponse = collect(['foo' => 'bar']);
-        /** @var ExceptionMessage */
         $mockExceptionMessage = $this->mock(
             ExceptionMessage::class,
             function (MockInterface $mock) use ($mockedExceptionResponse) {
                 $mock->shouldReceive('getJsonResponse')
+                    ->atLeast()
+                    ->once()
                     ->andReturn($mockedExceptionResponse);
-                $mock->shouldReceive('getMessage');
             }
         );
+        assert($mockExceptionMessage instanceof ExceptionMessage);
         $mockException = new UserEmailDuplicatedException($mockExceptionMessage);
 
         $mockCore = $this->mock(
@@ -187,78 +192,32 @@ class CreateUserTest extends BaseFeatureTestCase
         );
         $this->instance(UserCoreContract::class, $mockCore);
 
-        $logInfoValue = $this->faker->sentence;
-        $logErrorValue = $this->faker->sentence;
-
-        $mockLoggerFormatterFactory = $this->mock(
-            LoggerMessageFormatterFactoryContract::class,
-            function (MockInterface $mock) use (
-                $logInfoValue,
-                $logErrorValue,
-                $mockException,
+        MockerLoggerMessageFactory::make($this)
+            ->setHTTPStart(
+                'Create user endpoint',
                 $input,
-            ) {
-                $mock->shouldReceive('makeGeneric')
-                    ->once()
-                    ->withArgs(fn (
-                        string $argEndpoint,
-                        string $argRequestID,
-                        ProcessingStatus $argProcessingStatus,
-                        string $argMessage,
-                        array $argMeta,
-                    ) => $this->validateLoggingBegin(
-                        $argEndpoint,
-                        $argRequestID,
-                        $argProcessingStatus,
-                        $argMessage,
-                        $argMeta,
-                        $this->getEndpointInfo(),
-                        'Create user endpoint',
-                        $input,
-                    ))->andReturn(
-                        $this->mock(
-                            LoggerMessageFormatter::class,
-                            fn (MockInterface $mock) => $mock->shouldReceive('getMessage')
-                                ->once()->andReturn($logInfoValue)
-                        )
-                    );
-
-                $mock->shouldReceive('makeGeneric')
-                    ->once()
-                    ->withArgs(fn (
-                        string $argEndpoint,
-                        string $argRequestID,
-                        ProcessingStatus $argProcessingStatus,
-                        string $argMessage,
-                        array $argMeta,
-                    ) => $this->validateLoggingError(
-                        $argEndpoint,
-                        $argRequestID,
-                        $argProcessingStatus,
-                        $argMessage,
-                        $argMeta,
-                        $this->getEndpointInfo(),
-                        $mockException,
-                    ))->andReturn(
-                        $this->mock(
-                            LoggerMessageFormatter::class,
-                            fn (MockInterface $mock) => $mock->shouldReceive('getMessage')
-                                ->once()->andReturn($logErrorValue)
-                        )
-                    );
-            }
-        );
-        $this->instance(
-            LoggerMessageFormatterFactoryContract::class,
-            $mockLoggerFormatterFactory
-        );
+                $logInfoMessage,
+            )->setHTTPError($mockException, $logErrorMessage)
+            ->bindInstance();
 
         Log::shouldReceive('info')
-            ->with($logInfoValue)
-            ->once();
-        Log::shouldReceive('error')
-            ->with($logErrorValue)
-            ->once();
+            ->withArgs(function ($argLogMessage) use ($logInfoMessage) {
+                try {
+                    $this->assertEquals($logInfoMessage, $argLogMessage);
+                    return true;
+                } catch (Exception $e) {
+                    dd($e);
+                }
+            })->once();
+        Log::shouldReceive('warning')
+            ->withArgs(function ($argLogMessage) use ($logErrorMessage) {
+                try {
+                    $this->assertEquals($logErrorMessage, $argLogMessage);
+                    return true;
+                } catch (Exception $e) {
+                    dd($e);
+                }
+            })->once();
 
 
         // Act
@@ -276,12 +235,17 @@ class CreateUserTest extends BaseFeatureTestCase
     #[Test]
     public function should_show_500_when_generic_error_is_thrown()
     {
-        // Assert
+        // Arrange
         $input = $this->validRequestInput();
+
         $exceptionMessage = new ExceptionMessageGeneric;
+        $mockException = new Exception($this->faker->sentence());
 
-        $mockException = new Exception('generic error');
+        $logInfoMessage = $this->faker->sentence;
+        $logErrorMessage = $this->faker->sentence;
 
+
+        // Assert
         $mockCore = $this->mock(
             UserCoreContract::class,
             function (MockInterface $mock) use ($input, $mockException) {
@@ -295,78 +259,32 @@ class CreateUserTest extends BaseFeatureTestCase
         );
         $this->instance(UserCoreContract::class, $mockCore);
 
-        $logInfoValue = $this->faker->sentence;
-        $logErrorValue = $this->faker->sentence;
-
-        $mockLoggerFormatterFactory = $this->mock(
-            LoggerMessageFormatterFactoryContract::class,
-            function (MockInterface $mock) use (
-                $logInfoValue,
-                $logErrorValue,
-                $mockException,
+        MockerLoggerMessageFactory::make($this)
+            ->setHTTPStart(
+                'Create user endpoint',
                 $input,
-            ) {
-                $mock->shouldReceive('makeGeneric')
-                    ->once()
-                    ->withArgs(fn (
-                        string $argEndpoint,
-                        string $argRequestID,
-                        ProcessingStatus $argProcessingStatus,
-                        string $argMessage,
-                        array $argMeta,
-                    ) => $this->validateLoggingBegin(
-                        $argEndpoint,
-                        $argRequestID,
-                        $argProcessingStatus,
-                        $argMessage,
-                        $argMeta,
-                        $this->getEndpointInfo(),
-                        'Create user endpoint',
-                        $input,
-                    ))->andReturn(
-                        $this->mock(
-                            LoggerMessageFormatter::class,
-                            fn (MockInterface $mock) => $mock->shouldReceive('getMessage')
-                                ->once()->andReturn($logInfoValue)
-                        )
-                    );
-
-                $mock->shouldReceive('makeGeneric')
-                    ->once()
-                    ->withArgs(fn (
-                        string $argEndpoint,
-                        string $argRequestID,
-                        ProcessingStatus $argProcessingStatus,
-                        string $argMessage,
-                        array $argMeta,
-                    ) => $this->validateLoggingError(
-                        $argEndpoint,
-                        $argRequestID,
-                        $argProcessingStatus,
-                        $argMessage,
-                        $argMeta,
-                        $this->getEndpointInfo(),
-                        $mockException,
-                    ))->andReturn(
-                        $this->mock(
-                            LoggerMessageFormatter::class,
-                            fn (MockInterface $mock) => $mock->shouldReceive('getMessage')
-                                ->once()->andReturn($logErrorValue)
-                        )
-                    );
-            }
-        );
-        $this->instance(
-            LoggerMessageFormatterFactoryContract::class,
-            $mockLoggerFormatterFactory
-        );
+                $logInfoMessage,
+            )->setHTTPError($mockException, $logErrorMessage)
+            ->bindInstance();
 
         Log::shouldReceive('info')
-            ->with($logInfoValue)
-            ->once();
+            ->withArgs(function ($argMessage) use ($logInfoMessage) {
+                try {
+                    $this->assertEquals($logInfoMessage, $argMessage);
+                    return true;
+                } catch (Exception $e) {
+                    dd($e);
+                }
+            })->once();
         Log::shouldReceive('error')
-            ->with($logErrorValue)
-            ->once();
+            ->withArgs(function ($argMessage) use ($logErrorMessage) {
+                try {
+                    $this->assertEquals($logErrorMessage, $argMessage);
+                    return true;
+                } catch (Exception $e) {
+                    dd($e);
+                }
+            })->once();
 
 
         // Act
@@ -387,11 +305,15 @@ class CreateUserTest extends BaseFeatureTestCase
     #[Test]
     public function should_show_201_when_successfully_create_user()
     {
-        // Assert
+        // Arrange
         $input = $this->validRequestInput();
-        /** @var User */
-        $mockedUser = User::factory()->create();
+        $mockedUser = User::factory()->create()->fresh();
 
+        $logInfoMessage = $this->faker->sentence;
+        $logSuccessMessage = $this->faker->sentence;
+
+
+        // Assert
         $mockCore = $this->mock(
             UserCoreContract::class,
             function (MockInterface $mock) use ($input, $mockedUser) {
@@ -405,77 +327,34 @@ class CreateUserTest extends BaseFeatureTestCase
         );
         $this->instance(UserCoreContract::class, $mockCore);
 
-        $logInfoValue = $this->faker->sentence;
-        $logSuccessValue = $this->faker->sentence;
-
-        $mockLoggerFormatterFactory = $this->mock(
-            LoggerMessageFormatterFactoryContract::class,
-            function (MockInterface $mock) use (
-                $logInfoValue,
-                $logSuccessValue,
+        MockerLoggerMessageFactory::make($this)
+            ->setHTTPStart(
+                'Create user endpoint',
                 $input,
-            ) {
-                $mock->shouldReceive('makeGeneric')
-                    ->once()
-                    ->withArgs(fn (
-                        string $argEndpoint,
-                        string $argRequestID,
-                        ProcessingStatus $argProcessingStatus,
-                        string $argMessage,
-                        array $argMeta,
-                    ) => $this->validateLoggingBegin(
-                        $argEndpoint,
-                        $argRequestID,
-                        $argProcessingStatus,
-                        $argMessage,
-                        $argMeta,
-                        $this->getEndpointInfo(),
-                        'Create user endpoint',
-                        $input,
-                    ))->andReturn(
-                        $this->mock(
-                            LoggerMessageFormatter::class,
-                            fn (MockInterface $mock) => $mock->shouldReceive('getMessage')
-                                ->once()->andReturn($logInfoValue)
-                        )
-                    );
-
-                $mock->shouldReceive('makeGeneric')
-                    ->once()
-                    ->withArgs(fn (
-                        string $argEndpoint,
-                        string $argRequestID,
-                        ProcessingStatus $argProcessingStatus,
-                        string $argMessage,
-                        array $argMeta,
-                    ) => $this->validateLoggingSuccess(
-                        $argEndpoint,
-                        $argRequestID,
-                        $argProcessingStatus,
-                        $argMessage,
-                        $argMeta,
-                        $this->getEndpointInfo(),
-                        'Create user endpoint',
-                    ))->andReturn(
-                        $this->mock(
-                            LoggerMessageFormatter::class,
-                            fn (MockInterface $mock) => $mock->shouldReceive('getMessage')
-                                ->once()->andReturn($logSuccessValue)
-                        )
-                    );
-            }
-        );
-        $this->instance(
-            LoggerMessageFormatterFactoryContract::class,
-            $mockLoggerFormatterFactory
-        );
+                $logInfoMessage,
+            )->setHTTPSuccess(
+                'Create user endpoint',
+                $logSuccessMessage,
+            )->bindInstance();
 
         Log::shouldReceive('info')
-            ->with($logInfoValue)
-            ->once();
+            ->withArgs(function ($argMessage) use ($logInfoMessage) {
+                try {
+                    $this->assertEquals($logInfoMessage, $argMessage);
+                    return true;
+                } catch (Exception $e) {
+                    dd($e);
+                }
+            })->once();
         Log::shouldReceive('info')
-            ->with($logSuccessValue)
-            ->once();
+            ->withArgs(function ($argMessage) use ($logSuccessMessage) {
+                try {
+                    $this->assertEquals($logSuccessMessage, $argMessage);
+                    return true;
+                } catch (Exception $e) {
+                    dd($e);
+                }
+            })->once();
 
 
         // Act
@@ -488,11 +367,6 @@ class CreateUserTest extends BaseFeatureTestCase
         // Assert
         $response->assertStatus(Response::HTTP_CREATED);
         $this->resourceAssertion->assertResource($this, $response);
-    }
-
-    protected function getEndpointInfo(): string
-    {
-        return "POST {$this->getEndpointUrl()}";
     }
 
     protected function getEndpointUrl(): string

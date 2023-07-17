@@ -31,11 +31,9 @@ class LoggerMessageFormatterFactoryTest extends TestCase
         $message = $this->faker->sentence();
         $meta = $this->faker->sentences();
 
-        $service = $this->makeService();
-
 
         // Act
-        $result = $service->makeGeneric(
+        $result = $this->makeService()->makeGeneric(
             $endpoint,
             $requestID,
             $processingStatus,

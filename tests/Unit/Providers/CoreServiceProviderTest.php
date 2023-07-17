@@ -4,16 +4,13 @@ namespace Tests\Unit\Providers;
 
 use App\Providers\CoreServiceProvider;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Http\Request;
 use Illuminate\Support\ServiceProvider;
 use Mockery;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 use Tests\Unit\Providers\CoreBinder\CoreBinderTestCaseAbstract;
-use Tests\Unit\Providers\CoreBinder\CoreBinderTestCaseFormatter;
-use Tests\Unit\Providers\CoreBinder\CoreBinderTestCaseHealthcheck;
-use Tests\Unit\Providers\CoreBinder\CoreBinderTestCaseLogger;
-use Tests\Unit\Providers\CoreBinder\CoreBinderTestCaseUser;
 
 class CoreServiceProviderTest extends TestCase
 {
@@ -26,6 +23,8 @@ class CoreServiceProviderTest extends TestCase
         parent::setUp();
 
         $this->applicationMock = Mockery::mock(Application::class);
+        $this->mockLaravelMake();
+
         $this->serviceProvider = new CoreServiceProvider($this->applicationMock);
     }
 
@@ -41,10 +40,11 @@ class CoreServiceProviderTest extends TestCase
     {
         // Arrange
         $coreAssertionClassNames = [
-            CoreBinderTestCaseFormatter::class,
-            CoreBinderTestCaseHealthcheck::class,
-            CoreBinderTestCaseLogger::class,
-            CoreBinderTestCaseUser::class,
+            \Tests\Unit\Providers\CoreBinder\CoreBinderTestCaseAuth::class,
+            \Tests\Unit\Providers\CoreBinder\CoreBinderTestCaseFormatter::class,
+            \Tests\Unit\Providers\CoreBinder\CoreBinderTestCaseHealthcheck::class,
+            \Tests\Unit\Providers\CoreBinder\CoreBinderTestCaseLogger::class,
+            \Tests\Unit\Providers\CoreBinder\CoreBinderTestCaseUser::class,
         ];
 
 
@@ -60,5 +60,12 @@ class CoreServiceProviderTest extends TestCase
 
         // Act
         $this->serviceProvider->boot();
+    }
+
+    protected function mockLaravelMake(): void
+    {
+        $this->applicationMock->shouldReceive('make')
+            ->with(Request::class)
+            ->andReturn(new Request());
     }
 }

@@ -10,9 +10,10 @@
     "require": {
         "php": "^8.0.2",
         "guzzlehttp/guzzle": "^7.2",
-        "laravel/framework": "^10.0",
+        "laravel/framework": "v10.14.1",
         "laravel/sanctum": "^3.0",
         "laravel/tinker": "^2.7",
+        "lcobucci/jwt": "^5.0",
         "spatie/laravel-permission": "^5.9"
     },
     "require-dev": {

@@ -57,7 +57,7 @@ readonly class HealthcheckResponse implements Arrayable
         return [
             'name' => $dependency->name,
             'isHealthy' => $this->isDependencyHealthy($dependency),
-            'reason' => optional($dependency->error)->getMessage(),
+            'reason' => $dependency->error?->getMessage(),
         ];
     }
 }

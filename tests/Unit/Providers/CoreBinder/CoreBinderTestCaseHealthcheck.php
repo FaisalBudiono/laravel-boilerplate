@@ -8,6 +8,7 @@ use App\Core\Healthcheck\Healthchecker\HealthcheckerMysql;
 use App\Core\Healthcheck\Healthchecker\HealthcheckerMysqlContract;
 use App\Core\Healthcheck\VersionFetcher\VersionFetcher;
 use App\Core\Healthcheck\VersionFetcher\VersionFetcherConfig;
+use Tests\Unit\Providers\CoreBinder\Dependencies\DependencyFactoryMockery;
 
 class CoreBinderTestCaseHealthcheck extends CoreBinderTestCaseAbstract
 {
@@ -17,8 +18,8 @@ class CoreBinderTestCaseHealthcheck extends CoreBinderTestCaseAbstract
             HealthcheckCoreContract::class => [
                 HealthcheckCore::class,
                 [
-                    VersionFetcher::class,
-                    HealthcheckerMysqlContract::class,
+                    new DependencyFactoryMockery($this->test, VersionFetcher::class),
+                    new DependencyFactoryMockery($this->test, HealthcheckerMysqlContract::class),
                 ],
             ],
             HealthcheckerMysqlContract::class => [

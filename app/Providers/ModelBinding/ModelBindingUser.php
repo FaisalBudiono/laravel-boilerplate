@@ -16,7 +16,7 @@ class ModelBindingUser implements ModelBinding
     {
         Route::bind('userID', function ($value) {
             try {
-                return User::findByIdOrFail($value);
+                return User::findByIDOrFail($value);
             } catch (ModelNotFoundException $e) {
                 throw new NotFoundException($e->exceptionMessage);
             } catch (Exception $e) {

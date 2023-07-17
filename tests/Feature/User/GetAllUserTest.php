@@ -3,9 +3,7 @@
 namespace Tests\Feature\User;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
-use App\Core\Logger\MessageFormatter\LoggerMessageFormatter;
-use App\Core\Logger\MessageFormatter\LoggerMessageFormatterFactoryContract;
-use App\Core\Logger\MessageFormatter\ProcessingStatus;
+use App\Core\Logger\Message\LoggerMessageFactoryContract;
 use App\Core\Query\OrderDirection;
 use App\Core\User\Query\UserOrderBy;
 use App\Core\User\UserCoreContract;
@@ -19,6 +17,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Feature\BaseFeatureTestCase;
+use Tests\Helper\MockInstance\MockerLoggerMessageFactory;
 use Tests\Helper\ResourceAssertion\ResourceAssertion;
 use Tests\Helper\ResourceAssertion\User\ResourceAssertionUserList;
 
@@ -38,8 +37,8 @@ class GetAllUserTest extends BaseFeatureTestCase
 
         $this->instance(UserCoreContract::class, $this->mock(UserCoreContract::class));
         $this->instance(
-            LoggerMessageFormatterFactoryContract::class,
-            $this->mock(LoggerMessageFormatterFactoryContract::class)
+            LoggerMessageFactoryContract::class,
+            $this->mock(LoggerMessageFactoryContract::class),
         );
         Log::partialMock();
     }
@@ -147,8 +146,13 @@ class GetAllUserTest extends BaseFeatureTestCase
         $input = $this->validRequestInput();
         $exceptionMessage = new ExceptionMessageGeneric;
 
-        $mockException = new Exception('generic error');
+        $mockException = new Exception($this->faker->sentence);
 
+        $logInfoMessage = $this->faker->sentence;
+        $logErrorMessage = $this->faker->sentence;
+
+
+        // Assert
         $mockCore = $this->mock(
             UserCoreContract::class,
             function (MockInterface $mock) use ($input, $mockException) {
@@ -162,80 +166,34 @@ class GetAllUserTest extends BaseFeatureTestCase
         );
         $this->instance(UserCoreContract::class, $mockCore);
 
-        $logInfoValue = $this->faker->sentence;
-        $logErrorValue = $this->faker->sentence;
-
-        $mockLoggerFormatterFactory = $this->mock(
-            LoggerMessageFormatterFactoryContract::class,
-            function (MockInterface $mock) use (
-                $logInfoValue,
-                $logErrorValue,
-                $mockException,
+        MockerLoggerMessageFactory::make($this)
+            ->setHTTPStart(
+                'Get all user endpoint',
                 $input,
-            ) {
-                $mock->shouldReceive('makeGeneric')
-                    ->once()
-                    ->withArgs(fn (
-                        string $argEndpoint,
-                        string $argRequestID,
-                        ProcessingStatus $argProcessingStatus,
-                        string $argMessage,
-                        array $argMeta,
-                    ) => $this->validateLoggingBegin(
-                        $argEndpoint,
-                        $argRequestID,
-                        $argProcessingStatus,
-                        $argMessage,
-                        $argMeta,
-                        $this->getEndpointInfo(),
-                        'Get all user endpoint',
-                        collect($input)
-                            ->map(fn ($val) => (string) $val)
-                            ->toArray(),
-                    ))->andReturn(
-                        $this->mock(
-                            LoggerMessageFormatter::class,
-                            fn (MockInterface $mock) => $mock->shouldReceive('getMessage')
-                                ->once()->andReturn($logInfoValue)
-                        )
-                    );
-
-                $mock->shouldReceive('makeGeneric')
-                    ->once()
-                    ->withArgs(fn (
-                        string $argEndpoint,
-                        string $argRequestID,
-                        ProcessingStatus $argProcessingStatus,
-                        string $argMessage,
-                        array $argMeta,
-                    ) => $this->validateLoggingError(
-                        $argEndpoint,
-                        $argRequestID,
-                        $argProcessingStatus,
-                        $argMessage,
-                        $argMeta,
-                        $this->getEndpointInfo(),
-                        $mockException,
-                    ))->andReturn(
-                        $this->mock(
-                            LoggerMessageFormatter::class,
-                            fn (MockInterface $mock) => $mock->shouldReceive('getMessage')
-                                ->once()->andReturn($logErrorValue)
-                        )
-                    );
-            }
-        );
-        $this->instance(
-            LoggerMessageFormatterFactoryContract::class,
-            $mockLoggerFormatterFactory
-        );
+                $logInfoMessage,
+            )->setHTTPError(
+                $mockException,
+                $logErrorMessage,
+            )->bindInstance();
 
         Log::shouldReceive('info')
-            ->with($logInfoValue)
-            ->once();
+            ->withArgs(function ($argLogMessage) use ($logInfoMessage) {
+                try {
+                    $this->assertEquals($logInfoMessage, $argLogMessage);
+                    return true;
+                } catch (Exception $e) {
+                    dd($e);
+                }
+            })->once();
         Log::shouldReceive('error')
-            ->with($logErrorValue)
-            ->once();
+            ->withArgs(function ($argLogMessage) use ($logErrorMessage) {
+                try {
+                    $this->assertEquals($logErrorMessage, $argLogMessage);
+                    return true;
+                } catch (Exception $e) {
+                    dd($e);
+                }
+            })->once();
 
 
         // Act
@@ -257,8 +215,12 @@ class GetAllUserTest extends BaseFeatureTestCase
     #[DataProvider('validDataProvider')]
     public function should_show_200_when_successfully_get_user_list(
         array $input,
-        array $loggedInput,
     ) {
+        // Arrange
+        $logInfoMessage = $this->faker->sentence;
+        $logSuccessMessage = $this->faker->sentence;
+
+
         // Assert
         $mockCore = $this->mock(
             UserCoreContract::class,
@@ -273,77 +235,34 @@ class GetAllUserTest extends BaseFeatureTestCase
         );
         $this->instance(UserCoreContract::class, $mockCore);
 
-        $logInfoValue = $this->faker->sentence;
-        $logSuccessValue = $this->faker->sentence;
-
-        $mockLoggerFormatterFactory = $this->mock(
-            LoggerMessageFormatterFactoryContract::class,
-            function (MockInterface $mock) use (
-                $logInfoValue,
-                $logSuccessValue,
-                $loggedInput,
-            ) {
-                $mock->shouldReceive('makeGeneric')
-                    ->once()
-                    ->withArgs(fn (
-                        string $argEndpoint,
-                        string $argRequestID,
-                        ProcessingStatus $argProcessingStatus,
-                        string $argMessage,
-                        array $argMeta,
-                    ) => $this->validateLoggingBegin(
-                        $argEndpoint,
-                        $argRequestID,
-                        $argProcessingStatus,
-                        $argMessage,
-                        $argMeta,
-                        $this->getEndpointInfo(),
-                        'Get all user endpoint',
-                        $loggedInput,
-                    ))->andReturn(
-                        $this->mock(
-                            LoggerMessageFormatter::class,
-                            fn (MockInterface $mock) => $mock->shouldReceive('getMessage')
-                                ->once()->andReturn($logInfoValue)
-                        )
-                    );
-
-                $mock->shouldReceive('makeGeneric')
-                    ->once()
-                    ->withArgs(fn (
-                        string $argEndpoint,
-                        string $argRequestID,
-                        ProcessingStatus $argProcessingStatus,
-                        string $argMessage,
-                        array $argMeta,
-                    ) => $this->validateLoggingSuccess(
-                        $argEndpoint,
-                        $argRequestID,
-                        $argProcessingStatus,
-                        $argMessage,
-                        $argMeta,
-                        $this->getEndpointInfo(),
-                        'Get all user endpoint',
-                    ))->andReturn(
-                        $this->mock(
-                            LoggerMessageFormatter::class,
-                            fn (MockInterface $mock) => $mock->shouldReceive('getMessage')
-                                ->once()->andReturn($logSuccessValue)
-                        )
-                    );
-            }
-        );
-        $this->instance(
-            LoggerMessageFormatterFactoryContract::class,
-            $mockLoggerFormatterFactory
-        );
+        MockerLoggerMessageFactory::make($this)
+            ->setHTTPStart(
+                'Get all user endpoint',
+                collect($input)->filter()->toArray(),
+                $logInfoMessage,
+            )->setHTTPSuccess(
+                'Get all user endpoint',
+                $logSuccessMessage,
+            )->bindInstance();
 
         Log::shouldReceive('info')
-            ->with($logInfoValue)
-            ->once();
+            ->withArgs(function ($argLogMessage) use ($logInfoMessage) {
+                try {
+                    $this->assertEquals($logInfoMessage, $argLogMessage);
+                    return true;
+                } catch (Exception $e) {
+                    dd($e);
+                }
+            })->once();
         Log::shouldReceive('info')
-            ->with($logSuccessValue)
-            ->once();
+            ->withArgs(function ($argLogMessage) use ($logSuccessMessage) {
+                try {
+                    $this->assertEquals($logSuccessMessage, $argLogMessage);
+                    return true;
+                } catch (Exception $e) {
+                    dd($e);
+                }
+            })->once();
 
 
         // Act
@@ -364,9 +283,6 @@ class GetAllUserTest extends BaseFeatureTestCase
             'complete data' => [
                 collect(self::validRequestInput())
                     ->toArray(),
-                collect(self::validRequestInput())
-                    ->map(fn ($val) => (string) $val)
-                    ->toArray(),
             ],
 
             'orderBy is null' => [
@@ -374,18 +290,10 @@ class GetAllUserTest extends BaseFeatureTestCase
                     ->replace([
                         'orderBy' => null
                     ])->toArray(),
-                collect(self::validRequestInput())
-                    ->except('orderBy')
-                    ->map(fn ($val) => (string) $val)
-                    ->toArray(),
             ],
             'without orderBy' => [
                 collect(self::validRequestInput())
                     ->except('orderBy')
-                    ->toArray(),
-                collect(self::validRequestInput())
-                    ->except('orderBy')
-                    ->map(fn ($val) => (string) $val)
                     ->toArray(),
             ],
 
@@ -394,18 +302,10 @@ class GetAllUserTest extends BaseFeatureTestCase
                     ->replace([
                         'orderDir' => null
                     ])->toArray(),
-                collect(self::validRequestInput())
-                    ->except('orderDir')
-                    ->map(fn ($val) => (string) $val)
-                    ->toArray(),
             ],
             'without orderDir' => [
                 collect(self::validRequestInput())
                     ->except('orderDir')
-                    ->toArray(),
-                collect(self::validRequestInput())
-                    ->except('orderDir')
-                    ->map(fn ($val) => (string) $val)
                     ->toArray(),
             ],
 
@@ -414,18 +314,10 @@ class GetAllUserTest extends BaseFeatureTestCase
                     ->replace([
                         'page' => null
                     ])->toArray(),
-                collect(self::validRequestInput())
-                    ->except('page')
-                    ->map(fn ($val) => (string) $val)
-                    ->toArray(),
             ],
             'without page' => [
                 collect(self::validRequestInput())
                     ->except('page')
-                    ->toArray(),
-                collect(self::validRequestInput())
-                    ->except('page')
-                    ->map(fn ($val) => (string) $val)
                     ->toArray(),
             ],
 
@@ -434,26 +326,13 @@ class GetAllUserTest extends BaseFeatureTestCase
                     ->replace([
                         'perPage' => null
                     ])->toArray(),
-                collect(self::validRequestInput())
-                    ->except('perPage')
-                    ->map(fn ($val) => (string) $val)
-                    ->toArray(),
             ],
             'without perPage' => [
                 collect(self::validRequestInput())
                     ->except('perPage')
                     ->toArray(),
-                collect(self::validRequestInput())
-                    ->except('perPage')
-                    ->map(fn ($val) => (string) $val)
-                    ->toArray(),
             ],
         ];
-    }
-
-    protected function getEndpointInfo(): string
-    {
-        return "GET {$this->getEndpointUrl()}";
     }
 
     protected function getEndpointUrl(): string
@@ -468,11 +347,11 @@ class GetAllUserTest extends BaseFeatureTestCase
         try {
             $this->assertSame(
                 $input['orderBy'] ?? null,
-                optional($argInput->getOrderBy())->value
+                $argInput->getOrderBy()?->value
             );
             $this->assertSame(
                 $input['orderDir'] ?? null,
-                optional($argInput->getOrderDirection())->value
+                $argInput->getOrderDirection()?->value
             );
             $this->assertSame(
                 $input['page'] ?? null,

@@ -24,8 +24,10 @@ class UserCore implements UserCoreContract
         try {
             DB::beginTransaction();
 
+            $email = $request->getEmail();
+
             $isEmailExist = User::query()
-                ->where('email', $request->getEmail())
+                ->where('email', $email)
                 ->exists();
             if ($isEmailExist) {
                 throw new UserEmailDuplicatedException(new ExceptionMessageStandard(
@@ -36,7 +38,7 @@ class UserCore implements UserCoreContract
 
             $user = new User;
             $user->name = $request->getName();
-            $user->email = $request->getEmail();
+            $user->email = $email;
             $user->password = Hash::make($request->getUserPassword());
             $user->save();
 

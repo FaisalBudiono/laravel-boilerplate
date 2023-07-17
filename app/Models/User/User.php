@@ -53,13 +53,27 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public static function findByIdOrFail(int $id): self
+    public static function findByIDOrFail(int $id): self
     {
         $user = self::query()->where('id', $id)->first();
 
         if (is_null($user)) {
             throw new ModelNotFoundException(new ExceptionMessageStandard(
                 'User ID is not found',
+                ExceptionErrorCode::MODEL_NOT_FOUND->value,
+            ));
+        }
+
+        return $user;
+    }
+
+    public static function findByEmailOrFail(string $email): self
+    {
+        $user = self::query()->where('email', $email)->first();
+
+        if (is_null($user)) {
+            throw new ModelNotFoundException(new ExceptionMessageStandard(
+                'User email is not found',
                 ExceptionErrorCode::MODEL_NOT_FOUND->value,
             ));
         }

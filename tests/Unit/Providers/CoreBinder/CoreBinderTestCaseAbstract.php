@@ -2,21 +2,16 @@
 
 namespace Tests\Unit\Providers\CoreBinder;
 
-use Illuminate\Contracts\Foundation\Application;
 use Mockery;
-use Mockery\MockInterface;
 use Tests\TestCase;
+use Tests\Unit\Providers\CoreBinder\Dependencies\DependencyFactory;
 use Tests\Unit\Providers\CoreServiceProviderTest;
 
 abstract class CoreBinderTestCaseAbstract extends TestCase
 {
-    /** @var Application|MockInterface */
-    protected $applicationMock;
-    protected CoreServiceProviderTest $test;
-
-    public function __construct(CoreServiceProviderTest $test)
-    {
-        $this->test = $test;
+    public function __construct(
+        protected CoreServiceProviderTest $test,
+    ) {
     }
 
     public function assertBind(): void
@@ -28,10 +23,10 @@ abstract class CoreBinderTestCaseAbstract extends TestCase
                 ->once()
                 ->with($abstractClassName, Mockery::on(function ($app) use ($implementorSpecs) {
                     $implementorClassName = $implementorSpecs[0];
-                    $constructorClassNames = $implementorSpecs[1] ?? [];
+                    $dependencyFactories = $implementorSpecs[1] ?? [];
 
-                    $constructorArgs = collect($constructorClassNames)->map(
-                        fn ($className) => $this->test->mock($className)
+                    $constructorArgs = collect($dependencyFactories)->map(
+                        fn (DependencyFactory $dependencyFactory) => $dependencyFactory->make()
                     );
 
                     $service = new $implementorClassName(...$constructorArgs);

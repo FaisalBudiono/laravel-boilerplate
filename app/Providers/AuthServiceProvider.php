@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
-// use Illuminate\Support\Facades\Gate;
+use App\Core\Auth\JWT\JWTGuardContract;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Auth;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -25,6 +27,11 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        //
+        Auth::extend(
+            'jwt',
+            function (Application $app, string $name, array $config) {
+                return $app->make(JWTGuardContract::class);
+            }
+        );
     }
 }
