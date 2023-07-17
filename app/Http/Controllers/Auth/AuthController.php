@@ -10,6 +10,7 @@ use App\Exceptions\Core\Auth\JWT\JWTException;
 use App\Exceptions\Http\InternalServerErrorException;
 use App\Exceptions\Http\UnauthorizedException;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\GetRefreshTokenRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\LogoutRequest;
 use Exception;
@@ -69,6 +70,32 @@ class AuthController extends Controller
             throw new UnauthorizedException($e->exceptionMessage);
         } catch (Exception $e) {
             Log::warning($this->logFormatter->makeHTTPError($e));
+            throw new InternalServerErrorException(new ExceptionMessageGeneric);
+        }
+    }
+
+    public function refresh(GetRefreshTokenRequest $request)
+    {
+        try {
+            Log::info(
+                $this->logFormatter->makeHTTPStart(
+                    'Get refresh token',
+                    $request->toArray(),
+                ),
+            );
+
+            $tokenPair = $this->core->refresh($request);
+
+            Log::info($this->logFormatter->makeHTTPSuccess('Get refresh token'));
+
+            return response()->json([
+                'data' => $tokenPair->toArray()
+            ]);
+        } catch (JWTException $e) {
+            Log::warning($this->logFormatter->makeHTTPError($e));
+            throw new UnauthorizedException($e->exceptionMessage);
+        } catch (Exception $e) {
+            Log::error($this->logFormatter->makeHTTPError($e));
             throw new InternalServerErrorException(new ExceptionMessageGeneric);
         }
     }
