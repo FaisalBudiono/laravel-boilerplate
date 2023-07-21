@@ -176,23 +176,6 @@ class HealthcheckTest extends BaseFeatureTestCase
                     new HealthcheckStatus('redis', null),
                 ),
             ],
-
-            // 'when one of dependencies is NOT healthy' => [
-            //     new HealthcheckResponse(
-            //         'v1.0.0',
-            //         new HealthcheckStatus('mysql', new Exception('foo bar')),
-            //         new HealthcheckStatus('redis', null),
-            //     ),
-            //     Response::HTTP_INTERNAL_SERVER_ERROR,
-            // ],
-            // 'when all dependencies is NOT healthy' => [
-            //     new HealthcheckResponse(
-            //         'v1.0.0',
-            //         new HealthcheckStatus('mysql', new Exception('foo bar')),
-            //         new HealthcheckStatus('redis', new Exception('foo bar')),
-            //     ),
-            //     Response::HTTP_INTERNAL_SERVER_ERROR,
-            // ],
         ];
     }
 
