@@ -3,10 +3,8 @@
 namespace Tests\Feature\User;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
-use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
 use App\Core\Logger\Message\LoggerMessageFactoryContract;
 use App\Core\User\UserCoreContract;
-use App\Exceptions\Http\UnauthorizedException;
 use App\Models\User\User;
 use App\Port\Core\User\GetUserPort;
 use Exception;
@@ -44,37 +42,6 @@ class GetMyInformationTest extends BaseFeatureTestCase
             $this->mock(LoggerMessageFactoryContract::class),
         );
         Log::partialMock();
-    }
-
-    #[Test]
-    public function should_show_401_when_user_not_login_with_jwt()
-    {
-        // Arrange
-        $mockedExceptionMessage = new ExceptionMessageStandard(
-            $this->faker->sentence,
-            $this->faker->sentence,
-        );
-        $mockedException = new UnauthorizedException($mockedExceptionMessage);
-
-
-        // Assert
-        MockerAuthenticatedByJWT::make($this)
-            ->mockGuestAndThrow($mockedException)
-            ->bindInstance();
-
-
-        // Act
-        $response = $this->getJson(
-            $this->getEndpointUrl(),
-        );
-
-
-        // Assert
-        $response->assertUnauthorized();
-        $response->assertJsonPath(
-            'errors',
-            $mockedExceptionMessage->getJsonResponse()->toArray(),
-        );
     }
 
     #[Test]

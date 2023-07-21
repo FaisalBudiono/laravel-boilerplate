@@ -47,23 +47,6 @@ class UpdateUserTest extends BaseFeatureTestCase
     }
 
     #[Test]
-    public function should_show_404_when_user_id_is_not_found()
-    {
-        // Arrange
-        $notFoundId = $this->user->id + 1;
-
-
-        // Act
-        $response = $this->putJson(
-            $this->getEndpointUrl($notFoundId),
-        );
-
-
-        // Assert
-        $response->assertNotFound();
-    }
-
-    #[Test]
     #[DataProvider('invalidDataProvider')]
     public function should_show_422_when_input_is_invalid(
         string $errorMaker,

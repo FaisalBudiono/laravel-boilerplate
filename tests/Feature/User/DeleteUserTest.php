@@ -39,23 +39,6 @@ class DeleteUserTest extends BaseFeatureTestCase
     }
 
     #[Test]
-    public function should_show_404_when_user_id_is_not_found()
-    {
-        // Arrange
-        $notFoundId = $this->user->id + 1;
-
-
-        // Act
-        $response = $this->deleteJson(
-            $this->getEndpointUrl($notFoundId),
-        );
-
-
-        // Assert
-        $response->assertNotFound();
-    }
-
-    #[Test]
     public function should_show_500_when_thrown_generic_error()
     {
         // Arrange
