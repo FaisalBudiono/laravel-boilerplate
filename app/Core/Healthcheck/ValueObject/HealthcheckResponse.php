@@ -7,7 +7,7 @@ use Illuminate\Contracts\Support\Arrayable;
 readonly class HealthcheckResponse implements Arrayable
 {
     /**
-     * @var array<HealthcheckStatus>
+     * @var array<int,HealthcheckStatus>
      */
     public array $dependencies;
 
