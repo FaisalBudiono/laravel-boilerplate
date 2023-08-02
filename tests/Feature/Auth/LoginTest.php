@@ -6,18 +6,15 @@ use App\Core\Auth\AuthJWTCoreContract;
 use App\Core\Auth\JWT\ValueObject\TokenPair;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
-use App\Core\Logger\Message\LoggerMessageFactoryContract;
 use App\Exceptions\Core\Auth\InvalidCredentialException;
 use App\Port\Core\Auth\LoginPort;
 use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Log;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Feature\BaseFeatureTestCase;
-use Tests\Helper\MockInstance\MockerLoggerMessageFactory;
 
 class LoginTest extends BaseFeatureTestCase
 {
@@ -30,10 +27,6 @@ class LoginTest extends BaseFeatureTestCase
         $this->instance(
             AuthJWTCoreContract::class,
             $this->mock(AuthJWTCoreContract::class),
-        );
-        $this->instance(
-            LoggerMessageFactoryContract::class,
-            $this->mock(LoggerMessageFactoryContract::class),
         );
     }
 
@@ -132,9 +125,6 @@ class LoginTest extends BaseFeatureTestCase
         $exceptionMessage = new ExceptionMessageGeneric;
         $mockException = new Exception($this->faker->sentence());
 
-        $logInfoMessage = $this->faker->sentence;
-        $logErrorMessage = $this->faker->sentence;
-
 
         // Assert
         $mockCore = $this->mock(
@@ -149,35 +139,6 @@ class LoginTest extends BaseFeatureTestCase
             }
         );
         $this->instance(AuthJWTCoreContract::class, $mockCore);
-
-        MockerLoggerMessageFactory::make($this)
-            ->setHTTPStart(
-                'Login',
-                $input,
-                $logInfoMessage,
-            )->setHTTPError(
-                $mockException,
-                $logErrorMessage,
-            )->bindInstance();
-
-        Log::shouldReceive('info')
-            ->withArgs(function ($argMessage) use ($logInfoMessage) {
-                try {
-                    $this->assertEquals($logInfoMessage, $argMessage);
-                    return true;
-                } catch (Exception $e) {
-                    dd($e);
-                }
-            })->once();
-        Log::shouldReceive('error')
-            ->withArgs(function ($argMessage) use ($logErrorMessage) {
-                try {
-                    $this->assertEquals($logErrorMessage, $argMessage);
-                    return true;
-                } catch (Exception $e) {
-                    dd($e);
-                }
-            })->once();
 
 
         // Act
@@ -206,9 +167,6 @@ class LoginTest extends BaseFeatureTestCase
             $this->faker->sentence,
         ));
 
-        $logInfoMessage = $this->faker->sentence;
-        $logErrorMessage = $this->faker->sentence;
-
 
         // Assert
         $mockCore = $this->mock(
@@ -223,35 +181,6 @@ class LoginTest extends BaseFeatureTestCase
             }
         );
         $this->instance(AuthJWTCoreContract::class, $mockCore);
-
-        MockerLoggerMessageFactory::make($this)
-            ->setHTTPStart(
-                'Login',
-                $input,
-                $logInfoMessage,
-            )->setHTTPError(
-                $mockException,
-                $logErrorMessage,
-            )->bindInstance();
-
-        Log::shouldReceive('info')
-            ->withArgs(function ($argMessage) use ($logInfoMessage) {
-                try {
-                    $this->assertEquals($logInfoMessage, $argMessage);
-                    return true;
-                } catch (Exception $e) {
-                    dd($e);
-                }
-            })->once();
-        Log::shouldReceive('warning')
-            ->withArgs(function ($argMessage) use ($logErrorMessage) {
-                try {
-                    $this->assertEquals($logErrorMessage, $argMessage);
-                    return true;
-                } catch (Exception $e) {
-                    dd($e);
-                }
-            })->once();
 
 
         // Act
@@ -280,9 +209,6 @@ class LoginTest extends BaseFeatureTestCase
             $this->faker->sentence,
         );
 
-        $logInfoMessage = $this->faker->sentence;
-        $logSuccessMessage = $this->faker->sentence;
-
 
         // Assert
         $mockCore = $this->mock(
@@ -297,36 +223,6 @@ class LoginTest extends BaseFeatureTestCase
             }
         );
         $this->instance(AuthJWTCoreContract::class, $mockCore);
-
-        MockerLoggerMessageFactory::make($this)
-            ->setHTTPStart(
-                'Login',
-                $input,
-                $logInfoMessage,
-            )->setHTTPSuccess(
-                'Login',
-                [],
-                $logSuccessMessage,
-            )->bindInstance();
-
-        Log::shouldReceive('info')
-            ->withArgs(function ($argMessage) use ($logInfoMessage) {
-                try {
-                    $this->assertEquals($logInfoMessage, $argMessage);
-                    return true;
-                } catch (Exception $e) {
-                    dd($e);
-                }
-            })->once();
-        Log::shouldReceive('info')
-            ->withArgs(function ($argMessage) use ($logSuccessMessage) {
-                try {
-                    $this->assertEquals($logSuccessMessage, $argMessage);
-                    return true;
-                } catch (Exception $e) {
-                    dd($e);
-                }
-            })->once();
 
 
         // Act

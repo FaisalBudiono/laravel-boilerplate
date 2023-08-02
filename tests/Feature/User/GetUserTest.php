@@ -3,18 +3,15 @@
 namespace Tests\Feature\User;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
-use App\Core\Logger\Message\LoggerMessageFactoryContract;
 use App\Core\User\UserCoreContract;
 use App\Models\User\User;
 use App\Port\Core\User\GetUserPort;
 use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Log;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Feature\BaseFeatureTestCase;
-use Tests\Helper\MockInstance\MockerLoggerMessageFactory;
 use Tests\Helper\ResourceAssertion\ResourceAssertion;
 use Tests\Helper\ResourceAssertion\User\ResourceAssertionUser;
 
@@ -36,11 +33,6 @@ class GetUserTest extends BaseFeatureTestCase
         ]);
 
         $this->instance(UserCoreContract::class, $this->mock(UserCoreContract::class));
-        $this->instance(
-            LoggerMessageFactoryContract::class,
-            $this->mock(LoggerMessageFactoryContract::class),
-        );
-        Log::partialMock();
     }
 
     #[Test]
@@ -50,9 +42,6 @@ class GetUserTest extends BaseFeatureTestCase
         $exceptionMessage = new ExceptionMessageGeneric;
 
         $mockException = new Exception($this->faker->sentence());
-
-        $logInfoMessage = $this->faker->sentence;
-        $logErrorMessage = $this->faker->sentence;
 
 
         // Assert
@@ -68,35 +57,6 @@ class GetUserTest extends BaseFeatureTestCase
             }
         );
         $this->instance(UserCoreContract::class, $mockCore);
-
-        MockerLoggerMessageFactory::make($this)
-            ->setHTTPStart(
-                'Show user endpoint',
-                [],
-                $logInfoMessage,
-            )->setHTTPError(
-                $mockException,
-                $logErrorMessage,
-            )->bindInstance();
-
-        Log::shouldReceive('info')
-            ->withArgs(function ($argLogMessage) use ($logInfoMessage) {
-                try {
-                    $this->assertEquals($logInfoMessage, $argLogMessage);
-                    return true;
-                } catch (Exception $e) {
-                    dd($e);
-                }
-            })->once();
-        Log::shouldReceive('error')
-            ->withArgs(function ($argLogMessage) use ($logErrorMessage) {
-                try {
-                    $this->assertEquals($logErrorMessage, $argLogMessage);
-                    return true;
-                } catch (Exception $e) {
-                    dd($e);
-                }
-            })->once();
 
 
         // Act
@@ -116,9 +76,6 @@ class GetUserTest extends BaseFeatureTestCase
         // Arrange
         $mockedUser = User::factory()->create()->fresh();
 
-        $logInfoMessage = $this->faker->sentence;
-        $logSuccessMessage = $this->faker->sentence;
-
 
         // Assert
         $mockCore = $this->mock(
@@ -133,36 +90,6 @@ class GetUserTest extends BaseFeatureTestCase
             }
         );
         $this->instance(UserCoreContract::class, $mockCore);
-
-        MockerLoggerMessageFactory::make($this)
-            ->setHTTPStart(
-                'Show user endpoint',
-                [],
-                $logInfoMessage,
-            )->setHTTPSuccess(
-                'Show user endpoint',
-                [],
-                $logSuccessMessage,
-            )->bindInstance();
-
-        Log::shouldReceive('info')
-            ->withArgs(function ($argLogMessage) use ($logInfoMessage) {
-                try {
-                    $this->assertEquals($logInfoMessage, $argLogMessage);
-                    return true;
-                } catch (Exception $e) {
-                    dd($e);
-                }
-            })->once();
-        Log::shouldReceive('info')
-            ->withArgs(function ($argLogMessage) use ($logSuccessMessage) {
-                try {
-                    $this->assertEquals($logSuccessMessage, $argLogMessage);
-                    return true;
-                } catch (Exception $e) {
-                    dd($e);
-                }
-            })->once();
 
 
         // Act

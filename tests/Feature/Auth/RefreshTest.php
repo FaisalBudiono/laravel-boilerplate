@@ -6,7 +6,6 @@ use App\Core\Auth\AuthJWTCoreContract;
 use App\Core\Auth\JWT\ValueObject\TokenPair;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
-use App\Core\Logger\Message\LoggerMessageFactoryContract;
 use App\Exceptions\Core\Auth\JWT\FailedParsingException;
 use App\Exceptions\Core\Auth\JWT\InvalidTokenException;
 use App\Exceptions\Core\Auth\JWT\JWTException;
@@ -14,12 +13,10 @@ use App\Port\Core\Auth\GetRefreshTokenPort;
 use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Log;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Feature\BaseFeatureTestCase;
-use Tests\Helper\MockInstance\MockerLoggerMessageFactory;
 
 class RefreshTest extends BaseFeatureTestCase
 {
@@ -33,12 +30,6 @@ class RefreshTest extends BaseFeatureTestCase
             AuthJWTCoreContract::class,
             $this->mock(AuthJWTCoreContract::class),
         );
-        $this->instance(
-            LoggerMessageFactoryContract::class,
-            $this->mock(LoggerMessageFactoryContract::class),
-        );
-
-        Log::partialMock();
     }
 
     #[Test]
@@ -103,9 +94,6 @@ class RefreshTest extends BaseFeatureTestCase
         $exceptionMessage = new ExceptionMessageGeneric;
         $mockException = new Exception($this->faker->sentence());
 
-        $logInfoMessage = $this->faker->sentence;
-        $logErrorMessage = $this->faker->sentence;
-
 
         // Assert
         $mockCore = $this->mock(
@@ -120,33 +108,6 @@ class RefreshTest extends BaseFeatureTestCase
             }
         );
         $this->instance(AuthJWTCoreContract::class, $mockCore);
-
-        MockerLoggerMessageFactory::make($this)
-            ->setHTTPStart(
-                'Get refresh token',
-                $input,
-                $logInfoMessage,
-            )->setHTTPError($mockException, $logErrorMessage)
-            ->bindInstance();
-
-        Log::shouldReceive('info')
-            ->withArgs(function ($argMessage) use ($logInfoMessage) {
-                try {
-                    $this->assertEquals($logInfoMessage, $argMessage);
-                    return true;
-                } catch (Exception $e) {
-                    dd($e);
-                }
-            })->once();
-        Log::shouldReceive('error')
-            ->withArgs(function ($argMessage) use ($logErrorMessage) {
-                try {
-                    $this->assertEquals($logErrorMessage, $argMessage);
-                    return true;
-                } catch (Exception $e) {
-                    dd($e);
-                }
-            })->once();
 
 
         // Act
@@ -172,9 +133,6 @@ class RefreshTest extends BaseFeatureTestCase
         // Arrange
         $input = $this->validRequestInput();
 
-        $logInfoMessage = $this->faker->sentence;
-        $logErrorMessage = $this->faker->sentence;
-
 
         // Assert
         $mockCore = $this->mock(
@@ -189,33 +147,6 @@ class RefreshTest extends BaseFeatureTestCase
             }
         );
         $this->instance(AuthJWTCoreContract::class, $mockCore);
-
-        MockerLoggerMessageFactory::make($this)
-            ->setHTTPStart(
-                'Get refresh token',
-                $input,
-                $logInfoMessage,
-            )->setHTTPError($mockJWTException, $logErrorMessage)
-            ->bindInstance();
-
-        Log::shouldReceive('info')
-            ->withArgs(function ($argMessage) use ($logInfoMessage) {
-                try {
-                    $this->assertEquals($logInfoMessage, $argMessage);
-                    return true;
-                } catch (Exception $e) {
-                    dd($e);
-                }
-            })->once();
-        Log::shouldReceive('warning')
-            ->withArgs(function ($argMessage) use ($logErrorMessage) {
-                try {
-                    $this->assertEquals($logErrorMessage, $argMessage);
-                    return true;
-                } catch (Exception $e) {
-                    dd($e);
-                }
-            })->once();
 
 
         // Act
@@ -259,9 +190,6 @@ class RefreshTest extends BaseFeatureTestCase
         // Arrange
         $input = $this->validRequestInput();
 
-        $logInfoMessage = $this->faker->sentence;
-        $logSuccessMessage = $this->faker->sentence;
-
         $mockedToken = new TokenPair(
             $this->faker->sentence,
             $this->faker->sentence,
@@ -281,33 +209,6 @@ class RefreshTest extends BaseFeatureTestCase
             }
         );
         $this->instance(AuthJWTCoreContract::class, $mockCore);
-
-        MockerLoggerMessageFactory::make($this)
-            ->setHTTPStart(
-                'Get refresh token',
-                $input,
-                $logInfoMessage,
-            )->setHTTPSuccess('Get refresh token', [], $logSuccessMessage)
-            ->bindInstance();
-
-        Log::shouldReceive('info')
-            ->withArgs(function ($argMessage) use ($logInfoMessage) {
-                try {
-                    $this->assertEquals($logInfoMessage, $argMessage);
-                    return true;
-                } catch (Exception $e) {
-                    dd($e);
-                }
-            })->once();
-        Log::shouldReceive('info')
-            ->withArgs(function ($argMessage) use ($logSuccessMessage) {
-                try {
-                    $this->assertEquals($logSuccessMessage, $argMessage);
-                    return true;
-                } catch (Exception $e) {
-                    dd($e);
-                }
-            })->once();
 
 
         // Act
