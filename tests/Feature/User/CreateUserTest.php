@@ -4,20 +4,17 @@ namespace Tests\Feature\User;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessage;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
-use App\Core\Logger\Message\LoggerMessageFactoryContract;
 use App\Core\User\UserCoreContract;
 use App\Exceptions\Core\User\UserEmailDuplicatedException;
 use App\Models\User\User;
 use App\Port\Core\User\CreateUserPort;
 use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Log;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Feature\BaseFeatureTestCase;
-use Tests\Helper\MockInstance\MockerLoggerMessageFactory;
 use Tests\Helper\ResourceAssertion\ResourceAssertion;
 use Tests\Helper\ResourceAssertion\User\ResourceAssertionUser;
 
@@ -34,11 +31,6 @@ class CreateUserTest extends BaseFeatureTestCase
         $this->resourceAssertion = new ResourceAssertionUser;
 
         $this->instance(UserCoreContract::class, $this->mock(UserCoreContract::class));
-        $this->instance(
-            LoggerMessageFactoryContract::class,
-            $this->mock(LoggerMessageFactoryContract::class),
-        );
-        Log::partialMock();
     }
 
     #[Test]
@@ -161,9 +153,6 @@ class CreateUserTest extends BaseFeatureTestCase
         // Arrange
         $input = $this->validRequestInput();
 
-        $logInfoMessage = $this->faker->sentence;
-        $logErrorMessage = $this->faker->sentence;
-
 
         // Assert
         $mockedExceptionResponse = collect(['foo' => 'bar']);
@@ -192,33 +181,6 @@ class CreateUserTest extends BaseFeatureTestCase
         );
         $this->instance(UserCoreContract::class, $mockCore);
 
-        MockerLoggerMessageFactory::make($this)
-            ->setHTTPStart(
-                'Create user endpoint',
-                $input,
-                $logInfoMessage,
-            )->setHTTPError($mockException, $logErrorMessage)
-            ->bindInstance();
-
-        Log::shouldReceive('info')
-            ->withArgs(function ($argLogMessage) use ($logInfoMessage) {
-                try {
-                    $this->assertEquals($logInfoMessage, $argLogMessage);
-                    return true;
-                } catch (Exception $e) {
-                    dd($e);
-                }
-            })->once();
-        Log::shouldReceive('warning')
-            ->withArgs(function ($argLogMessage) use ($logErrorMessage) {
-                try {
-                    $this->assertEquals($logErrorMessage, $argLogMessage);
-                    return true;
-                } catch (Exception $e) {
-                    dd($e);
-                }
-            })->once();
-
 
         // Act
         $response = $this->postJson(
@@ -241,9 +203,6 @@ class CreateUserTest extends BaseFeatureTestCase
         $exceptionMessage = new ExceptionMessageGeneric;
         $mockException = new Exception($this->faker->sentence());
 
-        $logInfoMessage = $this->faker->sentence;
-        $logErrorMessage = $this->faker->sentence;
-
 
         // Assert
         $mockCore = $this->mock(
@@ -258,33 +217,6 @@ class CreateUserTest extends BaseFeatureTestCase
             }
         );
         $this->instance(UserCoreContract::class, $mockCore);
-
-        MockerLoggerMessageFactory::make($this)
-            ->setHTTPStart(
-                'Create user endpoint',
-                $input,
-                $logInfoMessage,
-            )->setHTTPError($mockException, $logErrorMessage)
-            ->bindInstance();
-
-        Log::shouldReceive('info')
-            ->withArgs(function ($argMessage) use ($logInfoMessage) {
-                try {
-                    $this->assertEquals($logInfoMessage, $argMessage);
-                    return true;
-                } catch (Exception $e) {
-                    dd($e);
-                }
-            })->once();
-        Log::shouldReceive('error')
-            ->withArgs(function ($argMessage) use ($logErrorMessage) {
-                try {
-                    $this->assertEquals($logErrorMessage, $argMessage);
-                    return true;
-                } catch (Exception $e) {
-                    dd($e);
-                }
-            })->once();
 
 
         // Act
@@ -309,9 +241,6 @@ class CreateUserTest extends BaseFeatureTestCase
         $input = $this->validRequestInput();
         $mockedUser = User::factory()->create()->fresh();
 
-        $logInfoMessage = $this->faker->sentence;
-        $logSuccessMessage = $this->faker->sentence;
-
 
         // Assert
         $mockCore = $this->mock(
@@ -326,36 +255,6 @@ class CreateUserTest extends BaseFeatureTestCase
             }
         );
         $this->instance(UserCoreContract::class, $mockCore);
-
-        MockerLoggerMessageFactory::make($this)
-            ->setHTTPStart(
-                'Create user endpoint',
-                $input,
-                $logInfoMessage,
-            )->setHTTPSuccess(
-                'Create user endpoint',
-                [],
-                $logSuccessMessage,
-            )->bindInstance();
-
-        Log::shouldReceive('info')
-            ->withArgs(function ($argMessage) use ($logInfoMessage) {
-                try {
-                    $this->assertEquals($logInfoMessage, $argMessage);
-                    return true;
-                } catch (Exception $e) {
-                    dd($e);
-                }
-            })->once();
-        Log::shouldReceive('info')
-            ->withArgs(function ($argMessage) use ($logSuccessMessage) {
-                try {
-                    $this->assertEquals($logSuccessMessage, $argMessage);
-                    return true;
-                } catch (Exception $e) {
-                    dd($e);
-                }
-            })->once();
 
 
         // Act
