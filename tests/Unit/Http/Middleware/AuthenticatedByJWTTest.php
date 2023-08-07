@@ -54,14 +54,14 @@ class AuthenticatedByJWTTest extends TestCase
     public static function invalidHeaderDataProvider(): array
     {
         $notBearerToken = new Request();
-        $notBearerToken->headers->set('authentication', 'something-else jaskdjalkdjal');
+        $notBearerToken->headers->set('authorization', 'something-else jaskdjalkdjal');
 
         return [
-            'no authentication header' => [
+            'no authorization header' => [
                 new Request(),
             ],
 
-            'authentication is not bearer token' => [
+            'authorization is not bearer token' => [
                 $notBearerToken,
             ],
         ];
@@ -78,7 +78,7 @@ class AuthenticatedByJWTTest extends TestCase
         $mockedToken = $this->faker->words(10, true);
 
         $mockRequest = new Request();
-        $mockRequest->headers->set('Authentication', "Bearer {$mockedToken}");
+        $mockRequest->headers->set('Authorization', "Bearer {$mockedToken}");
 
 
         // Pre-Assert
@@ -135,7 +135,7 @@ class AuthenticatedByJWTTest extends TestCase
         $mockedToken = $this->faker->words(10, true);
 
         $mockRequest = new Request();
-        $mockRequest->headers->set('Authentication', "Bearer {$mockedToken}");
+        $mockRequest->headers->set('Authorization', "Bearer {$mockedToken}");
 
 
         // Assert
@@ -249,15 +249,15 @@ class AuthenticatedByJWTTest extends TestCase
     {
         return [
             'header name with title case' => [
-                'Authentication',
+                'Authorization',
                 'Bearer',
             ],
             'header name with all lowercase' => [
-                'authentication',
+                'authorization',
                 'Bearer',
             ],
             'token type with lowercase' => [
-                'authentication',
+                'authorization',
                 'bearer',
             ],
         ];
