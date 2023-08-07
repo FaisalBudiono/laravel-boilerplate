@@ -12,31 +12,6 @@ use PHPUnit\Framework\Attributes\Test;
 class CacherLaravel_SetChildID_Test extends CacherLaravelBaseTestCase
 {
     #[Test]
-    public function should_throw_exception_when_child_id_key_not_found()
-    {
-        // Arrange
-        $mockedID = $this->faker->uuid();
-        $mockedChildID = $this->faker->uuid();
-
-
-        // Assert
-        Cache::shouldReceive('has')
-            ->with("{$this->getPrefixName()}:{$mockedID}:child:id")
-            ->once()
-            ->andReturn(false);
-
-        $expectedException =  new InvalidTokenException(new ExceptionMessageStandard(
-            'Refresh token not found',
-            RefreshTokenExceptionCode::NOT_FOUND->value,
-        ));
-        $this->expectExceptionObject($expectedException);
-
-
-        // Act
-        $this->makeService()->setChildID($mockedID, $mockedChildID);
-    }
-
-    #[Test]
     public function should_throw_exception_when_expired_at_key_not_found()
     {
         // Arrange
@@ -45,11 +20,6 @@ class CacherLaravel_SetChildID_Test extends CacherLaravelBaseTestCase
 
 
         // Assert
-        Cache::shouldReceive('has')
-            ->with("{$this->getPrefixName()}:{$mockedID}:child:id")
-            ->once()
-            ->andReturn(true);
-
         Cache::shouldReceive('has')
             ->with("{$this->getPrefixName()}:{$mockedID}:expired-at")
             ->once()
@@ -76,12 +46,6 @@ class CacherLaravel_SetChildID_Test extends CacherLaravelBaseTestCase
 
 
         // Assert
-        $isUnusedKey = "{$this->getPrefixName()}:{$mockedID}:child:id";
-        Cache::shouldReceive('has')
-            ->with($isUnusedKey)
-            ->once()
-            ->andReturn(true);
-
         $expiredAtKey = "{$this->getPrefixName()}:{$mockedID}:expired-at";
         Cache::shouldReceive('has')
             ->with($expiredAtKey)
@@ -93,6 +57,7 @@ class CacherLaravel_SetChildID_Test extends CacherLaravelBaseTestCase
             ->once()
             ->andReturn($mockedExpiredAt->unix());
 
+        $isUnusedKey = "{$this->getPrefixName()}:{$mockedID}:child:id";
         Cache::shouldReceive('put')
             ->withArgs(function (
                 string $argKey,
