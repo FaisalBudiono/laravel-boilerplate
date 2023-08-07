@@ -90,10 +90,7 @@ class CacherLaravel implements Cacher
 
     public function setChildID(string $parentID, string $childID): void
     {
-        if (
-            !Cache::has($this->getChildIDKey($parentID))
-            || !Cache::has($this->getExpiredAtKey($parentID))
-        ) {
+        if (!Cache::has($this->getExpiredAtKey($parentID))) {
             $this->throwNotFound();
         }
 
