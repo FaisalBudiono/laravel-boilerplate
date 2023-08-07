@@ -29,7 +29,7 @@ class AuthenticatedByJWT
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $authHeader = $request->headers->get('authentication', '');
+        $authHeader = $request->headers->get('authorization', '');
 
         if (!$this->isTypeBearer($this->fetchTokenType($authHeader))) {
             throw new UnauthorizedException(new ExceptionMessageStandard(
