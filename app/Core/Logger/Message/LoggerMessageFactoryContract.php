@@ -2,12 +2,12 @@
 
 namespace App\Core\Logger\Message;
 
-use Exception;
 use Stringable;
+use Throwable;
 
 interface LoggerMessageFactoryContract
 {
-    public function makeHTTPError(Exception $e): Stringable;
+    public function makeHTTPError(Throwable $e): Stringable;
 
     public function makeHTTPStart(
         string $message,

@@ -11,6 +11,7 @@ use App\Http\Requests\Healthcheck\HealthcheckRequest;
 use Exception;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class HealthcheckController extends Controller
 {
@@ -47,7 +48,7 @@ class HealthcheckController extends Controller
             return response()
                 ->json($status->toArray())
                 ->setStatusCode(Response::HTTP_SERVICE_UNAVAILABLE);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             Log::error($this->logFormatter->makeHTTPError($e));
             throw new InternalServerErrorException(new ExceptionMessageGeneric);
         }
