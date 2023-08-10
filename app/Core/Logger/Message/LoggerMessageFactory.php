@@ -2,9 +2,9 @@
 
 namespace App\Core\Logger\Message;
 
-use Exception;
 use Illuminate\Http\Request;
 use Stringable;
+use Throwable;
 
 class LoggerMessageFactory implements LoggerMessageFactoryContract
 {
@@ -13,7 +13,7 @@ class LoggerMessageFactory implements LoggerMessageFactoryContract
     ) {
     }
 
-    public function makeHTTPError(Exception $e): Stringable
+    public function makeHTTPError(Throwable $e): Stringable
     {
         return new LoggingHTTPError(
             $this->request,

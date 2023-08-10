@@ -12,7 +12,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\GetRefreshTokenRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\LogoutRequest;
-use Exception;
+use Throwable;
 
 class AuthController extends Controller
 {
@@ -31,7 +31,7 @@ class AuthController extends Controller
             ]);
         } catch (InvalidCredentialException $e) {
             throw new UnauthorizedException($e->exceptionMessage);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             throw new InternalServerErrorException(new ExceptionMessageGeneric);
         }
     }
@@ -44,7 +44,7 @@ class AuthController extends Controller
             return response()->noContent();
         } catch (JWTException $e) {
             throw new UnauthorizedException($e->exceptionMessage);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             throw new InternalServerErrorException(new ExceptionMessageGeneric);
         }
     }
@@ -59,7 +59,7 @@ class AuthController extends Controller
             ]);
         } catch (JWTException $e) {
             throw new UnauthorizedException($e->exceptionMessage);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             throw new InternalServerErrorException(new ExceptionMessageGeneric);
         }
     }

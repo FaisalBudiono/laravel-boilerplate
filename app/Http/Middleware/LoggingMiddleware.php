@@ -48,7 +48,7 @@ class LoggingMiddleware
         $exceptionMessage = $this->logFormatter->makeHTTPError(
             $exception->getPrevious() ?? $exception
         );
-        if ($exception->getCode() < 500) {
+        if ($this->isHTTPClientError($exception->getCode())) {
             Log::warning($exceptionMessage);
 
             return $response;
@@ -64,5 +64,10 @@ class LoggingMiddleware
         return collect($input)
             ->reject(fn ($value, $key) => collect(['password'])->contains($key))
             ->toArray();
+    }
+
+    protected function isHTTPClientError(int $httpCode): bool
+    {
+        return $httpCode > 399 && $httpCode < 500;
     }
 }
