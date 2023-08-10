@@ -16,6 +16,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Stringable;
 use Tests\TestCase;
+use Throwable;
+use ValueError;
 
 class LoggingMiddlewareTest extends TestCase
 {
@@ -161,8 +163,8 @@ class LoggingMiddlewareTest extends TestCase
     #[Test]
     #[DataProvider('responseExceptionDataProvider')]
     public function should_successfully_log_before_and_after_response_when_exception_is_thrown(
-        Exception $mockedResponseException,
-        Exception $expectedPreviousException,
+        Throwable $mockedResponseException,
+        Throwable $expectedPreviousException,
         string $expectedErrorLogLevel,
     ) {
         // Arrange
@@ -220,7 +222,7 @@ class LoggingMiddlewareTest extends TestCase
 
                 $mock->shouldReceive('makeHTTPError')
                     ->once()
-                    ->withArgs(function (Exception $argException) use ($expectedPreviousException) {
+                    ->withArgs(function (Throwable $argException) use ($expectedPreviousException) {
                         try {
                             $this->assertSame($expectedPreviousException, $argException);
                             return true;
@@ -310,6 +312,27 @@ class LoggingMiddlewareTest extends TestCase
             '400-499 exception without previous exception (unauthorized)' => [
                 $unauthorizedWithoutPrevious,
                 $unauthorizedWithoutPrevious,
+                'warning',
+            ],
+
+            'generic exception' => [
+                $previousException,
+                $previousException,
+                'error',
+            ],
+            'generic exception with less than 400 error code' => [
+                $generic399 = new ValueError(self::makeFaker()->sentence, 399),
+                $generic399,
+                'error',
+            ],
+            'generic exception with more than 500 error code' => [
+                $generic500 = new ValueError(self::makeFaker()->sentence, 503),
+                $generic500,
+                'error',
+            ],
+            'generic exception with 400ish error code' => [
+                $generic400 = new ValueError(self::makeFaker()->sentence, 405),
+                $generic400,
                 'warning',
             ],
         ];
