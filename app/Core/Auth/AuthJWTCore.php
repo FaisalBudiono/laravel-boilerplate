@@ -14,7 +14,6 @@ use App\Models\User\User;
 use App\Port\Core\Auth\GetRefreshTokenPort;
 use App\Port\Core\Auth\LoginPort;
 use App\Port\Core\Auth\LogoutPort;
-use Exception;
 use Illuminate\Support\Facades\Hash;
 
 class AuthJWTCore implements AuthJWTCoreContract
@@ -43,7 +42,7 @@ class AuthJWTCore implements AuthJWTCoreContract
             );
         } catch (ModelNotFoundException $e) {
             $this->throwInvalidCredential();
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             throw $e;
         }
     }

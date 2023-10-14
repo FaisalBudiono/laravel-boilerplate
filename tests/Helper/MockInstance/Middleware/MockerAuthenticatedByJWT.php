@@ -3,7 +3,6 @@
 namespace Tests\Helper\MockInstance\Middleware;
 
 use App\Models\User\User;
-use Exception;
 use Tests\Helper\MockInstance\Middleware\AuthenticatedByJWT\Implementor;
 use Tests\TestCase;
 
@@ -33,7 +32,7 @@ class MockerAuthenticatedByJWT
         return $this;
     }
 
-    public function mockGuestAndThrow(Exception $e): self
+    public function mockGuestAndThrow(\Throwable $e): self
     {
         $this->implementor->mockGuestAndThrow($e);
         return $this;

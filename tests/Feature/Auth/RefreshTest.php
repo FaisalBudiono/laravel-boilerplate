@@ -10,7 +10,6 @@ use App\Exceptions\Core\Auth\JWT\FailedParsingException;
 use App\Exceptions\Core\Auth\JWT\InvalidTokenException;
 use App\Exceptions\Core\Auth\JWT\JWTException;
 use App\Port\Core\Auth\GetRefreshTokenPort;
-use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
 use Mockery\MockInterface;
@@ -92,7 +91,7 @@ class RefreshTest extends BaseFeatureTestCase
         $input = $this->validRequestInput();
 
         $exceptionMessage = new ExceptionMessageGeneric;
-        $mockException = new Exception($this->faker->sentence());
+        $mockException = new \Error($this->faker->sentence());
 
 
         // Assert
@@ -239,7 +238,7 @@ class RefreshTest extends BaseFeatureTestCase
             $this->assertSame($input['refreshToken'], $argInput->getRefreshToken());
 
             return true;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             dd($e);
         }
     }

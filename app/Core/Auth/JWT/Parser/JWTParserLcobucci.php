@@ -7,8 +7,6 @@ use App\Core\Auth\JWT\ValueObject\ClaimsUser;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
 use App\Exceptions\Core\Auth\JWT\FailedParsingException;
 use Carbon\Carbon;
-use DateTimeImmutable;
-use Exception;
 use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Token\Parser;
 use Lcobucci\JWT\UnencryptedToken;
@@ -36,7 +34,7 @@ class JWTParserLcobucci implements JWTParser
                 $this->getInvalidDateWhenNull($notBeforeAt),
                 $this->getInvalidDateWhenNull($expiredAt),
             );
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             throw  new FailedParsingException(new ExceptionMessageStandard(
                 'Failed to decode JWT token',
                 JWTParserExceptionCode::FAILED_DECODING->value,
@@ -49,7 +47,7 @@ class JWTParserLcobucci implements JWTParser
         return Carbon::parse('01-01-0000 00:00:00');
     }
 
-    protected function getInvalidDateWhenNull(?DateTimeImmutable $date): Carbon
+    protected function getInvalidDateWhenNull(?\DateTimeImmutable $date): Carbon
     {
         return is_null($date)
             ? $this->createInvalidDate()
