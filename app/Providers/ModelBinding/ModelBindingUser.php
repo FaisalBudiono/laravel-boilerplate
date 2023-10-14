@@ -7,7 +7,6 @@ use App\Exceptions\Http\InternalServerErrorException;
 use App\Exceptions\Http\NotFoundException;
 use App\Exceptions\Models\ModelNotFoundException;
 use App\Models\User\User;
-use Exception;
 use Illuminate\Support\Facades\Route;
 
 class ModelBindingUser implements ModelBinding
@@ -19,7 +18,7 @@ class ModelBindingUser implements ModelBinding
                 return User::findByIDOrFail($value);
             } catch (ModelNotFoundException $e) {
                 throw new NotFoundException($e->exceptionMessage);
-            } catch (Exception $e) {
+            } catch (\Throwable $e) {
                 throw new InternalServerErrorException(new ExceptionMessageGeneric);
             }
         });
