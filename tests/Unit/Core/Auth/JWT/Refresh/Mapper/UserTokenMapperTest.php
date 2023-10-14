@@ -48,9 +48,14 @@ class UserTokenMapperTest extends TestCase
         $expectedResult = new RefreshTokenClaims(
             $mockedUuid,
             new RefreshTokenClaimsUser($user->id, $user->email),
-            now()->addMinutes(config('jwt.refresh.ttl')),
+            now()->addSeconds($this->getJWTRefreshTokenTTLInSeconds()),
         );
         $this->assertEquals($expectedResult, $result);
+    }
+
+    protected function getJWTRefreshTokenTTLInSeconds(): int
+    {
+        return config('jwt.refresh.ttl');
     }
 
     protected function makeService(): UserTokenMapper

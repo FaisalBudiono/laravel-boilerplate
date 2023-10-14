@@ -14,7 +14,12 @@ class UserTokenMapper implements UserTokenMapperContract
         return new RefreshTokenClaims(
             Str::uuid(),
             new RefreshTokenClaimsUser($user->id, $user->email),
-            now()->addMinutes(config('jwt.refresh.ttl')),
+            now()->addSeconds($this->getJWTRefreshTokenTTLInSeconds()),
         );
+    }
+
+    protected function getJWTRefreshTokenTTLInSeconds(): int
+    {
+        return config('jwt.refresh.ttl');
     }
 }

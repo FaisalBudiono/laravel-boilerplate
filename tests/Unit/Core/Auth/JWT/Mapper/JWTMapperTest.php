@@ -48,7 +48,7 @@ class JWTMapperTest extends TestCase
             collect($this->getAudience()),
             now()->subSecond(),
             now()->subSecond(),
-            now()->addMinutes($this->getTTLInMinute()),
+            now()->addSeconds($this->getTTLInSeconds()),
         );
         $this->assertEquals($expectedResult, $result);
     }
@@ -58,7 +58,7 @@ class JWTMapperTest extends TestCase
         return config('jwt.audience');
     }
 
-    protected function getTTLInMinute(): int
+    protected function getTTLInSeconds(): int
     {
         return config('jwt.ttl');
     }

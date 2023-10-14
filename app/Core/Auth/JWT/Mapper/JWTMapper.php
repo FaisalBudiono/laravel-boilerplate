@@ -15,7 +15,7 @@ class JWTMapper implements JWTMapperContract
             collect($this->getAudience()),
             now()->subSecond(),
             now()->subSecond(),
-            now()->addMinutes($this->getTTLInMinute()),
+            now()->addSeconds($this->getTTLInSeconds()),
         );
     }
 
@@ -24,7 +24,7 @@ class JWTMapper implements JWTMapperContract
         return config('jwt.audience');
     }
 
-    protected function getTTLInMinute(): int
+    protected function getTTLInSeconds(): int
     {
         return config('jwt.ttl');
     }
