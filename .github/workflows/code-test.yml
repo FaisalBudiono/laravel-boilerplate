@@ -1,0 +1,51 @@
+name: Testing
+
+on:
+  workflow_call:
+  pull_request:
+    branches:
+      - trunk
+      - master
+
+jobs:
+  static-scan-phase:
+    name: Static Scanning
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - uses: php-actions/composer@v6
+      - name: Scanning
+        uses: php-actions/phpstan@v3
+        with:
+          path: app/ tests/
+          level: 0
+
+  secret-scan-phase:
+    name: Secret Scanning
+    runs-on: ubuntu-22.04
+    if: ${{ github.event_name == 'push' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: GitGuardian scan
+        uses: GitGuardian/ggshield-action@v1.14.4
+        env:
+          GITHUB_PUSH_BEFORE_SHA: ${{ github.event.before }}
+          GITHUB_PUSH_BASE_SHA: ${{ github.event.base }}
+          GITHUB_PULL_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          GITHUB_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API_KEY }}
+
+  test-phase:
+    name: Run PHPUnit
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - uses: php-actions/composer@v6
+      - uses: php-actions/phpunit@v3
+        with:
+          memory_limit: "512M"
