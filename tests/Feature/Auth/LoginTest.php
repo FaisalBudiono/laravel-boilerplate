@@ -8,7 +8,6 @@ use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
 use App\Exceptions\Core\Auth\InvalidCredentialException;
 use App\Port\Core\Auth\LoginPort;
-use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
 use Mockery\MockInterface;
@@ -123,7 +122,7 @@ class LoginTest extends BaseFeatureTestCase
         $input = $this->validRequestInput();
 
         $exceptionMessage = new ExceptionMessageGeneric;
-        $mockException = new Exception($this->faker->sentence());
+        $mockException = new \Error($this->faker->sentence());
 
 
         // Assert
@@ -251,7 +250,7 @@ class LoginTest extends BaseFeatureTestCase
             $this->assertSame($input['password'], $argInput->getUserPassword());
 
             return true;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             dd($e);
         }
     }

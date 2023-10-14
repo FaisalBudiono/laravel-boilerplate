@@ -6,7 +6,6 @@ use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
 use App\Core\User\UserCoreContract;
 use App\Models\User\User;
 use App\Port\Core\User\GetUserPort;
-use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
@@ -42,7 +41,7 @@ class GetMyInformationTest extends BaseFeatureTestCase
         // Arrange
         $exceptionMessage = new ExceptionMessageGeneric;
 
-        $mockException = new Exception($this->faker->sentence());
+        $mockException = new \Error($this->faker->sentence());
 
 
         // Assert
@@ -116,7 +115,7 @@ class GetMyInformationTest extends BaseFeatureTestCase
         try {
             $this->assertEquals($this->mockUser, $argInput->getUserModel());
             return true;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             dd($e);
         }
     }

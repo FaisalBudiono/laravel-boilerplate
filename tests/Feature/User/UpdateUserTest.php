@@ -8,7 +8,6 @@ use App\Core\User\UserCoreContract;
 use App\Exceptions\Core\User\UserEmailDuplicatedException;
 use App\Models\User\User;
 use App\Port\Core\User\UpdateUserPort;
-use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -207,7 +206,7 @@ class UpdateUserTest extends BaseFeatureTestCase
         $input = $this->validRequestInput();
 
         $exceptionMessage = new ExceptionMessageGeneric;
-        $mockException = new Exception($this->faker->sentence);
+        $mockException = new \Error($this->faker->sentence);
 
 
         // Assert
@@ -287,7 +286,7 @@ class UpdateUserTest extends BaseFeatureTestCase
             $this->assertSame($input['password'], $argInput->getUserPassword());
             $this->assertTrue($argInput->getUserModel()->is($this->user));
             return true;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             dd($e);
         }
     }

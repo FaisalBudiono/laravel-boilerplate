@@ -7,12 +7,10 @@ use App\Core\Healthcheck\HealthcheckCoreContract;
 use App\Core\Healthcheck\ValueObject\HealthcheckResponse;
 use App\Core\Healthcheck\ValueObject\HealthcheckStatus;
 use App\Core\Logger\Message\LoggerMessageFactoryContract;
-use Exception;
 use Illuminate\Support\Facades\Log;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
-use Stringable;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Feature\BaseFeatureTestCase;
 
@@ -39,7 +37,7 @@ class HealthcheckTest extends BaseFeatureTestCase
 
 
         // Assert
-        $mockException = new Exception($this->faker->sentence);
+        $mockException = new \Error($this->faker->sentence);
         $mockCore = $this->mock(
             HealthcheckCoreContract::class,
             function (MockInterface $mock)  use ($mockException) {
@@ -69,7 +67,7 @@ class HealthcheckTest extends BaseFeatureTestCase
                                 $this->assertSame('Healthcheck endpoint', $argMessage);
                                 $this->assertEquals([], $argInput);
                                 return true;
-                            } catch (Exception $e) {
+                            } catch (\Throwable $e) {
                                 dd($e);
                             }
                         })->andReturn($this->makeStringable($logInfoMessage));
@@ -77,12 +75,12 @@ class HealthcheckTest extends BaseFeatureTestCase
                     $mock->shouldReceive('makeHTTPError')
                         ->once()
                         ->withArgs(function (
-                            Exception $argError,
+                            \Throwable $argError,
                         ) use ($mockException) {
                             try {
                                 $this->assertSame($mockException, $argError);
                                 return true;
-                            } catch (Exception $e) {
+                            } catch (\Throwable $e) {
                                 dd($e);
                             }
                         })->andReturn($this->makeStringable($logErrorMessage));
@@ -95,7 +93,7 @@ class HealthcheckTest extends BaseFeatureTestCase
                 try {
                     $this->assertEquals($logInfoMessage, $argMessage);
                     return true;
-                } catch (Exception $e) {
+                } catch (\Throwable $e) {
                     dd($e);
                 }
             })->once();
@@ -104,7 +102,7 @@ class HealthcheckTest extends BaseFeatureTestCase
                 try {
                     $this->assertEquals($logErrorMessage, $argMessage);
                     return true;
-                } catch (Exception $e) {
+                } catch (\Throwable $e) {
                     dd($e);
                 }
             })->once();
@@ -163,7 +161,7 @@ class HealthcheckTest extends BaseFeatureTestCase
                                 $this->assertSame('Healthcheck endpoint', $argMessage);
                                 $this->assertEquals([], $argInput);
                                 return true;
-                            } catch (Exception $e) {
+                            } catch (\Throwable $e) {
                                 dd($e);
                             }
                         })->andReturn($this->makeStringable($logInfoMessage));
@@ -178,7 +176,7 @@ class HealthcheckTest extends BaseFeatureTestCase
                                 $this->assertSame('Healthcheck endpoint', $argMessage);
                                 $this->assertEquals([], $argMeta);
                                 return true;
-                            } catch (Exception $e) {
+                            } catch (\Throwable $e) {
                                 dd($e);
                             }
                         })->andReturn($this->makeStringable($logSuccessMessage));
@@ -191,7 +189,7 @@ class HealthcheckTest extends BaseFeatureTestCase
                 try {
                     $this->assertEquals($logInfoMessage, $argMessage);
                     return true;
-                } catch (Exception $e) {
+                } catch (\Throwable $e) {
                     dd($e);
                 }
             })->once();
@@ -200,7 +198,7 @@ class HealthcheckTest extends BaseFeatureTestCase
                 try {
                     $this->assertEquals($logSuccessMessage, $argMessage);
                     return true;
-                } catch (Exception $e) {
+                } catch (\Throwable $e) {
                     dd($e);
                 }
             })->once();
@@ -276,7 +274,7 @@ class HealthcheckTest extends BaseFeatureTestCase
                                 $this->assertSame('Healthcheck endpoint', $argMessage);
                                 $this->assertEquals([], $argInput);
                                 return true;
-                            } catch (Exception $e) {
+                            } catch (\Throwable $e) {
                                 dd($e);
                             }
                         })->andReturn($this->makeStringable($logInfoMessage));
@@ -293,7 +291,7 @@ class HealthcheckTest extends BaseFeatureTestCase
                                     'detail' => $mockedHealthcheckResponse->toArrayDetail(),
                                 ], $argMeta);
                                 return true;
-                            } catch (Exception $e) {
+                            } catch (\Throwable $e) {
                                 dd($e);
                             }
                         })->andReturn($this->makeStringable($logErrorMessage));
@@ -306,7 +304,7 @@ class HealthcheckTest extends BaseFeatureTestCase
                 try {
                     $this->assertEquals($logInfoMessage, $argMessage);
                     return true;
-                } catch (Exception $e) {
+                } catch (\Throwable $e) {
                     dd($e);
                 }
             })->once();
@@ -315,7 +313,7 @@ class HealthcheckTest extends BaseFeatureTestCase
                 try {
                     $this->assertEquals($logErrorMessage, $argMessage);
                     return true;
-                } catch (Exception $e) {
+                } catch (\Throwable $e) {
                     dd($e);
                 }
             })->once();
@@ -338,15 +336,15 @@ class HealthcheckTest extends BaseFeatureTestCase
             'when one of dependencies is NOT healthy' => [
                 new HealthcheckResponse(
                     'v1.0.0',
-                    new HealthcheckStatus('mysql', new Exception('foo bar')),
+                    new HealthcheckStatus('mysql', new \Error('foo bar')),
                     new HealthcheckStatus('redis', null),
                 ),
             ],
             'when all dependencies is NOT healthy' => [
                 new HealthcheckResponse(
                     'v1.0.0',
-                    new HealthcheckStatus('mysql', new Exception('foo bar')),
-                    new HealthcheckStatus('redis', new Exception('foo bar')),
+                    new HealthcheckStatus('mysql', new \Error('foo bar')),
+                    new HealthcheckStatus('redis', new \Error('foo bar')),
                 ),
             ],
         ];
@@ -357,17 +355,17 @@ class HealthcheckTest extends BaseFeatureTestCase
         return route('healthcheck');
     }
 
-    protected function makeStringable(string $logMessage): Stringable
+    protected function makeStringable(string $logMessage): \Stringable
     {
         $stringable = $this->mock(
-            Stringable::class,
+            \Stringable::class,
             fn (MockInterface $mock) =>
             $mock->shouldReceive('__toString')
                 ->once()
                 ->withNoArgs()
                 ->andReturn($logMessage)
         );
-        assert($stringable instanceof Stringable);
+        assert($stringable instanceof \Stringable);
 
         return $stringable;
     }

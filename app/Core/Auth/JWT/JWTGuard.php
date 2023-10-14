@@ -5,7 +5,6 @@ namespace App\Core\Auth\JWT;
 use App\Core\Auth\JWT\Parser\JWTParser;
 use App\Core\Auth\JWT\Signer\JWTSigner;
 use App\Models\User\User;
-use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 
@@ -102,7 +101,7 @@ class JWTGuard implements JWTGuardContract
             $this->setUserTokenOrFail($token);
 
             return true;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return false;
         }
     }
@@ -149,7 +148,7 @@ class JWTGuard implements JWTGuardContract
             }
 
             $this->setUserTokenOrFail($this->parseAuthToken());
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
         }
     }
 

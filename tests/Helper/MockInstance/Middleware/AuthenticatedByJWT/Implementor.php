@@ -5,7 +5,6 @@ namespace Tests\Helper\MockInstance\Middleware\AuthenticatedByJWT;
 use App\Core\Auth\JWT\JWTGuardContract;
 use App\Http\Middleware\AuthenticatedByJWT;
 use App\Models\User\User;
-use Exception;
 use Mockery\MockInterface;
 use Tests\TestCase;
 
@@ -61,7 +60,7 @@ class Implementor extends TestCase
         return $this;
     }
 
-    public function mockGuestAndThrow(Exception $e): self
+    public function mockGuestAndThrow(\Throwable $e): self
     {
         $this->mockInterfaceJWTMiddleware->shouldReceive('handle')->once()->andThrow($e);
 

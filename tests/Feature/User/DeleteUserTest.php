@@ -6,7 +6,6 @@ use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
 use App\Core\User\UserCoreContract;
 use App\Models\User\User;
 use App\Port\Core\User\DeleteUserPort;
-use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
@@ -35,7 +34,7 @@ class DeleteUserTest extends BaseFeatureTestCase
     {
         // Arrange
         $exceptionMessage = new ExceptionMessageGeneric;
-        $mockException = new Exception('generic error');
+        $mockException = new \Error('generic error');
 
 
         // Assert
@@ -101,7 +100,7 @@ class DeleteUserTest extends BaseFeatureTestCase
         try {
             $this->assertTrue($argInput->getUserModel()->is($this->user));
             return true;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             dd($e);
         }
     }

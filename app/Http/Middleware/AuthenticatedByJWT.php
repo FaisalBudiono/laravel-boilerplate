@@ -9,8 +9,6 @@ use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
 use App\Exceptions\Core\Auth\JWT\JWTException;
 use App\Exceptions\Http\UnauthorizedException;
 use App\Models\User\User;
-use Closure;
-use Exception;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -27,7 +25,7 @@ class AuthenticatedByJWT
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, \Closure $next): Response
     {
         $authHeader = $request->headers->get('authorization', '');
 
@@ -70,7 +68,7 @@ class AuthenticatedByJWT
             User::findByIDOrFail($claims->user->id);
         } catch (JWTException $e) {
             throw new UnauthorizedException($e->exceptionMessage);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             throw new UnauthorizedException(new ExceptionMessageStandard(
                 'Failed to validate provided token',
                 ExceptionErrorCode::AUTHENTICATION_NEEDED->value,

@@ -8,16 +8,12 @@ use App\Exceptions\Http\ConflictException;
 use App\Exceptions\Http\InternalServerErrorException;
 use App\Exceptions\Http\UnauthorizedException;
 use App\Http\Middleware\LoggingMiddleware;
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
-use Stringable;
 use Tests\TestCase;
-use Throwable;
-use ValueError;
 
 class LoggingMiddlewareTest extends TestCase
 {
@@ -76,7 +72,7 @@ class LoggingMiddlewareTest extends TestCase
                     ->with("{$mockedMethod} {$mockedURL}", $expectedInput)
                     ->andReturn(
                         $this->mock(
-                            Stringable::class,
+                            \Stringable::class,
                             function (MockInterface $mock) use ($mockedStartLog) {
                                 $mock->shouldReceive('__toString')->andReturn($mockedStartLog);
                             }
@@ -88,7 +84,7 @@ class LoggingMiddlewareTest extends TestCase
                     ->with("{$mockedMethod} {$mockedURL}", [])
                     ->andReturn(
                         $this->mock(
-                            Stringable::class,
+                            \Stringable::class,
                             function (MockInterface $mock) use ($mockedSuccessLog) {
                                 $mock->shouldReceive('__toString')->andReturn($mockedSuccessLog);
                             }
@@ -163,8 +159,8 @@ class LoggingMiddlewareTest extends TestCase
     #[Test]
     #[DataProvider('responseExceptionDataProvider')]
     public function should_successfully_log_before_and_after_response_when_exception_is_thrown(
-        Throwable $mockedResponseException,
-        Throwable $expectedPreviousException,
+        \Throwable $mockedResponseException,
+        \Throwable $expectedPreviousException,
         string $expectedErrorLogLevel,
     ) {
         // Arrange
@@ -213,7 +209,7 @@ class LoggingMiddlewareTest extends TestCase
                     ->with("{$mockedMethod} {$mockedURL}", $mockedInput)
                     ->andReturn(
                         $this->mock(
-                            Stringable::class,
+                            \Stringable::class,
                             function (MockInterface $mock) use ($mockedStartLog) {
                                 $mock->shouldReceive('__toString')->andReturn($mockedStartLog);
                             }
@@ -222,16 +218,16 @@ class LoggingMiddlewareTest extends TestCase
 
                 $mock->shouldReceive('makeHTTPError')
                     ->once()
-                    ->withArgs(function (Throwable $argException) use ($expectedPreviousException) {
+                    ->withArgs(function (\Throwable $argException) use ($expectedPreviousException) {
                         try {
                             $this->assertSame($expectedPreviousException, $argException);
                             return true;
-                        } catch (Exception $e) {
+                        } catch (\Throwable $e) {
                             dd($e);
                         }
                     })->andReturn(
                         $this->mock(
-                            Stringable::class,
+                            \Stringable::class,
                             function (MockInterface $mock) use ($mockedErrorLog) {
                                 $mock->shouldReceive('__toString')->andReturn($mockedErrorLog);
                             }
@@ -278,7 +274,7 @@ class LoggingMiddlewareTest extends TestCase
 
     public static function responseExceptionDataProvider(): array
     {
-        $previousException = new Exception(self::makeFaker()->sentence());
+        $previousException = new \Error(self::makeFaker()->sentence());
 
         $internalServerErrorWithoutPrevious = new InternalServerErrorException(
             new ExceptionMessageGeneric
@@ -321,17 +317,17 @@ class LoggingMiddlewareTest extends TestCase
                 'error',
             ],
             'generic exception with less than 400 error code' => [
-                $generic399 = new ValueError(self::makeFaker()->sentence, 399),
+                $generic399 = new \ValueError(self::makeFaker()->sentence, 399),
                 $generic399,
                 'error',
             ],
             'generic exception with more than 500 error code' => [
-                $generic500 = new ValueError(self::makeFaker()->sentence, 503),
+                $generic500 = new \ValueError(self::makeFaker()->sentence, 503),
                 $generic500,
                 'error',
             ],
             'generic exception with 400ish error code' => [
-                $generic400 = new ValueError(self::makeFaker()->sentence, 405),
+                $generic400 = new \ValueError(self::makeFaker()->sentence, 405),
                 $generic400,
                 'warning',
             ],
