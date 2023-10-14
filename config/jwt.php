@@ -12,7 +12,7 @@ return [
     ],
     'refresh' => [
         'prefix' => env('JWT_REFRESH_PREFIX', 'jwt-refresh'),
-        'ttl' => env('JWT_REFRESH_TTL_IN_MINUTE', 1440),
+        'ttl' => env('JWT_REFRESH_TTL_IN_SECONDS', 86400),
     ],
     'ttl' => env('JWT_TTL_IN_SECONDS', 5),
 ];
