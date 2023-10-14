@@ -6,6 +6,10 @@ on:
     branches:
       - trunk
       - master
+  push:
+    branches:
+      - trunk
+      - master
 
 jobs:
   static-scan-phase:
