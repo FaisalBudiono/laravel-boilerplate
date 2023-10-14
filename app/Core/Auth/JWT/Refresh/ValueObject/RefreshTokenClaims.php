@@ -7,10 +7,11 @@ use Carbon\Carbon;
 class RefreshTokenClaims
 {
     public function __construct(
-        readonly public string $id,
-        readonly public RefreshTokenClaimsUser $user,
-        readonly public Carbon $expiredAt,
+        public string $id,
+        public RefreshTokenClaimsUser $user,
+        public ?Carbon $expiredAt,
         public ?string $childID = null,
+        public ?Carbon $usedAt = null,
     ) {
     }
 }

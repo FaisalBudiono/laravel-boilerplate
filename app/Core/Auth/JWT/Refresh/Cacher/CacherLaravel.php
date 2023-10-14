@@ -20,7 +20,7 @@ class CacherLaravel implements Cacher
                 Cache::forget($this->getUserIDKey($destroyableTokenID));
                 Cache::forget($this->getUserEmailKey($destroyableTokenID));
                 Cache::forget($this->getChildIDKey($destroyableTokenID));
-                Cache::forget($this->getIsUnusedKey($destroyableTokenID));
+                Cache::forget($this->getUsedAtKey($destroyableTokenID));
                 Cache::forget($this->getExpiredAtKey($destroyableTokenID));
             });
     }
@@ -28,14 +28,18 @@ class CacherLaravel implements Cacher
     public function find(string $tokenID): RefreshTokenClaims
     {
         if (!Cache::has($this->getUserIDKey($tokenID))) {
-            $this->throwNotFound();
+            throw new InvalidTokenException(new ExceptionMessageStandard(
+                'Refresh token not found',
+                RefreshTokenExceptionCode::NOT_FOUND->value,
+            ));
         }
 
         $values = Cache::getMultiple([
             $this->getUserIDKey($tokenID),
             $this->getUserEmailKey($tokenID),
-            $this->getChildIDKey($tokenID),
             $this->getExpiredAtKey($tokenID),
+            $this->getChildIDKey($tokenID),
+            $this->getUsedAtKey($tokenID),
         ]);
 
         return new RefreshTokenClaims(
@@ -44,37 +48,10 @@ class CacherLaravel implements Cacher
                 $values[$this->getUserIDKey($tokenID)] ?? '',
                 $values[$this->getUserEmailKey($tokenID)] ?? '',
             ),
-            $this->formatExpiredAt($values[$this->getExpiredAtKey($tokenID)]),
+            $this->formatDateFromUnix($values[$this->getExpiredAtKey($tokenID)]),
             $values[$this->getChildIDKey($tokenID)],
+            $this->formatDateFromUnix($values[$this->getUsedAtKey($tokenID)]),
         );
-    }
-
-    public function invalidate(string $tokenID): void
-    {
-        if (
-            !Cache::has($this->getIsUnusedKey($tokenID))
-            || !Cache::has($this->getExpiredAtKey($tokenID))
-        ) {
-            $this->throwNotFound();
-        }
-
-        Cache::put(
-            $this->getIsUnusedKey($tokenID),
-            1,
-            $this->formatExpiredAt(Cache::get($this->getExpiredAtKey($tokenID))),
-        );
-    }
-
-    public function isUnused(string $tokenID): bool
-    {
-        if (!Cache::has($this->getIsUnusedKey($tokenID))) {
-            $this->throwNotFound();
-        }
-
-        $isUnusedValue = Cache::get($this->getIsUnusedKey($tokenID));
-        $isUnusedTotal = is_null($isUnusedValue) ? null : intval($isUnusedValue);
-
-        return $isUnusedTotal === 0;
     }
 
     public function save(RefreshTokenClaims $refreshTokenClaims): void
@@ -83,22 +60,9 @@ class CacherLaravel implements Cacher
             $this->getUserIDKey($refreshTokenClaims->id) => $refreshTokenClaims->user->id,
             $this->getUserEmailKey($refreshTokenClaims->id) => $refreshTokenClaims->user->userEmail,
             $this->getChildIDKey($refreshTokenClaims->id) => $refreshTokenClaims->childID,
-            $this->getIsUnusedKey($refreshTokenClaims->id) => 0,
             $this->getExpiredAtKey($refreshTokenClaims->id) => $refreshTokenClaims->expiredAt->unix(),
+            $this->getUsedAtKey($refreshTokenClaims->id) => $refreshTokenClaims->usedAt?->unix(),
         ], $refreshTokenClaims->expiredAt);
-    }
-
-    public function setChildID(string $parentID, string $childID): void
-    {
-        if (!Cache::has($this->getExpiredAtKey($parentID))) {
-            $this->throwNotFound();
-        }
-
-        Cache::put(
-            $this->getChildIDKey($parentID),
-            $childID,
-            $this->formatExpiredAt(Cache::get($this->getExpiredAtKey($parentID))),
-        );
     }
 
     protected function fetchDestroyableTokenIDs(string $tokenID): Collection
@@ -115,9 +79,9 @@ class CacherLaravel implements Cacher
         return $tokenGenerationIDs->filter();
     }
 
-    protected function formatExpiredAt(mixed $unix): Carbon
+    protected function formatDateFromUnix(mixed $unix): ?Carbon
     {
-        return Carbon::parse(intval($unix));
+        return is_null($unix) ? null : Carbon::parse(intval($unix));
     }
 
     protected function getExpiredAtKey(string $tokenID): string
@@ -130,14 +94,14 @@ class CacherLaravel implements Cacher
         return "{$this->getPrefixName()}:{$tokenID}:child:id";
     }
 
-    protected function getIsUnusedKey(string $tokenID): string
-    {
-        return "{$this->getPrefixName()}:{$tokenID}:is-unused";
-    }
-
     protected function getPrefixName(): string
     {
         return config('jwt.refresh.prefix');
+    }
+
+    protected function getUsedAtKey(string $tokenID): string
+    {
+        return "{$this->getPrefixName()}:{$tokenID}:used-at";
     }
 
     protected function getUserIDKey(string $tokenID): string
@@ -148,13 +112,5 @@ class CacherLaravel implements Cacher
     protected function getUserEmailKey(string $tokenID): string
     {
         return "{$this->getPrefixName()}:{$tokenID}:user:email";
-    }
-
-    protected function throwNotFound(): never
-    {
-        throw  new InvalidTokenException(new ExceptionMessageStandard(
-            'Refresh token not found',
-            RefreshTokenExceptionCode::NOT_FOUND->value,
-        ));
     }
 }

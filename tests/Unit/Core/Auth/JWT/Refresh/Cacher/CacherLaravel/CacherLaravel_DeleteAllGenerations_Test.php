@@ -10,7 +10,7 @@ use PHPUnit\Framework\Attributes\Test;
 class CacherLaravel_DeleteAllGenerations_Test extends CacherLaravelBaseTestCase
 {
     #[Test]
-    public function should_delete_token_without_any_child()
+    public function should_delete_token_without_any_child(): void
     {
         // Arrange
         $mockToken1 = $this->faker->uuid();
@@ -24,19 +24,20 @@ class CacherLaravel_DeleteAllGenerations_Test extends CacherLaravelBaseTestCase
 
         Cache::shouldReceive('forget')
             ->once()
+            ->with($this->getUserIDKey($mockToken1));
+        Cache::shouldReceive('forget')
+            ->once()
+            ->with($this->getUserEmailKey($mockToken1));
+
+        Cache::shouldReceive('forget')
+            ->once()
             ->with($this->getExpiredAtKey($mockToken1));
         Cache::shouldReceive('forget')
             ->once()
             ->with($this->getChildIDKey($mockToken1));
         Cache::shouldReceive('forget')
             ->once()
-            ->with($this->getIsUnusedKey($mockToken1));
-        Cache::shouldReceive('forget')
-            ->once()
-            ->with($this->getUserIDKey($mockToken1));
-        Cache::shouldReceive('forget')
-            ->once()
-            ->with($this->getUserEmailKey($mockToken1));
+            ->with($this->getUsedAtKey($mockToken1));
 
 
         // Act
@@ -45,7 +46,7 @@ class CacherLaravel_DeleteAllGenerations_Test extends CacherLaravelBaseTestCase
 
     #[Test]
     #[DataProvider('tokenGenerationDataProvider')]
-    public function should_delete_token_with_some_children(Collection $mockTokenIDs)
+    public function should_delete_token_with_some_children(Collection $mockTokenIDs): void
     {
         // Assert
         $mockTokenIDs->each(function (string $tokenID, int $index) use ($mockTokenIDs) {
@@ -63,7 +64,7 @@ class CacherLaravel_DeleteAllGenerations_Test extends CacherLaravelBaseTestCase
                 ->with($this->getChildIDKey($tokenID));
             Cache::shouldReceive('forget')
                 ->once()
-                ->with($this->getIsUnusedKey($tokenID));
+                ->with($this->getUsedAtKey($tokenID));
             Cache::shouldReceive('forget')
                 ->once()
                 ->with($this->getUserIDKey($tokenID));
@@ -116,9 +117,9 @@ class CacherLaravel_DeleteAllGenerations_Test extends CacherLaravelBaseTestCase
         return "{$this->getPrefixName()}:{$tokenID}:child:id";
     }
 
-    protected function getIsUnusedKey(string $tokenID): string
+    protected function getUsedAtKey(string $tokenID): string
     {
-        return "{$this->getPrefixName()}:{$tokenID}:is-unused";
+        return "{$this->getPrefixName()}:{$tokenID}:used-at";
     }
 
     protected function getUserIDKey(string $tokenID): string
