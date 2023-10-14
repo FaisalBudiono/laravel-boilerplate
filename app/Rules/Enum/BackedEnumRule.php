@@ -39,9 +39,7 @@ class BackedEnumRule implements ValidationRule
             return intval($value);
         }
 
-        if ($type === 'string') {
-            return (string) $value;
-        }
+        return (string) $value;
     }
 
     protected function getStringifiedValidValue(): string
