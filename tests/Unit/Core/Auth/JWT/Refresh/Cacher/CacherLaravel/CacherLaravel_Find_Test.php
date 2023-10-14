@@ -15,7 +15,7 @@ use PHPUnit\Framework\Attributes\Test;
 class CacherLaravel_Find_Test extends CacherLaravelBaseTestCase
 {
     #[Test]
-    public function should_throw_exception_when_is_unused_key_is_not_found()
+    public function should_throw_exception_when_is_unused_key_is_not_found(): void
     {
         // Arrange
         $mockedID = $this->faker->uuid();
@@ -39,103 +39,17 @@ class CacherLaravel_Find_Test extends CacherLaravelBaseTestCase
     }
 
     #[Test]
-    #[DataProvider('expiredAtValueDataProvider')]
-    public function should_return_token_when_found_and_expired_at(mixed $mockedExpiredAtUnix)
-    {
-        // Arrange
-        $mockedID = $this->faker->uuid();
-        $expectedToken = new RefreshTokenClaims(
-            $mockedID,
-            new RefreshTokenClaimsUser($this->faker->uuid(), $this->faker->email),
-            Carbon::parse(intval($mockedExpiredAtUnix)),
-            $this->faker->uuid,
-        );
-
-
-        // Assert
-        Cache::shouldReceive('has')
-            ->with("{$this->getPrefixName()}:{$mockedID}:user:id")
-            ->once()
-            ->andReturn(true);
-
-        $expectedCacheValue = [
-            "{$this->getPrefixName()}:{$expectedToken->id}:user:id" => $expectedToken->user->id,
-            "{$this->getPrefixName()}:{$expectedToken->id}:user:email" => $expectedToken->user->userEmail,
-            "{$this->getPrefixName()}:{$expectedToken->id}:child:id" => $expectedToken->childID,
-            "{$this->getPrefixName()}:{$expectedToken->id}:expired-at" => $mockedExpiredAtUnix,
-        ];
-        Cache::shouldReceive('getMultiple')
-            ->with(array_keys($expectedCacheValue))
-            ->once()
-            ->andReturn($expectedCacheValue);
-
-
-        // Act
-        $result = $this->makeService()->find($mockedID);
-
-
-        // Assert
-        $this->assertEquals($expectedToken, $result);
-    }
-
-    public static function expiredAtValueDataProvider(): array
-    {
-        $expiredAt = Carbon::parse(self::makeFaker()->dateTime);
-
-        return [
-            'unix as integer' => [$expiredAt->unix()],
-            'unix as string' => [(string) $expiredAt->unix()],
-            'null' => [null],
-        ];
-    }
-
-    #[Test]
-    public function should_return_token_when_found_with_no_parent_id()
-    {
-        // Arrange
-        $mockedID = $this->faker->uuid();
-        $expectedToken = new RefreshTokenClaims(
-            $mockedID,
-            new RefreshTokenClaimsUser($this->faker->uuid(), $this->faker->email),
-            Carbon::parse($this->faker->dateTime),
-        );
-
-
-        // Assert
-        Cache::shouldReceive('has')
-            ->with("{$this->getPrefixName()}:{$mockedID}:user:id")
-            ->once()
-            ->andReturn(true);
-
-        $expectedCacheValue = [
-            "{$this->getPrefixName()}:{$expectedToken->id}:user:id" => $expectedToken->user->id,
-            "{$this->getPrefixName()}:{$expectedToken->id}:user:email" => $expectedToken->user->userEmail,
-            "{$this->getPrefixName()}:{$expectedToken->id}:child:id" => $expectedToken->childID,
-            "{$this->getPrefixName()}:{$expectedToken->id}:expired-at" => $expectedToken->expiredAt->unix(),
-        ];
-        Cache::shouldReceive('getMultiple')
-            ->with(array_keys($expectedCacheValue))
-            ->once()
-            ->andReturn($expectedCacheValue);
-
-
-        // Act
-        $result = $this->makeService()->find($mockedID);
-
-
-        // Assert
-        $this->assertEquals($expectedToken, $result);
-    }
-
-    #[Test]
     #[DataProvider('notFoundDataProvider')]
-    public function should_return_token_when_found_with_some_user_information_not_found(mixed $mockValue)
-    {
+    public function should_return_token_when_found_with_some_user_information_not_found(
+        mixed $mockValue,
+    ): void {
         // Arrange
         $mockedID = $this->faker->uuid();
         $expectedToken = new RefreshTokenClaims(
             $mockedID,
             new RefreshTokenClaimsUser('', ''),
+            Carbon::parse($this->faker->dateTime),
+            $this->faker->uuid(),
             Carbon::parse($this->faker->dateTime),
         );
 
@@ -149,8 +63,9 @@ class CacherLaravel_Find_Test extends CacherLaravelBaseTestCase
         $expectedCacheValue = [
             "{$this->getPrefixName()}:{$expectedToken->id}:user:id" => $mockValue,
             "{$this->getPrefixName()}:{$expectedToken->id}:user:email" => $mockValue,
-            "{$this->getPrefixName()}:{$expectedToken->id}:child:id" => $expectedToken->childID,
             "{$this->getPrefixName()}:{$expectedToken->id}:expired-at" => $expectedToken->expiredAt->unix(),
+            "{$this->getPrefixName()}:{$expectedToken->id}:child:id" => $expectedToken->childID,
+            "{$this->getPrefixName()}:{$expectedToken->id}:used-at" => $expectedToken->usedAt->unix(),
         ];
         Cache::shouldReceive('getMultiple')
             ->withArgs(function (array $argKeys) use ($expectedCacheValue) {
@@ -178,5 +93,105 @@ class CacherLaravel_Find_Test extends CacherLaravelBaseTestCase
                 null,
             ],
         ];
+    }
+
+    #[Test]
+    #[DataProvider('partialDataProvider')]
+    public function should_return_token(RefreshTokenClaims $expectedToken): void
+    {
+        // Arrange
+        $mockedID = $expectedToken->id;
+
+
+        // Assert
+        Cache::shouldReceive('has')
+            ->with("{$this->getPrefixName()}:{$mockedID}:user:id")
+            ->once()
+            ->andReturn(true);
+
+        $expectedCacheValue = [
+            "{$this->getPrefixName()}:{$expectedToken->id}:user:id" => $expectedToken->user->id,
+            "{$this->getPrefixName()}:{$expectedToken->id}:user:email" => $expectedToken->user->userEmail,
+            "{$this->getPrefixName()}:{$expectedToken->id}:expired-at" => $expectedToken->expiredAt->unix(),
+            "{$this->getPrefixName()}:{$expectedToken->id}:child:id" => $expectedToken->childID,
+            "{$this->getPrefixName()}:{$expectedToken->id}:used-at" => $expectedToken->usedAt?->unix(),
+        ];
+        Cache::shouldReceive('getMultiple')
+            ->with(array_keys($expectedCacheValue))
+            ->once()
+            ->andReturn($expectedCacheValue);
+
+
+        // Act
+        $result = $this->makeService()->find($mockedID);
+
+
+        // Assert
+        $this->assertEquals($expectedToken, $result);
+    }
+
+    public static function partialDataProvider(): array
+    {
+        $faker = self::makeFaker();
+
+        return [
+            'complete data' => [
+                new RefreshTokenClaims(
+                    $faker->uuid(),
+                    new RefreshTokenClaimsUser($faker->uuid(), $faker->email),
+                    Carbon::parse($faker->dateTime),
+                    $faker->uuid(),
+                    Carbon::parse($faker->dateTime),
+                ),
+            ],
+            'without optional param' => [
+                new RefreshTokenClaims(
+                    $faker->uuid(),
+                    new RefreshTokenClaimsUser($faker->uuid(), $faker->email),
+                    Carbon::parse($faker->dateTime),
+                ),
+            ],
+        ];
+    }
+
+    #[Test]
+    public function should_return_token_even_when_all_cache_value_is_returning_null(): void
+    {
+        // Arrange
+        $mockedID = $this->faker->uuid();
+
+
+        // Assert
+        Cache::shouldReceive('has')
+            ->with("{$this->getPrefixName()}:{$mockedID}:user:id")
+            ->once()
+            ->andReturn(true);
+
+        $expectedCacheValue = [
+            "{$this->getPrefixName()}:{$mockedID}:user:id" => null,
+            "{$this->getPrefixName()}:{$mockedID}:user:email" => null,
+            "{$this->getPrefixName()}:{$mockedID}:expired-at" => null,
+            "{$this->getPrefixName()}:{$mockedID}:child:id" => null,
+            "{$this->getPrefixName()}:{$mockedID}:used-at" => null,
+        ];
+        Cache::shouldReceive('getMultiple')
+            ->with(array_keys($expectedCacheValue))
+            ->once()
+            ->andReturn($expectedCacheValue);
+
+
+        // Act
+        $result = $this->makeService()->find($mockedID);
+
+
+        // Assert
+        $expectedToken = new RefreshTokenClaims(
+            $mockedID,
+            new RefreshTokenClaimsUser('', ''),
+            null,
+            null,
+            null,
+        );
+        $this->assertEquals($expectedToken, $result);
     }
 }
