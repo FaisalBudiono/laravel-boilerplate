@@ -24,7 +24,6 @@ jobs:
   secret-scan-phase:
     name: Secret Scanning
     runs-on: ubuntu-22.04
-    if: ${{ github.event_name == 'push' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
