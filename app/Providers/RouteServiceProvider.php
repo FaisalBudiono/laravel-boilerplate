@@ -62,12 +62,18 @@ class RouteServiceProvider extends ServiceProvider
     protected function configureRateLimiting()
     {
         RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+            return Limit::perMinute($this->getThrottlePerMinute())
+                ->by($request->user()?->id ?: $request->ip());
         });
     }
 
     protected function createHealthcheckEndpoint(): void
     {
         Route::get('', [HealthcheckController::class, 'index'])->name('healthcheck');
+    }
+
+    protected function getThrottlePerMinute(): int
+    {
+        return intval(config('api.throttle'));
     }
 }
