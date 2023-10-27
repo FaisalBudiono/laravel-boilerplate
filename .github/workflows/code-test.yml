@@ -4,11 +4,9 @@ on:
   workflow_call:
   pull_request:
     branches:
-      - trunk
       - master
   push:
     branches:
-      - trunk
       - master
 
 jobs:
