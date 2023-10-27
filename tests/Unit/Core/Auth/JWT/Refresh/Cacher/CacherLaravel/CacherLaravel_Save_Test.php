@@ -41,7 +41,7 @@ class CacherLaravel_Save_Test extends CacherLaravelBaseTestCase
             'complete refresh token' => [
                 new RefreshTokenClaims(
                     $faker->uuid(),
-                    new RefreshTokenClaimsUser($faker->uuid(), $faker->email),
+                    new RefreshTokenClaimsUser($faker->uuid(), $faker->email()),
                     Carbon::parse($faker->dateTime()),
                     $faker->uuid(),
                     Carbon::parse($faker->dateTime()),
@@ -51,7 +51,7 @@ class CacherLaravel_Save_Test extends CacherLaravelBaseTestCase
             'without nullable field' => [
                 new RefreshTokenClaims(
                     $faker->uuid(),
-                    new RefreshTokenClaimsUser($faker->uuid(), $faker->email),
+                    new RefreshTokenClaimsUser($faker->uuid(), $faker->email()),
                     Carbon::parse($faker->dateTime()),
                     null,
                     null,
