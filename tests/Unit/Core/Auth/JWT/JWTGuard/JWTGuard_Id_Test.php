@@ -17,7 +17,7 @@ class JWTGuard_Id_Test extends JWTGuardBaseTestCase
 {
     #[Test]
     #[DataProvider('noAuthorizationHeaderDataProvider')]
-    public function should_return_false_when_no_authorization_header(Request $mockRequest)
+    public function should_return_false_when_no_authorization_header(Request $mockRequest): void
     {
         // Act
         $result = $this->makeService($mockRequest)->id();
@@ -31,7 +31,7 @@ class JWTGuard_Id_Test extends JWTGuardBaseTestCase
     #[DataProvider('notBearerTokenDataProvider')]
     public function should_return_false_when_token_in_authorization_header_is_not_bearer_token(
         string $mockedToken,
-    ) {
+    ): void {
         // Arrange
         $mockRequest = new Request();
         $mockRequest->headers->set('Authorization', $mockedToken);
@@ -46,7 +46,7 @@ class JWTGuard_Id_Test extends JWTGuardBaseTestCase
     }
 
     #[Test]
-    public function should_return_false_and_not_set_any_user_when_there_is_some_error_thrown()
+    public function should_return_false_and_not_set_any_user_when_there_is_some_error_thrown(): void
     {
         // Arrange
         $mockedToken = 'xxxxxxxxx';
@@ -79,7 +79,7 @@ class JWTGuard_Id_Test extends JWTGuardBaseTestCase
     }
 
     #[Test]
-    public function should_return_true_and_set_logged_in_user_when_jwt_token_is_valid()
+    public function should_return_true_and_set_logged_in_user_when_jwt_token_is_valid(): void
     {
         // Arrange
         $mockedUser = User::factory()->create()->fresh();

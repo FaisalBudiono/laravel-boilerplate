@@ -9,7 +9,7 @@ use Tests\TestCase;
 class ExceptionMessageGenericTest extends TestCase
 {
     #[Test]
-    public function should_implement_right_interface()
+    public function should_implement_right_interface(): void
     {
         // Arrange
         $exceptionMessage = new ExceptionMessageGeneric;
@@ -20,7 +20,7 @@ class ExceptionMessageGenericTest extends TestCase
     }
 
     #[Test]
-    public function getJsonResponse_should_return_generic_json_response()
+    public function getJsonResponse_should_return_generic_json_response(): void
     {
         // Arrange
         $exceptionMessage = new ExceptionMessageGeneric;
@@ -39,7 +39,7 @@ class ExceptionMessageGenericTest extends TestCase
     }
 
     #[Test]
-    public function getMessage_should_return_generic_message()
+    public function getMessage_should_return_generic_message(): void
     {
         // Arrange
         $exceptionMessage = new ExceptionMessageGeneric;

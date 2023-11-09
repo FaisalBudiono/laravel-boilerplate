@@ -13,7 +13,7 @@ use Tests\TestCase;
 class HealthcheckResponseTest extends TestCase
 {
     #[Test]
-    public function should_implement_right_interface()
+    public function should_implement_right_interface(): void
     {
         // Arrange
         $valueObject = new HealthcheckResponse('asd');
@@ -28,7 +28,7 @@ class HealthcheckResponseTest extends TestCase
     public function isHealthy_should_return_true_or_false_depending_of_the_dependencies_healthiness_status(
         HealthcheckResponse $valueObject,
         bool $expectedHealthiness,
-    ) {
+    ): void {
         // Act
         $result = $valueObject->isHealthy();
 
@@ -81,7 +81,7 @@ class HealthcheckResponseTest extends TestCase
         string $mockVersion,
         array $healthcheckStatuses,
         array $expectedResult,
-    ) {
+    ): void {
         // Arrange
         $valueObject = new HealthcheckResponse(
             $mockVersion,
@@ -213,7 +213,7 @@ class HealthcheckResponseTest extends TestCase
         string $mockVersion,
         array $healthcheckStatuses,
         array $expectedResult,
-    ) {
+    ): void {
         // Arrange
         $valueObject = new HealthcheckResponse(
             $mockVersion,

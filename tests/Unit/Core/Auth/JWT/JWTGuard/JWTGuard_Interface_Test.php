@@ -9,7 +9,7 @@ use PHPUnit\Framework\Attributes\Test;
 class JWTGuard_Interface_Test extends JWTGuardBaseTestCase
 {
     #[Test]
-    public function should_implement_guard_interface()
+    public function should_implement_guard_interface(): void
     {
         // Arrange
         $service = $this->makeService();

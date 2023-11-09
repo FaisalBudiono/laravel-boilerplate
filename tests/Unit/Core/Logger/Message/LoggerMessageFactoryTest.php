@@ -15,14 +15,14 @@ use Tests\TestCase;
 class LoggerMessageFactoryTest extends TestCase
 {
     #[Test]
-    public function should_implement_right_interface()
+    public function should_implement_right_interface(): void
     {
         // Assert
         $this->assertInstanceOf(LoggerMessageFactoryContract::class, $this->makeService());
     }
 
     #[Test]
-    public function makeHTTPError_should_return_http_error_logger_formatter()
+    public function makeHTTPError_should_return_http_error_logger_formatter(): void
     {
         // Arrange
         $request = $this->mock(Request::class);
@@ -47,7 +47,7 @@ class LoggerMessageFactoryTest extends TestCase
     }
 
     #[Test]
-    public function makeHTTPStart_should_return_http_error_logger_formatter()
+    public function makeHTTPStart_should_return_http_error_logger_formatter(): void
     {
         // Arrange
         $request = $this->mock(Request::class);
@@ -69,7 +69,7 @@ class LoggerMessageFactoryTest extends TestCase
     }
 
     #[Test]
-    public function makeHTTPSuccess_should_return_http_error_logger_formatter()
+    public function makeHTTPSuccess_should_return_http_error_logger_formatter(): void
     {
         // Arrange
         $request = $this->mock(Request::class);

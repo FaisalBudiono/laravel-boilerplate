@@ -8,7 +8,7 @@ use PHPUnit\Framework\Attributes\Test;
 class CacherLaravel_Interface_Test extends CacherLaravelBaseTestCase
 {
     #[Test]
-    public function should_implement_right_interface()
+    public function should_implement_right_interface(): void
     {
         // Assert
         $this->assertInstanceOf(Cacher::class, $this->makeService());

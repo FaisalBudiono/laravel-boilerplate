@@ -14,7 +14,7 @@ class UserResourceTest extends TestCase
     use RefreshDatabase;
 
     #[Test]
-    public function should_return_right_arrayable_format()
+    public function should_return_right_arrayable_format(): void
     {
         // Arrange
         /** @var User */
@@ -36,7 +36,7 @@ class UserResourceTest extends TestCase
     }
 
     #[Test]
-    public function should_return_right_arrayable_format_when_nullable_date_is_null()
+    public function should_return_right_arrayable_format_when_nullable_date_is_null(): void
     {
         // Arrange
         /** @var User */

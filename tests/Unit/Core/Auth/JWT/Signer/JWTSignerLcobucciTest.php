@@ -36,7 +36,7 @@ class JWTSignerLcobucciTest extends TestCase
     }
 
     #[Test]
-    public function sign_should_be_able_to_parse_token_correctly()
+    public function sign_should_be_able_to_parse_token_correctly(): void
     {
         // Arrange
         $mockedClaim = new Claims(
@@ -91,7 +91,7 @@ class JWTSignerLcobucciTest extends TestCase
     }
 
     #[Test]
-    public function validate_should_throw_invalid_signature_exception_when_signature_is_not_matched()
+    public function validate_should_throw_invalid_signature_exception_when_signature_is_not_matched(): void
     {
         // Arrange
         $invalidPrivateKey = "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDWIIVKCpFc8E2C\nBAV9jstt7hliMm2m60UDrER3qzOEStntZg7FNITghweALbIG8i5KbBiNS3u1NIqW\n4zPAe0jxgzNfSUtzh8P8wtNZHsg+Uywwd9Xt1QlB4/WbxtmCZwcfrQdkD+4OP8rw\n/xmFISpF6S33sfhVvnyeUb6MqHzG3i4ufTqGnWdQAYkZh6giRC+j+CQL/nWJTHOz\n8zmh5BWXbQ16eyrUp8p9EplJDtV2JqgyE50senGs8G9IKKWZrBwnWd8HJS5yMJUf\ntQuRBsfHU+XJSJF87dXFvpL7AGWJY/01Qbp3U1x9ezHnaybYdILzyvYIrQW2mpvB\nOUpGKr4PAgMBAAECggEBAKOl0RiIQRZdlW8DccrG4lSOvxmcXs9OSb2H3//xePrn\nVeyorisre046BJKC2eeTGavJN25tPQt9L1ooJHo7/sCNvCpb0u1l2nSH1YzsCLAR\nUtlsDLSqt1uDREeczslpwjkEPXzM6+w59vj+jduAQFWT44zFmHy3i3hYEyBe+JXm\n++aIj/G2bBme9Bxof6Q8HZLSZlyPYjsfq3rtAR0ArNNSQ/BzktKsbBpyPWgqEvIO\nElZU6F+Ipa9+hV7VU4v8xRjRAw2bXdAYAZHMfXMtBg7zEGvBvDKhTa9gcaG6WRGf\nfhflZ8d+yKQGNR+hlai3duyvgGFOOc3TNQ08pIGsYfECgYEA9gDZ2MInF5hE0coB\nb3g9L7Q3j9DHoIH8pxMFzG4eVPbH7Z7KfYIYXGQvCMk/xlUMyjJKVmuEYmVcefZX\nMUrgBZoYy+cAjZgxjwdeSH/E64JlK/Sqp/pCylaIk2BqpsKDVdHuVIo5oIh/OtnS\namANnITOsjc5WuJy85kj+Z8lbpkCgYEA3tQQTq+vAoZC6iYi9VJTvSe2wnjA0qeH\ns5dki7sYX9aoomrvvydlTjMQ9kjtrI+aY5n3dOzcQKmSeL1bf45FOyoswjvo2g7M\nydiqGOj/8Pgpvz/NEpOIQHLNqlborIkU1vcdsTqGmu4TJfVkVJ8OfsJTLx6CRjdh\nwrOOhBq0wucCgYBsNduduWmwu04qag1Plzhy73cxT8lAFW2poHiAgD/fZ95x69Nu\nefd1TKxT1RK0j1zc5FpGwWyuS5/uFiosiJ8aV7poluhrYHMMU1Vp1qosXmNafnlD\nApa2onHZQiQnzpAvA/UuQs8uilxM6tvf5viVzOWPBzO3grzF4qssdpDkoQKBgQDI\nVk0bEaT9VgzPS95eRdh31j7gdYSXYHwHIXQKlPoDIJGZBR/r8tWICy2S4FqfrLSY\nHBN5koMrt8myuDyNYDIqUW7QauCdPHUufJfhsYp68gNGqWwM6Yu0tgLmxSCIDu8n\nniGZ+A6ROL8Kf6fm1OJJYRk84ecqjhxc2ualKwWdvQKBgQDtR4KAASmwZkfL6bgu\nHJx7Y7nKlTNRbjZJkJI04zjQ40yImOJ0cNM54fL8r8xJEz0tGGK0+qvmaPHEXRG5\naB+GTKvWg+fGRyS5dgTMjsRQQOkzXGEzlEyAUIO9DRA6d3r8HBlh5MHoyLyaekmg\nQMX7pxUPSoZZ6R4tzCLMfaSCCg==\n-----END PRIVATE KEY-----";
@@ -118,7 +118,7 @@ class JWTSignerLcobucciTest extends TestCase
         Carbon $mockedNotBeforeAt,
         Carbon $mockedIssueAt,
         Carbon $mockedExpiredAt,
-    ) {
+    ): void {
         // Arrange
         $invalidToken = $this->makeBuilder()
             ->canOnlyBeUsedAfter($mockedNotBeforeAt->toImmutable())
@@ -161,7 +161,7 @@ class JWTSignerLcobucciTest extends TestCase
     }
 
     #[Test]
-    public function validate_should_not_throw_anything_when_signature_and_time_related_claims_is_valid()
+    public function validate_should_not_throw_anything_when_signature_and_time_related_claims_is_valid(): void
     {
         // Arrange
         $validToken = $this->makeBuilder()

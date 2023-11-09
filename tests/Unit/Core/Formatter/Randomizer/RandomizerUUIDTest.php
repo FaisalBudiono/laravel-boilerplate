@@ -11,14 +11,14 @@ use Tests\TestCase;
 class RandomizerUUIDTest extends TestCase
 {
     #[Test]
-    public function should_implement_right_interface()
+    public function should_implement_right_interface(): void
     {
         // Assert
         $this->assertInstanceOf(Randomizer::class, $this->makeService());
     }
 
     #[Test]
-    public function getRandomizeString_should_randomized_uuid()
+    public function getRandomizeString_should_randomized_uuid(): void
     {
         // Arrange
         $service = $this->makeService();

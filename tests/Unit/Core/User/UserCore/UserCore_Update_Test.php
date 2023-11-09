@@ -41,14 +41,14 @@ class UserCore_Update_Test extends TestCase
     }
 
     #[Test]
-    public function should_implement_user_core_contract()
+    public function should_implement_user_core_contract(): void
     {
         // Assert
         $this->assertInstanceOf(UserCoreContract::class, $this->core);
     }
 
     #[Test]
-    public function should_throw_user_email_duplicated_exception_when_email_is_used_by_other_user()
+    public function should_throw_user_email_duplicated_exception_when_email_is_used_by_other_user(): void
     {
         // Arrange
         User::factory()->count(5)->create();
@@ -88,7 +88,7 @@ class UserCore_Update_Test extends TestCase
     }
 
     #[Test]
-    public function should_update_user_detail_successfully()
+    public function should_update_user_detail_successfully(): void
     {
         // Arrange
         User::factory()->count(5)->create();
@@ -131,7 +131,7 @@ class UserCore_Update_Test extends TestCase
     }
 
     #[Test]
-    public function should_update_user_detail_successfully_even_when_email_is_not_changed()
+    public function should_update_user_detail_successfully_even_when_email_is_not_changed(): void
     {
         // Assert
         User::factory()->count(5)->create();

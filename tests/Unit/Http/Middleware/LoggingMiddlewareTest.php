@@ -29,7 +29,7 @@ class LoggingMiddlewareTest extends TestCase
     public function should_successfully_log_before_and_after_response_when_no_exception_thrown(
         array $mockedInput,
         array $expectedInput,
-    ) {
+    ): void {
         // Arrange
         $mockedMethod = $this->faker->randomElement(self::getMethods());
         $mockedURL = $this->faker->url();
@@ -162,7 +162,7 @@ class LoggingMiddlewareTest extends TestCase
         \Throwable $mockedResponseException,
         \Throwable $expectedPreviousException,
         string $expectedErrorLogLevel,
-    ) {
+    ): void {
         // Arrange
         $mockedMethod = $this->faker->randomElement(self::getMethods());
         $mockedURL = $this->faker->url();

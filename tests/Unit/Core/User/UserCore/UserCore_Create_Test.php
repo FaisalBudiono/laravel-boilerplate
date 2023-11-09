@@ -41,14 +41,14 @@ class UserCore_Create_Test extends TestCase
     }
 
     #[Test]
-    public function should_implement_user_core_contract()
+    public function should_implement_user_core_contract(): void
     {
         // Assert
         $this->assertInstanceOf(UserCoreContract::class, $this->core);
     }
 
     #[Test]
-    public function should_successfully_save_and_return_user_data()
+    public function should_successfully_save_and_return_user_data(): void
     {
         // Arrange
         $name = $this->faker->name;
@@ -82,7 +82,7 @@ class UserCore_Create_Test extends TestCase
     }
 
     #[Test]
-    public function should_throw_error_when_user_email_already_registered()
+    public function should_throw_error_when_user_email_already_registered(): void
     {
         // Arrange
         $email = $this->faker->email();

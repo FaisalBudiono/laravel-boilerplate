@@ -8,7 +8,7 @@ use PHPUnit\Framework\Attributes\Test;
 class RefreshTokenManager_Interface_Test extends RefreshTokenManagerBaseTestCase
 {
     #[Test]
-    public function should_implement_right_interface()
+    public function should_implement_right_interface(): void
     {
         // Assert
         $this->assertInstanceOf(RefreshTokenManagerContract::class, $this->makeService());

@@ -26,14 +26,14 @@ class HealthcheckCore_GetHealthiness_Test extends TestCase
     }
 
     #[Test]
-    public function should_implement_right_interface()
+    public function should_implement_right_interface(): void
     {
         // Assert
         $this->assertInstanceOf(HealthcheckCoreContract::class, $this->makeService());
     }
 
     #[Test]
-    public function should_return_healthcheck_response()
+    public function should_return_healthcheck_response(): void
     {
         // Arrange
         $mockVersion = $this->faker->word;

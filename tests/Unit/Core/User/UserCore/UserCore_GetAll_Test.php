@@ -44,14 +44,14 @@ class UserCore_GetAll_Test extends TestCase
     }
 
     #[Test]
-    public function should_implement_right_interface()
+    public function should_implement_right_interface(): void
     {
         // Assert
         $this->assertInstanceOf(UserCoreContract::class, $this->core);
     }
 
     #[Test]
-    public function should_return_30_latest_data_when_called_with_no_parameter()
+    public function should_return_30_latest_data_when_called_with_no_parameter(): void
     {
         // Arrange
         $this->makeMockUsers(35);
@@ -86,7 +86,7 @@ class UserCore_GetAll_Test extends TestCase
     }
 
     #[Test]
-    public function should_return_data_with_requested_per_page()
+    public function should_return_data_with_requested_per_page(): void
     {
         // Arrange
         $this->makeMockUsers(12);
@@ -123,7 +123,7 @@ class UserCore_GetAll_Test extends TestCase
     }
 
     #[Test]
-    public function should_return_data_with_requested_page()
+    public function should_return_data_with_requested_page(): void
     {
         // Arrange
         $this->makeMockUsers(65);
@@ -165,7 +165,7 @@ class UserCore_GetAll_Test extends TestCase
     #[DataProviderExternal(QueryDataProvider::class, 'orderDirection')]
     public function should_return_data_with_requested_order_direction(
         OrderDirection $orderDirection
-    ) {
+    ): void {
         // Arrange
         $this->makeMockUsers(30);
 
@@ -205,7 +205,7 @@ class UserCore_GetAll_Test extends TestCase
     #[DataProvider('orderByDataProvider')]
     public function should_return_data_with_requested_order_by(
         UserOrderBy $orderBy
-    ) {
+    ): void {
         // Arrange
         $this->makeMockUsers(30);
 

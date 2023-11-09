@@ -3,7 +3,6 @@
 namespace Tests\Unit\Core\Logger\Message;
 
 use App\Core\Logger\Message\LoggingHTTPError;
-use App\Core\Logger\Message\LoggingHTTPSuccess;
 use App\Core\Logger\Message\ProcessingStatus;
 use App\Http\Middleware\XRequestIDMiddleware;
 use Illuminate\Http\Request;
@@ -15,7 +14,7 @@ use Tests\TestCase;
 class LoggingHTTPErrorTest extends TestCase
 {
     #[Test]
-    public function should_implement_right_interface()
+    public function should_implement_right_interface(): void
     {
         // Arrange
         $service = new LoggingHTTPError(
@@ -30,7 +29,7 @@ class LoggingHTTPErrorTest extends TestCase
     }
 
     #[Test]
-    public function should_format_logging_message_to_string_json_with_complete_data()
+    public function should_format_logging_message_to_string_json_with_complete_data(): void
     {
         // Arrange
         $mockedURL = $this->faker->url();

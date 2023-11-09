@@ -39,7 +39,7 @@ class GetAllUserTest extends BaseFeatureTestCase
     public function should_show_422_when_input_is_invalid(
         string $errorMaker,
         array $input
-    ) {
+    ): void {
         // Act
         $response = $this->getJson(
             $this->getEndpointUrl() . '?' . http_build_query($input),
@@ -131,7 +131,7 @@ class GetAllUserTest extends BaseFeatureTestCase
     }
 
     #[Test]
-    public function should_show_500_when_generic_error_is_thrown()
+    public function should_show_500_when_generic_error_is_thrown(): void
     {
         // Arrange
         $input = $this->validRequestInput();
@@ -174,7 +174,7 @@ class GetAllUserTest extends BaseFeatureTestCase
     #[DataProvider('validDataProvider')]
     public function should_show_200_when_successfully_get_user_list(
         array $input,
-    ) {
+    ): void {
         // Assert
         $mockCore = $this->mock(
             UserCoreContract::class,

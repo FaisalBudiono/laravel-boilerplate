@@ -27,7 +27,7 @@ class AuthJWTCore_Logout_Test extends AuthJWTCoreBaseTestCase
     }
 
     #[Test]
-    public function should_invalidate_token()
+    public function should_invalidate_token(): void
     {
         // Arrange
         $token = $this->faker->sentence;

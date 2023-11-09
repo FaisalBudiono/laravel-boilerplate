@@ -36,7 +36,7 @@ class GetMyInformationTest extends BaseFeatureTestCase
     }
 
     #[Test]
-    public function should_show_500_when_thrown_generic_error()
+    public function should_show_500_when_thrown_generic_error(): void
     {
         // Arrange
         $exceptionMessage = new ExceptionMessageGeneric;
@@ -74,7 +74,7 @@ class GetMyInformationTest extends BaseFeatureTestCase
     }
 
     #[Test]
-    public function should_show_200_when_successfully_fetch_user_information()
+    public function should_show_200_when_successfully_fetch_user_information(): void
     {
         // Assert
         MockerAuthenticatedByJWT::make($this)

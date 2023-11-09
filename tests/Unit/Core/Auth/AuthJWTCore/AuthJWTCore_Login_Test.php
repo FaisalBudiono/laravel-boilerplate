@@ -40,7 +40,7 @@ class AuthJWTCore_Login_Test extends AuthJWTCoreBaseTestCase
     }
 
     #[Test]
-    public function should_throw_invalid_credential_exception_when_email_is_not_found()
+    public function should_throw_invalid_credential_exception_when_email_is_not_found(): void
     {
         // Arrange
         $user = User::factory()->create()->fresh();
@@ -62,7 +62,7 @@ class AuthJWTCore_Login_Test extends AuthJWTCoreBaseTestCase
     }
 
     #[Test]
-    public function should_throw_invalid_credential_exception_when_password_is_invalid()
+    public function should_throw_invalid_credential_exception_when_password_is_invalid(): void
     {
         // Arrange
         $user = User::factory()->create()->fresh();
@@ -94,7 +94,7 @@ class AuthJWTCore_Login_Test extends AuthJWTCoreBaseTestCase
     }
 
     #[Test]
-    public function should_return_token_pair_when_successfully_authenticate_user()
+    public function should_return_token_pair_when_successfully_authenticate_user(): void
     {
         // Arrange
         $user = User::factory()->create()->fresh();
