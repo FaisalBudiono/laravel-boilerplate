@@ -5,9 +5,12 @@ namespace App\Models\User;
 use App\Core\Formatter\ExceptionErrorCode;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
 use App\Exceptions\Models\ModelNotFoundException;
+use App\Models\Post\Post;
 use Carbon\Carbon;
 use Database\Factories\User\UserFactory;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -23,6 +26,8 @@ use Spatie\Permission\Traits\HasRoles;
  * @property string|null $remember_token
  * @property Carbon $created_at
  * @property Carbon $updated_at
+ *
+ * @property Collection<int, Post> $posts
  */
 class User extends Authenticatable
 {
@@ -52,6 +57,11 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function posts(): HasMany
+    {
+        return $this->hasMany(Post::class);
+    }
 
     public static function findByIDOrFail(int $id): self
     {

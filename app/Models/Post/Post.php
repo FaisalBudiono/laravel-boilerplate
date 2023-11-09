@@ -2,10 +2,12 @@
 
 namespace App\Models\Post;
 
+use App\Models\User\User;
 use Carbon\Carbon;
 use Database\Factories\Post\PostFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -16,6 +18,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property Carbon $deleted_at
+ *
+ * @property User $user
  */
 class Post extends Model
 {
@@ -32,6 +36,11 @@ class Post extends Model
     protected $casts = [
         'user_id' => 'integer',
     ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     protected static function newFactory()
     {
