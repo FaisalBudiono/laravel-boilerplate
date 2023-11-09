@@ -4,6 +4,7 @@ namespace App\Core\Post;
 
 use App\Models\Post\Post;
 use App\Port\Core\Post\CreatePostPort;
+use App\Port\Core\Post\UpdatePostPort;
 use Illuminate\Support\Facades\DB;
 
 class PostCore implements PostCoreContract
@@ -14,6 +15,26 @@ class PostCore implements PostCoreContract
             DB::beginTransaction();
 
             $post = new Post();
+            $post->user_id = $request->getUserActor()->id;
+            $post->title = $request->getTitle();
+            $post->content = $request->getContent();
+            $post->save();
+
+            DB::commit();
+
+            return $post->fresh(Post::eagerLoadAll());
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    public function update(UpdatePostPort $request): Post
+    {
+        try {
+            DB::beginTransaction();
+
+            $post = $request->getPost();
             $post->user_id = $request->getUserActor()->id;
             $post->title = $request->getTitle();
             $post->content = $request->getContent();
