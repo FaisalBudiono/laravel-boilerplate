@@ -3,6 +3,8 @@
 namespace App\Models\Post;
 
 use Carbon\Carbon;
+use Database\Factories\Post\PostFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -17,6 +19,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Post extends Model
 {
+    use HasFactory;
     use SoftDeletes;
 
     protected $guarded = [];
@@ -29,4 +32,9 @@ class Post extends Model
     protected $casts = [
         'user_id' => 'integer',
     ];
+
+    protected static function newFactory()
+    {
+        return PostFactory::new();
+    }
 }
