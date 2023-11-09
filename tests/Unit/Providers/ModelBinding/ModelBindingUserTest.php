@@ -33,7 +33,7 @@ class ModelBindingUserTest extends TestCase
     }
 
     #[Test]
-    public function should_show_200_when_user_id_found()
+    public function should_show_200_when_user_id_found(): void
     {
         // Act
         $response = $this->getJson(
@@ -49,7 +49,7 @@ class ModelBindingUserTest extends TestCase
     }
 
     #[Test]
-    public function should_show_404_when_user_id_not_found()
+    public function should_show_404_when_user_id_not_found(): void
     {
         // Act
         $response = $this->getJson(
@@ -71,7 +71,7 @@ class ModelBindingUserTest extends TestCase
     }
 
     #[Test]
-    public function should_not_register_route_when_model_binding_is_not_number()
+    public function should_not_register_route_when_model_binding_is_not_number(): void
     {
         // Arrange
         $this->withoutExceptionHandling();

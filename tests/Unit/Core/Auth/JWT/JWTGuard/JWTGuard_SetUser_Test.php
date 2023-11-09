@@ -8,7 +8,7 @@ use PHPUnit\Framework\Attributes\Test;
 class JWTGuard_SetUser_Test extends JWTGuardBaseTestCase
 {
     #[Test]
-    public function should_be_able_to_set_user_in_guard()
+    public function should_be_able_to_set_user_in_guard(): void
     {
         // Arrange
         $mockedUser = User::factory()->create()->fresh();

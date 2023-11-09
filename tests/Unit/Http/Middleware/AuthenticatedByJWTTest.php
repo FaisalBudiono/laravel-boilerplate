@@ -29,7 +29,7 @@ class AuthenticatedByJWTTest extends TestCase
     #[DataProvider('invalidHeaderDataProvider')]
     public function should_throw_unauthorized_exception_when_no_authorization_token_provided(
         Request $mockRequest
-    ) {
+    ): void {
         // Arrange
         $middleware = $this->makeMiddleware();
 
@@ -73,7 +73,7 @@ class AuthenticatedByJWTTest extends TestCase
     public function should_throw_unauthorized_exception_when_there_is_some_error_thrown(
         Exception $mockException,
         Exception $expectedException,
-    ) {
+    ): void {
         // Arrange
         $mockedToken = $this->faker->words(10, true);
 
@@ -129,7 +129,7 @@ class AuthenticatedByJWTTest extends TestCase
     }
 
     #[Test]
-    public function should_throw_unauthorized_exception_when_user_is_not_found()
+    public function should_throw_unauthorized_exception_when_user_is_not_found(): void
     {
         // Arrange
         $mockedToken = $this->faker->words(10, true);
@@ -190,7 +190,7 @@ class AuthenticatedByJWTTest extends TestCase
     public function should_return_callback_when_jwt_token_can_be_authenticated(
         string $headerName,
         string $tokenType
-    ) {
+    ): void {
         // Arrange
         $mockUser = User::factory()->create();
 

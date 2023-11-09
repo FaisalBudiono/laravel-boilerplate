@@ -36,14 +36,14 @@ class UserCore_Get_Test extends TestCase
     }
 
     #[Test]
-    public function should_implement_right_interface()
+    public function should_implement_right_interface(): void
     {
         // Assert
         $this->assertInstanceOf(UserCoreContract::class, $this->core);
     }
 
     #[Test]
-    public function should_return_user_model()
+    public function should_return_user_model(): void
     {
         // Assert
         User::factory()->count(5)->create();

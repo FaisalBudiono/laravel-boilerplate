@@ -14,7 +14,7 @@ use PHPUnit\Framework\Attributes\Test;
 class RefreshTokenManager_Create_Test extends RefreshTokenManagerBaseTestCase
 {
     #[Test]
-    public function should_return_refresh_token_claims_after_token_is_saved()
+    public function should_return_refresh_token_claims_after_token_is_saved(): void
     {
         // Arrange
         $mockUser = User::factory()->create()->fresh();

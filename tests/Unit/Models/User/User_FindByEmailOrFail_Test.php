@@ -26,7 +26,7 @@ class User_FindByEmailOrFail_Test extends TestCase
     }
 
     #[Test]
-    public function should_successfully_return_user_instance()
+    public function should_successfully_return_user_instance(): void
     {
         // Act
         $user = User::findByEmailOrFail($this->user->email);
@@ -37,7 +37,7 @@ class User_FindByEmailOrFail_Test extends TestCase
     }
 
     #[Test]
-    public function should_throw_model_not_found_exception_when_email_is_not_found()
+    public function should_throw_model_not_found_exception_when_email_is_not_found(): void
     {
         // Arrange
         $notFoundEmail = $this->user->email . 'notfound';

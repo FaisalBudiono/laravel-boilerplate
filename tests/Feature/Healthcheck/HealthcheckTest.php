@@ -29,7 +29,7 @@ class HealthcheckTest extends BaseFeatureTestCase
     }
 
     #[Test]
-    public function should_show_500_when_generic_error_is_thrown()
+    public function should_show_500_when_generic_error_is_thrown(): void
     {
         // Arrange
         $logInfoMessage = $this->faker->sentence;
@@ -129,7 +129,7 @@ class HealthcheckTest extends BaseFeatureTestCase
     #[DataProvider('healthyHealthStatusDataProvider')]
     public function should_show_200_when_all_dependencies_is_healthy(
         HealthcheckResponse $mockedHealthcheckResponse,
-    ) {
+    ): void {
         // Arrange
         $logInfoMessage = $this->faker->sentence;
         $logSuccessMessage = $this->faker->sentence;
@@ -238,7 +238,7 @@ class HealthcheckTest extends BaseFeatureTestCase
     #[DataProvider('badHealthStatusDataProvider')]
     public function should_show_503_when_some_dependency_is_bad(
         HealthcheckResponse $mockedHealthcheckResponse,
-    ) {
+    ): void {
         // Arrange
         $logInfoMessage = $this->faker->sentence;
         $logErrorMessage = $this->faker->sentence;

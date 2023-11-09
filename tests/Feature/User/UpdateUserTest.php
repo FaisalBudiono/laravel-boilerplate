@@ -42,7 +42,7 @@ class UpdateUserTest extends BaseFeatureTestCase
     public function should_show_422_when_input_is_invalid(
         string $errorMaker,
         array $input,
-    ) {
+    ): void {
         // Act
         $response = $this->putJson(
             $this->getEndpointUrl($this->user->id),
@@ -152,7 +152,7 @@ class UpdateUserTest extends BaseFeatureTestCase
     }
 
     #[Test]
-    public function should_show_409_when_thrown_duplicated_email_exception()
+    public function should_show_409_when_thrown_duplicated_email_exception(): void
     {
         // Arrange
         $input = $this->validRequestInput();
@@ -200,7 +200,7 @@ class UpdateUserTest extends BaseFeatureTestCase
     }
 
     #[Test]
-    public function should_show_500_when_generic_error_is_thrown()
+    public function should_show_500_when_generic_error_is_thrown(): void
     {
         // Arrange
         $input = $this->validRequestInput();
@@ -239,7 +239,7 @@ class UpdateUserTest extends BaseFeatureTestCase
     }
 
     #[Test]
-    public function should_show_200_when_successfully_update_user()
+    public function should_show_200_when_successfully_update_user(): void
     {
         // Arrange
         $input = $this->validRequestInput();

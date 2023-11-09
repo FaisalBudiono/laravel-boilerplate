@@ -36,7 +36,7 @@ class RefreshTest extends BaseFeatureTestCase
     public function should_show_422_when_input_is_invalid(
         string $errorMaker,
         array $input
-    ) {
+    ): void {
         // Act
         $response = $this->postJson(
             $this->getEndpointUrl(),
@@ -85,7 +85,7 @@ class RefreshTest extends BaseFeatureTestCase
     }
 
     #[Test]
-    public function should_show_500_when_generic_error_is_thrown()
+    public function should_show_500_when_generic_error_is_thrown(): void
     {
         // Arrange
         $input = $this->validRequestInput();
@@ -128,7 +128,7 @@ class RefreshTest extends BaseFeatureTestCase
     #[DataProvider('jwtExceptionDataProvider')]
     public function should_show_401_when_jwt_exception_is_thrown(
         JWTException $mockJWTException
-    ) {
+    ): void {
         // Arrange
         $input = $this->validRequestInput();
 
@@ -184,7 +184,7 @@ class RefreshTest extends BaseFeatureTestCase
     }
 
     #[Test]
-    public function should_show_200_when_token_is_successfully_recreated()
+    public function should_show_200_when_token_is_successfully_recreated(): void
     {
         // Arrange
         $input = $this->validRequestInput();

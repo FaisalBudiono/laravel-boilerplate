@@ -17,7 +17,7 @@ class JWTGuard_Validate_Test extends JWTGuardBaseTestCase
 {
     #[Test]
     #[DataProvider('wrongCredentialsDataProvider')]
-    public function should_return_false_when_no_token_supplied(array $credentials)
+    public function should_return_false_when_no_token_supplied(array $credentials): void
     {
         // Arrange
         $service = $this->makeService();
@@ -44,7 +44,7 @@ class JWTGuard_Validate_Test extends JWTGuardBaseTestCase
     }
 
     #[Test]
-    public function should_return_false_and_not_set_any_user_when_there_is_some_error_thrown()
+    public function should_return_false_and_not_set_any_user_when_there_is_some_error_thrown(): void
     {
         // Arrange
         $mockedException = new Exception($this->faker->sentence);
@@ -84,7 +84,7 @@ class JWTGuard_Validate_Test extends JWTGuardBaseTestCase
     }
 
     #[Test]
-    public function should_return_true_and_set_user_when_supplied_token_is_valid()
+    public function should_return_true_and_set_user_when_supplied_token_is_valid(): void
     {
         // Arrange
         $mockedUser = User::factory()->create()->fresh();

@@ -37,14 +37,14 @@ class UserCore_Delete_Test extends TestCase
     }
 
     #[Test]
-    public function should_implement_right_interface()
+    public function should_implement_right_interface(): void
     {
         // Assert
         $this->assertInstanceOf(UserCoreContract::class, $this->core);
     }
 
     #[Test]
-    public function should_successfully_soft_delete_requested_user()
+    public function should_successfully_soft_delete_requested_user(): void
     {
         // Arrange
         $totalData = 5;

@@ -34,7 +34,7 @@ class LoginTest extends BaseFeatureTestCase
     public function should_show_422_when_input_is_invalid(
         string $errorMaker,
         array $input
-    ) {
+    ): void {
         // Act
         $response = $this->postJson(
             $this->getEndpointUrl(),
@@ -116,7 +116,7 @@ class LoginTest extends BaseFeatureTestCase
     }
 
     #[Test]
-    public function should_show_500_when_generic_error_is_thrown()
+    public function should_show_500_when_generic_error_is_thrown(): void
     {
         // Arrange
         $input = $this->validRequestInput();
@@ -156,7 +156,7 @@ class LoginTest extends BaseFeatureTestCase
     }
 
     #[Test]
-    public function should_show_401_when_thrown_invalid_credential()
+    public function should_show_401_when_thrown_invalid_credential(): void
     {
         // Arrange
         $input = $this->validRequestInput();
@@ -198,7 +198,7 @@ class LoginTest extends BaseFeatureTestCase
     }
 
     #[Test]
-    public function should_show_200_when_successfully_authenticated()
+    public function should_show_200_when_successfully_authenticated(): void
     {
         // Arrange
         $input = $this->validRequestInput();

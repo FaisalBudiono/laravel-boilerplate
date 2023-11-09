@@ -35,7 +35,7 @@ class LogoutTest extends BaseFeatureTestCase
     public function should_show_422_when_input_is_invalid(
         string $errorMaker,
         array $input
-    ) {
+    ): void {
         // Act
         $response = $this->postJson(
             $this->getEndpointUrl(),
@@ -84,7 +84,7 @@ class LogoutTest extends BaseFeatureTestCase
     }
 
     #[Test]
-    public function should_show_500_when_generic_error_is_thrown()
+    public function should_show_500_when_generic_error_is_thrown(): void
     {
         // Arrange
         $input = $this->validRequestInput();
@@ -125,7 +125,7 @@ class LogoutTest extends BaseFeatureTestCase
 
     #[Test]
     #[DataProvider('jwtExceptionDataProvider')]
-    public function should_show_401_when_jwt_exception_is_thrown(JWTException $mockJWTException)
+    public function should_show_401_when_jwt_exception_is_thrown(JWTException $mockJWTException): void
     {
         // Arrange
         $input = $this->validRequestInput();
@@ -182,7 +182,7 @@ class LogoutTest extends BaseFeatureTestCase
     }
 
     #[Test]
-    public function should_show_204_no_content_when_successfully_logout()
+    public function should_show_204_no_content_when_successfully_logout(): void
     {
         // Arrange
         $input = $this->validRequestInput();

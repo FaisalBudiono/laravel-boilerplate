@@ -8,7 +8,7 @@ use PHPUnit\Framework\Attributes\Test;
 class AuthJWTCore_Interface_Test extends AuthJWTCoreBaseTestCase
 {
     #[Test]
-    public function should_implement_right_interface()
+    public function should_implement_right_interface(): void
     {
         // Assert
         $this->assertInstanceOf(AuthJWTCoreContract::class, $this->makeService());

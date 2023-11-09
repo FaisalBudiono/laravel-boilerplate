@@ -26,14 +26,14 @@ class UserTokenMapperTest extends TestCase
     }
 
     #[Test]
-    public function should_implement_right_interface()
+    public function should_implement_right_interface(): void
     {
         // Assert
         $this->assertInstanceOf(UserTokenMapperContract::class, $this->makeService());
     }
 
     #[Test]
-    public function should_return_claim_when_successfully_mapped_user()
+    public function should_return_claim_when_successfully_mapped_user(): void
     {
         // Arrange
         $mockedUuid = Str::freezeUuids();

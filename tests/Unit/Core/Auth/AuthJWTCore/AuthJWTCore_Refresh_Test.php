@@ -36,7 +36,7 @@ class AuthJWTCore_Refresh_Test extends AuthJWTCoreBaseTestCase
     }
 
     #[Test]
-    public function should_return_token_pair_when_refresh_token_can_be_refreshed()
+    public function should_return_token_pair_when_refresh_token_can_be_refreshed(): void
     {
         // Arrange
         $user = User::factory()->create()->fresh();

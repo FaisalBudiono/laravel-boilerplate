@@ -10,7 +10,7 @@ use Tests\TestCase;
 class VersionFetcherConfigTest extends TestCase
 {
     #[Test]
-    public function fullVersion_should_return_full_version()
+    public function fullVersion_should_return_full_version(): void
     {
         // Arrange
         $mockMajor = (string) $this->faker->numberBetween();
@@ -32,7 +32,7 @@ class VersionFetcherConfigTest extends TestCase
     }
 
     #[Test]
-    public function major_should_receive_major_version_from_version_config_file()
+    public function major_should_receive_major_version_from_version_config_file(): void
     {
         // Arrange
         $mockMajor = $this->faker->word;
@@ -49,7 +49,7 @@ class VersionFetcherConfigTest extends TestCase
     }
 
     #[Test]
-    public function minor_should_receive_major_version_from_version_config_file()
+    public function minor_should_receive_major_version_from_version_config_file(): void
     {
         // Arrange
         $mockMinor = $this->faker->word;
@@ -66,7 +66,7 @@ class VersionFetcherConfigTest extends TestCase
     }
 
     #[Test]
-    public function patch_should_receive_major_version_from_version_config_file()
+    public function patch_should_receive_major_version_from_version_config_file(): void
     {
         // Arrange
         $mockPatch = $this->faker->word;

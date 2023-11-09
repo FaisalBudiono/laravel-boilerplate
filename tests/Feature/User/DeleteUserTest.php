@@ -30,7 +30,7 @@ class DeleteUserTest extends BaseFeatureTestCase
     }
 
     #[Test]
-    public function should_show_500_when_thrown_generic_error()
+    public function should_show_500_when_thrown_generic_error(): void
     {
         // Arrange
         $exceptionMessage = new ExceptionMessageGeneric;
@@ -64,7 +64,7 @@ class DeleteUserTest extends BaseFeatureTestCase
     }
 
     #[Test]
-    public function should_show_204_when_successfully_delete_user()
+    public function should_show_204_when_successfully_delete_user(): void
     {
         // Assert
         $mockCore = $this->mock(

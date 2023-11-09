@@ -9,7 +9,7 @@ use Tests\TestCase;
 class ExceptionMessageStandardTest extends TestCase
 {
     #[Test]
-    public function should_implement_right_interface()
+    public function should_implement_right_interface(): void
     {
         // Arrange
         $exceptionMessage = new ExceptionMessageStandard('some-error', 'some-const');
@@ -20,7 +20,7 @@ class ExceptionMessageStandardTest extends TestCase
     }
 
     #[Test]
-    public function getJsonResponse_should_return_formatted_json_response_when_constructor_is_completely_filled()
+    public function getJsonResponse_should_return_formatted_json_response_when_constructor_is_completely_filled(): void
     {
         // Arrange
         $message = $this->faker->words(3, true);
@@ -48,7 +48,7 @@ class ExceptionMessageStandardTest extends TestCase
     }
 
     #[Test]
-    public function getJsonResponse_should_return_formatted_json_response_when_created_without_meta()
+    public function getJsonResponse_should_return_formatted_json_response_when_created_without_meta(): void
     {
         // Arrange
         $message = $this->faker->words(3, true);
@@ -72,7 +72,7 @@ class ExceptionMessageStandardTest extends TestCase
     }
 
     #[Test]
-    public function getMessage_should_return_message()
+    public function getMessage_should_return_message(): void
     {
         // Arrange
         $message = $this->faker->words(3, true);

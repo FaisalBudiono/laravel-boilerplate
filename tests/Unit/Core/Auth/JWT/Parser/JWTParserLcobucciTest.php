@@ -32,7 +32,7 @@ class JWTParserLcobucciTest extends TestCase
 
     #[Test]
     #[DataProvider('invalidJwtTokenDataProvider')]
-    public function parse_should_throw_failed_parsing_exception_when_jwt_is_not_parsable(string $invalidToken)
+    public function parse_should_throw_failed_parsing_exception_when_jwt_is_not_parsable(string $invalidToken): void
     {
         // Arrange
         $service = $this->makeService();
@@ -86,7 +86,7 @@ class JWTParserLcobucciTest extends TestCase
     public function parse_should_return_claim_for_provided_token(
         string $mockedToken,
         Claims $expectedClaim
-    ) {
+    ): void {
         // Arrange
         $service = $this->makeService();
 

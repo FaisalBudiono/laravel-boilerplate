@@ -14,7 +14,7 @@ use Tests\TestCase;
 class BackedEnumRuleTest extends TestCase
 {
     #[Test]
-    public function should_implement_right_interface()
+    public function should_implement_right_interface(): void
     {
         // Arrange
         $service = new BackedEnumRule(TestBackedEnumString::FOO);
@@ -30,7 +30,7 @@ class BackedEnumRuleTest extends TestCase
         BackedEnum $backedEnum,
         string $errorMessage,
         string|int $mockedInput,
-    ) {
+    ): void {
         // Arrange
         $service = new BackedEnumRule($backedEnum);
 
@@ -77,7 +77,7 @@ class BackedEnumRuleTest extends TestCase
     public function should_NOT_call_fail_closure_when_value_is_valid_enum_value(
         BackedEnum $backedEnum,
         mixed $value,
-    ) {
+    ): void {
         // Arrange
         $service = new BackedEnumRule($backedEnum);
 

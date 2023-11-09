@@ -34,7 +34,7 @@ abstract class HttpExceptionBaseTestCase extends TestCase
     }
 
     #[Test]
-    public function getCode_should_return_right_json_content()
+    public function getCode_should_return_right_json_content(): void
     {
         // Act
         $exception = new ($this->makeHttpException())($this->mockExceptionMessage);
@@ -46,7 +46,7 @@ abstract class HttpExceptionBaseTestCase extends TestCase
     }
 
     #[Test]
-    public function getMessage_should_return_right_message()
+    public function getMessage_should_return_right_message(): void
     {
         // Act
         $exception = new ($this->makeHttpException())($this->mockExceptionMessage);
@@ -59,7 +59,7 @@ abstract class HttpExceptionBaseTestCase extends TestCase
 
     #[Test]
     #[DataProviderExternal(DataProvider::class, 'previousExceptions')]
-    public function getPrevious_should_return_right_json_content(?Exception $mockPreviousException)
+    public function getPrevious_should_return_right_json_content(?Exception $mockPreviousException): void
     {
         // Act
         $exception = new ($this->makeHttpException())(
@@ -74,7 +74,7 @@ abstract class HttpExceptionBaseTestCase extends TestCase
     }
 
     #[Test]
-    public function render_should_return_right_json_content()
+    public function render_should_return_right_json_content(): void
     {
         // Act
         $exception = new ($this->makeHttpException())($this->mockExceptionMessage);

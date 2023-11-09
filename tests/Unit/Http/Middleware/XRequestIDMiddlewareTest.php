@@ -13,7 +13,7 @@ use Tests\TestCase;
 class XRequestIDMiddlewareTest extends TestCase
 {
     #[Test]
-    public function should_attach_x_request_id_in_request_and_response_header()
+    public function should_attach_x_request_id_in_request_and_response_header(): void
     {
         // Arrange
         $headerName = 'X-Request-Id';

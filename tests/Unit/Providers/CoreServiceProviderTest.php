@@ -29,14 +29,14 @@ class CoreServiceProviderTest extends TestCase
     }
 
     #[Test]
-    public function should_be_able_to_be_contructed()
+    public function should_be_able_to_be_contructed(): void
     {
         // Assert
         $this->assertInstanceOf(ServiceProvider::class, $this->serviceProvider);
     }
 
     #[Test]
-    public function should_bind_core_service()
+    public function should_bind_core_service(): void
     {
         // Arrange
         $coreAssertionClassNames = [
