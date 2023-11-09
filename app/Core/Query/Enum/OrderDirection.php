@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Core\Query;
+namespace App\Core\Query\Enum;
 
 enum OrderDirection: string
 {

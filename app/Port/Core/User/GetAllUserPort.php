@@ -2,7 +2,7 @@
 
 namespace App\Port\Core\User;
 
-use App\Core\Query\OrderDirection;
+use App\Core\Query\Enum\OrderDirection;
 use App\Core\User\Query\UserOrderBy;
 
 interface GetAllUserPort

@@ -3,7 +3,7 @@
 namespace App\Core\User;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
-use App\Core\Query\OrderDirection;
+use App\Core\Query\Enum\OrderDirection;
 use App\Core\User\Query\UserOrderBy;
 use App\Exceptions\Core\User\UserEmailDuplicatedException;
 use App\Models\User\Enum\UserExceptionCode;

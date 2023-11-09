@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Core\User\UserCore;
 
-use App\Core\Query\OrderDirection;
+use App\Core\Query\Enum\OrderDirection;
 use App\Core\User\Query\UserOrderBy;
 use App\Models\User\User;
 use App\Port\Core\User\GetAllUserPort;
