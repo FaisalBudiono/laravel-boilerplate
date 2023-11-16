@@ -31,6 +31,9 @@ class Implementor extends TestCase
                 $this->mockInterfaceJWTGuard = $mock;
             }
         );
+
+        $this->test->instance(AuthenticatedByJWT::class, $this->jwtMiddleware);
+        $this->test->instance(JWTGuardContract::class, $this->jwtGuard);
     }
 
     public static function make(TestCase $test): self
@@ -38,17 +41,10 @@ class Implementor extends TestCase
         return new self($test);
     }
 
-    public function bindInstance(): void
-    {
-        $this->test->instance(AuthenticatedByJWT::class, $this->jwtMiddleware);
-        $this->test->instance(JWTGuardContract::class, $this->jwtGuard);
-    }
-
     public function mockLogin(User $user): self
     {
         $this->mockInterfaceJWTMiddleware
             ->shouldReceive('handle')
-            ->once()
             ->andReturnUsing(function ($argRequest, $argNext) {
                 return $argNext($argRequest);
             });
@@ -62,7 +58,7 @@ class Implementor extends TestCase
 
     public function mockGuestAndThrow(\Throwable $e): self
     {
-        $this->mockInterfaceJWTMiddleware->shouldReceive('handle')->once()->andThrow($e);
+        $this->mockInterfaceJWTMiddleware->shouldReceive('handle')->andThrow($e);
 
         $this->mockInterfaceJWTGuard->shouldReceive('user')
             ->withNoArgs()
