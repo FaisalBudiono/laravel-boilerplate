@@ -5,6 +5,7 @@ namespace App\Models\User;
 use App\Core\Formatter\ExceptionErrorCode;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
 use App\Exceptions\Models\ModelNotFoundException;
+use App\Models\Permission\Role;
 use App\Models\Post\Post;
 use Carbon\Carbon;
 use Database\Factories\User\UserFactory;
@@ -28,6 +29,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property Carbon $updated_at
  *
  * @property Collection<int, Post> $posts
+ * @property Collection<int, Role> $roles
  */
 class User extends Authenticatable
 {
