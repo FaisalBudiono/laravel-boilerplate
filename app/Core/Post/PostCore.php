@@ -5,6 +5,7 @@ namespace App\Core\Post;
 use App\Models\Permission\Enum\RoleName;
 use App\Models\Post\Post;
 use App\Port\Core\Post\CreatePostPort;
+use App\Port\Core\Post\DeletePostPort;
 use App\Port\Core\Post\GetAllPostPort;
 use App\Port\Core\Post\GetSinglePostPort;
 use App\Port\Core\Post\UpdatePostPort;
@@ -28,6 +29,20 @@ class PostCore implements PostCoreContract
             DB::commit();
 
             return $post->fresh(Post::eagerLoadAll());
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    public function delete(DeletePostPort $request): void
+    {
+        try {
+            DB::beginTransaction();
+
+            $request->getPost()->delete();
+
+            DB::commit();
         } catch (\Throwable $e) {
             DB::rollBack();
             throw $e;
