@@ -2,9 +2,14 @@
 
 namespace App\Core\Post;
 
+use App\Models\Permission\Enum\RoleName;
 use App\Models\Post\Post;
 use App\Port\Core\Post\CreatePostPort;
+use App\Port\Core\Post\GetAllPostPort;
 use App\Port\Core\Post\UpdatePostPort;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class PostCore implements PostCoreContract
@@ -27,6 +32,30 @@ class PostCore implements PostCoreContract
             DB::rollBack();
             throw $e;
         }
+    }
+
+    /**
+     * @return LengthAwarePaginator<int, Post>
+     */
+    public function getAll(GetAllPostPort $request): LengthAwarePaginator
+    {
+        $perPage = $request->getPerPage() ?? 15;
+
+        $userActor = $request->getUserActor();
+        $userFilter = $request->getUserFilter();
+
+        $isAdmin = $userActor->roles->contains('name', RoleName::ADMIN);
+        $shouldFilterByUser = !$isAdmin || !is_null($userFilter);
+
+
+        return Post::with(Post::eagerLoadAll())
+            ->when($shouldFilterByUser, function (Builder $q) use ($userFilter, $userActor, $isAdmin) {
+                if (!$isAdmin) {
+                    $q->where('user_id', $userActor->id);
+                    return;
+                }
+                $q->where('user_id', $userFilter->id);
+            })->paginate($perPage, ['*'], 'page', $request->getPage());
     }
 
     public function update(UpdatePostPort $request): Post
