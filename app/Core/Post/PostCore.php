@@ -6,10 +6,10 @@ use App\Models\Permission\Enum\RoleName;
 use App\Models\Post\Post;
 use App\Port\Core\Post\CreatePostPort;
 use App\Port\Core\Post\GetAllPostPort;
+use App\Port\Core\Post\GetSinglePostPort;
 use App\Port\Core\Post\UpdatePostPort;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class PostCore implements PostCoreContract
@@ -56,6 +56,11 @@ class PostCore implements PostCoreContract
                 }
                 $q->where('user_id', $userFilter->id);
             })->paginate($perPage, ['*'], 'page', $request->getPage());
+    }
+
+    public function get(GetSinglePostPort $request): Post
+    {
+        return $request->getPost()->fresh(Post::eagerLoadAll());
     }
 
     public function update(UpdatePostPort $request): Post
