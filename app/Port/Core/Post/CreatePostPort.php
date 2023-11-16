@@ -9,5 +9,5 @@ interface CreatePostPort
     public function getUserActor(): User;
 
     public function getTitle(): string;
-    public function getContent(): ?string;
+    public function getPostContent(): ?string;
 }

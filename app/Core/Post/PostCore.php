@@ -23,7 +23,7 @@ class PostCore implements PostCoreContract
             $post = new Post();
             $post->user_id = $request->getUserActor()->id;
             $post->title = $request->getTitle();
-            $post->content = $request->getContent();
+            $post->content = $request->getPostContent();
             $post->save();
 
             DB::commit();
@@ -86,7 +86,7 @@ class PostCore implements PostCoreContract
             $post = $request->getPost();
             $post->user_id = $request->getUserActor()->id;
             $post->title = $request->getTitle();
-            $post->content = $request->getContent();
+            $post->content = $request->getPostContent();
             $post->save();
 
             DB::commit();

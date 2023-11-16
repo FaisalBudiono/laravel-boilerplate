@@ -32,7 +32,7 @@ class PostCore_Create_Test extends PostCoreBaseTestCase
 
         $this->mockRequest->shouldReceive('getUserActor')->once()->andreturn($user);
         $this->mockRequest->shouldReceive('getTitle')->once()->andreturn($title);
-        $this->mockRequest->shouldReceive('getContent')->once()->andreturn($content);
+        $this->mockRequest->shouldReceive('getPostContent')->once()->andreturn($content);
 
 
         // Act

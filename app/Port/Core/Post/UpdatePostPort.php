@@ -11,5 +11,5 @@ interface UpdatePostPort
 
     public function getPost(): Post;
     public function getTitle(): string;
-    public function getContent(): ?string;
+    public function getPostContent(): ?string;
 }
