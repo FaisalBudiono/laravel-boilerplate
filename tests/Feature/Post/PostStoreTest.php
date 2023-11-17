@@ -126,7 +126,7 @@ class PostStoreTest extends BaseFeatureTestCase
 
         // Assert
         $response->assertUnauthorized();
-        $response->assertJsonPath('errors.message', 'Authorization is required to access this resource.');
+        $response->assertJsonPath('errors.message', 'Authentication is needed');
         $response->assertJsonPath('errors.errorCode', ExceptionErrorCode::REQUIRE_AUTHORIZATION->value);
     }
 

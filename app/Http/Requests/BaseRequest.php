@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Core\Formatter\ExceptionErrorCode;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
+use App\Exceptions\Http\ForbiddenException;
 use App\Exceptions\Http\UnauthorizedException;
 use App\Exceptions\Http\UnprocessableEntityException;
 use App\Http\Middleware\XRequestIDMiddleware;
@@ -40,10 +41,26 @@ abstract class BaseRequest extends FormRequest
         $user = auth()->user();
 
         if (is_null($user)) {
-            $this->failedAuthorization();
+            $this->failedAuthentication();
         }
 
         return $user;
+    }
+
+    protected function failedAuthentication()
+    {
+        throw new UnauthorizedException(new ExceptionMessageStandard(
+            'Authentication is needed',
+            ExceptionErrorCode::REQUIRE_AUTHORIZATION->value,
+        ));
+    }
+
+    protected function failedAuthorization()
+    {
+        throw new ForbiddenException(new ExceptionMessageStandard(
+            'Lack of authorization to access this resource',
+            ExceptionErrorCode::LACK_OF_AUTHORIZATION->value,
+        ));
     }
 
     protected function failedValidation(Validator $validator)
@@ -52,14 +69,6 @@ abstract class BaseRequest extends FormRequest
             'Structure body/param might be invalid.',
             ExceptionErrorCode::INVALID_VALIDATION->value,
             $validator->errors()->jsonSerialize(),
-        ));
-    }
-
-    protected function failedAuthorization()
-    {
-        throw new UnauthorizedException(new ExceptionMessageStandard(
-            'Authorization is required to access this resource.',
-            ExceptionErrorCode::REQUIRE_AUTHORIZATION->value,
         ));
     }
 
