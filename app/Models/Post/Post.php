@@ -2,6 +2,9 @@
 
 namespace App\Models\Post;
 
+use App\Core\Formatter\ExceptionErrorCode;
+use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
+use App\Exceptions\Models\ModelNotFoundException;
 use App\Models\User\User;
 use Carbon\Carbon;
 use Database\Factories\Post\PostFactory;
@@ -47,6 +50,20 @@ class Post extends Model
         return [
             'user',
         ];
+    }
+
+    public static function findByIDOrFail(int $id): self
+    {
+        $post = self::query()->where('id', $id)->first();
+
+        if (is_null($post)) {
+            throw new ModelNotFoundException(new ExceptionMessageStandard(
+                'Post ID is not found',
+                ExceptionErrorCode::MODEL_NOT_FOUND->value,
+            ));
+        }
+
+        return $post;
     }
 
     protected static function newFactory()
