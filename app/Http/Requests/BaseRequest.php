@@ -35,6 +35,17 @@ abstract class BaseRequest extends FormRequest
         return $this->header(XRequestIDMiddleware::HEADER_NAME, '');
     }
 
+    protected function getUserOrFail(): User
+    {
+        $user = auth()->user();
+
+        if (is_null($user)) {
+            $this->failedAuthorization();
+        }
+
+        return $user;
+    }
+
     protected function failedValidation(Validator $validator)
     {
         throw new UnprocessableEntityException(new ExceptionMessageStandard(
