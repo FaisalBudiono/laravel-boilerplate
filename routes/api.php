@@ -17,3 +17,4 @@ Route::get('users/{userID}', [UserController::class, 'show'])->name('user.show')
 Route::put('users/{userID}', [UserController::class, 'update'])->name('user.update');
 
 Route::post('posts', [PostController::class, 'store'])->name('post.store');
+Route::get('posts/{postID}', [PostController::class, 'show'])->name('post.show');
