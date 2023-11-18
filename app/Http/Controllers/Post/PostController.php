@@ -7,6 +7,7 @@ use App\Core\Post\PostCoreContract;
 use App\Exceptions\Http\InternalServerErrorException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Post\CreatePostRequest;
+use App\Http\Requests\Post\GetAllPostRequest;
 use App\Http\Requests\Post\GetSinglePostRequest;
 use App\Http\Resources\Post\PostResource;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,6 +17,19 @@ class PostController extends Controller
     public function __construct(
         protected PostCoreContract $core,
     ) {
+    }
+
+    public function index(GetAllPostRequest $request): Response
+    {
+        try {
+            $posts = $this->core->getAll($request);
+
+            return PostResource::collection($posts)
+                ->response()
+                ->setStatusCode(Response::HTTP_OK);
+        } catch (\Throwable $e) {
+            throw new InternalServerErrorException(new ExceptionMessageGeneric);
+        }
     }
 
     public function show(GetSinglePostRequest $request): Response
