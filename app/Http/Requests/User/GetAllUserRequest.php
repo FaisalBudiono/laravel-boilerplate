@@ -2,12 +2,11 @@
 
 namespace App\Http\Requests\User;
 
-use App\Core\Query\OrderDirection;
+use App\Core\Query\Enum\OrderDirection;
 use App\Core\User\Query\UserOrderBy;
 use App\Http\Requests\BaseRequest;
 use App\Port\Core\User\GetAllUserPort;
 use App\Rules\Enum\BackedEnumRule;
-use ValueError;
 
 class GetAllUserRequest extends BaseRequest implements GetAllUserPort
 {

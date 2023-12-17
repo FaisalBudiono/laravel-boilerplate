@@ -3,7 +3,7 @@
 namespace Tests\Feature\User;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
-use App\Core\Query\OrderDirection;
+use App\Core\Query\Enum\OrderDirection;
 use App\Core\User\Query\UserOrderBy;
 use App\Core\User\UserCoreContract;
 use App\Models\User\User;

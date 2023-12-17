@@ -21,11 +21,6 @@ class MockerAuthenticatedByJWT
         return new self($test);
     }
 
-    public function bindInstance(): void
-    {
-        $this->implementor->bindInstance();
-    }
-
     public function mockLogin(User $user): self
     {
         $this->implementor->mockLogin($user);

@@ -12,6 +12,7 @@ class CoreServiceProvider extends ServiceProvider
         \App\Providers\CoreBinder\CoreBinderHealthcheck::class,
         \App\Providers\CoreBinder\CoreBinderLogger::class,
         \App\Providers\CoreBinder\CoreBinderMiddleware::class,
+        \App\Providers\CoreBinder\CoreBinderPost::class,
         \App\Providers\CoreBinder\CoreBinderUser::class,
     ];
 

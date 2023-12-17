@@ -46,8 +46,7 @@ class MeTest extends BaseFeatureTestCase
 
         // Assert
         MockerAuthenticatedByJWT::make($this)
-            ->mockLogin($this->mockUser)
-            ->bindInstance();
+            ->mockLogin($this->mockUser);
 
         $mockCore = $this->mock(
             UserCoreContract::class,
@@ -78,8 +77,7 @@ class MeTest extends BaseFeatureTestCase
     {
         // Assert
         MockerAuthenticatedByJWT::make($this)
-            ->mockLogin($this->mockUser)
-            ->bindInstance();
+            ->mockLogin($this->mockUser);
 
         $mockCore = $this->mock(
             UserCoreContract::class,

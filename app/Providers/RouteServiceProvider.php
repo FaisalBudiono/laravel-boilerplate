@@ -21,6 +21,7 @@ class RouteServiceProvider extends ServiceProvider
     public const HOME = '/';
 
     protected $modelBindings = [
+        \App\Providers\ModelBinding\ModelBindingPost::class,
         \App\Providers\ModelBinding\ModelBindingUser::class,
     ];
 
