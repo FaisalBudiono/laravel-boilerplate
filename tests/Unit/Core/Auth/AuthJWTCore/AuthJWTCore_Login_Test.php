@@ -22,21 +22,13 @@ use PHPUnit\Framework\Attributes\Test;
 
 class AuthJWTCore_Login_Test extends AuthJWTCoreBaseTestCase
 {
-    protected LoginPort $mockRequest;
-
-    /** @var (\Mockery\ExpectationInterface|\Mockery\Expectation|\Mockery\HigherOrderMessage)[] */
-    protected $mockedRequestMethods;
+    protected LoginPort|MockInterface $mockRequest;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->mockRequest = $this->mock(LoginPort::class, function (MockInterface $mock) {
-            $this->getClassMethods(LoginPort::class)->each(
-                fn (string $methodName) =>
-                $this->mockedRequestMethods[$methodName] = $mock->shouldReceive($methodName)
-            );
-        });
+        $this->mockRequest = $this->mock(LoginPort::class);
     }
 
     #[Test]
@@ -48,7 +40,7 @@ class AuthJWTCore_Login_Test extends AuthJWTCoreBaseTestCase
 
 
         // Assert
-        $this->mockedRequestMethods['getUserEmail']->once()->andReturn($notFoundEmail);
+        $this->mockRequest->shouldReceive('getUserEmail')->once()->andReturn($notFoundEmail);
 
         $expectedException = new InvalidCredentialException(new ExceptionMessageStandard(
             'Credential is invalid',
@@ -70,12 +62,8 @@ class AuthJWTCore_Login_Test extends AuthJWTCoreBaseTestCase
 
 
         // Assert
-        $this->mockedRequestMethods['getUserEmail']
-            ->once()
-            ->andReturn($user->email);
-        $this->mockedRequestMethods['getUserPassword']
-            ->once()
-            ->andReturn($invalidPassword);
+        $this->mockRequest->shouldReceive('getUserEmail')->once()->andReturn($user->email);
+        $this->mockRequest->shouldReceive('getUserPassword')->once()->andReturn($invalidPassword);
 
         Hash::shouldReceive('check')
             ->once()
@@ -102,12 +90,8 @@ class AuthJWTCore_Login_Test extends AuthJWTCoreBaseTestCase
 
 
         // Assert
-        $this->mockedRequestMethods['getUserEmail']
-            ->once()
-            ->andReturn($user->email);
-        $this->mockedRequestMethods['getUserPassword']
-            ->once()
-            ->andReturn($validPassword);
+        $this->mockRequest->shouldReceive('getUserEmail')->once()->andReturn($user->email);
+        $this->mockRequest->shouldReceive('getUserPassword')->once()->andReturn($validPassword);
 
         Hash::shouldReceive('check')
             ->once()

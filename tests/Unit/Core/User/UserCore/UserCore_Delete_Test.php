@@ -17,10 +17,7 @@ class UserCore_Delete_Test extends TestCase
 
     protected UserCore $core;
 
-    protected DeleteUserPort $mockRequest;
-
-    /** @var (\Mockery\ExpectationInterface|\Mockery\Expectation|\Mockery\HigherOrderMessage)[] */
-    protected $mockedRequestMethods;
+    protected DeleteUserPort|MockInterface $mockRequest;
 
     protected function setUp(): void
     {
@@ -28,12 +25,7 @@ class UserCore_Delete_Test extends TestCase
 
         $this->core = new UserCore();
 
-        $this->mockRequest = $this->mock(DeleteUserPort::class, function (MockInterface $mock) {
-            $this->getClassMethods(DeleteUserPort::class)->each(
-                fn (string $methodName) =>
-                $this->mockedRequestMethods[$methodName] = $mock->shouldReceive($methodName)
-            );
-        });
+        $this->mockRequest = $this->mock(DeleteUserPort::class);
     }
 
     #[Test]
@@ -55,8 +47,7 @@ class UserCore_Delete_Test extends TestCase
 
 
         // Assert
-        $this->mockedRequestMethods['getUserModel']->once()->withNoArgs()
-            ->andReturn($user);
+        $this->mockRequest->shouldReceive('getUserModel')->once()->andReturn($user);
 
 
         // Act

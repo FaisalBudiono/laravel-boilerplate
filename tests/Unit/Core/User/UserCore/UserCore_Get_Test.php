@@ -17,9 +17,7 @@ class UserCore_Get_Test extends TestCase
 
     protected UserCore $core;
 
-    protected GetUserPort $mockRequest;
-    /** @var (\Mockery\ExpectationInterface|\Mockery\Expectation|\Mockery\HigherOrderMessage)[] */
-    protected $mockedRequestMethods;
+    protected GetUserPort|MockInterface $mockRequest;
 
     protected function setUp(): void
     {
@@ -27,12 +25,7 @@ class UserCore_Get_Test extends TestCase
 
         $this->core = new UserCore();
 
-        $this->mockRequest = $this->mock(GetUserPort::class, function (MockInterface $mock) {
-            $this->getClassMethods(GetUserPort::class)->each(
-                fn (string $methodName) =>
-                $this->mockedRequestMethods[$methodName] = $mock->shouldReceive($methodName)
-            );
-        });
+        $this->mockRequest = $this->mock(GetUserPort::class);
     }
 
     #[Test]
@@ -53,10 +46,7 @@ class UserCore_Get_Test extends TestCase
 
 
         // Assert
-        $this->mockedRequestMethods['getUserModel']
-            ->once()
-            ->withNoArgs()
-            ->andReturn($user);
+        $this->mockRequest->shouldReceive('getUserModel')->once()->andReturn($user);
 
 
         // Act

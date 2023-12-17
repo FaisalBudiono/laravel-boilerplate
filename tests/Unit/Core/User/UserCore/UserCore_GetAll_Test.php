@@ -23,10 +23,7 @@ class UserCore_GetAll_Test extends TestCase
 
     protected UserCore $core;
 
-    protected GetAllUserPort $mockRequest;
-
-    /** @var (\Mockery\ExpectationInterface|\Mockery\Expectation|\Mockery\HigherOrderMessage)[] */
-    protected $mockedRequestMethods;
+    protected GetAllUserPort|MockInterface $mockRequest;
 
     protected function setUp(): void
     {
@@ -34,13 +31,7 @@ class UserCore_GetAll_Test extends TestCase
 
         $this->core = new UserCore();
 
-        $this->mockRequest = $this->mock(GetAllUserPort::class, function (MockInterface $mock) {
-            $this->getClassMethods(GetAllUserPort::class)->each(
-                function (string $methodName) use ($mock) {
-                    $this->mockedRequestMethods[$methodName] = $mock->shouldReceive($methodName);
-                }
-            );
-        });
+        $this->mockRequest = $this->mock(GetAllUserPort::class);
     }
 
     #[Test]
@@ -58,10 +49,10 @@ class UserCore_GetAll_Test extends TestCase
 
 
         // Assert
-        $this->mockedRequestMethods['getPerPage']
-            ->once()
-            ->withNoArgs()
-            ->andReturnNull();
+        $this->mockRequest->shouldReceive('getOrderBy')->once()->andReturnNull();
+        $this->mockRequest->shouldReceive('getOrderDirection')->once()->andReturnNull();
+        $this->mockRequest->shouldReceive('getPage')->once()->andReturnNull();
+        $this->mockRequest->shouldReceive('getPerPage')->once()->andReturnNull();
 
 
         // Act
@@ -95,10 +86,10 @@ class UserCore_GetAll_Test extends TestCase
 
 
         // Assert
-        $this->mockedRequestMethods['getPerPage']
-            ->once()
-            ->withNoArgs()
-            ->andReturn($perPage);
+        $this->mockRequest->shouldReceive('getOrderBy')->once()->andReturnNull();
+        $this->mockRequest->shouldReceive('getOrderDirection')->once()->andReturnNull();
+        $this->mockRequest->shouldReceive('getPage')->once()->andReturnNull();
+        $this->mockRequest->shouldReceive('getPerPage')->once()->andReturn($perPage);
 
 
         // Act
@@ -133,10 +124,10 @@ class UserCore_GetAll_Test extends TestCase
 
 
         // Assert
-        $this->mockedRequestMethods['getPage']
-            ->once()
-            ->withNoArgs()
-            ->andReturn($page);
+        $this->mockRequest->shouldReceive('getOrderBy')->once()->andReturnNull();
+        $this->mockRequest->shouldReceive('getOrderDirection')->once()->andReturnNull();
+        $this->mockRequest->shouldReceive('getPerPage')->once()->andReturnNull();
+        $this->mockRequest->shouldReceive('getPage')->once()->andReturn($page);
 
 
         // Act
@@ -173,10 +164,10 @@ class UserCore_GetAll_Test extends TestCase
 
 
         // Assert
-        $this->mockedRequestMethods['getOrderDirection']
-            ->once()
-            ->withNoArgs()
-            ->andReturn($orderDirection);
+        $this->mockRequest->shouldReceive('getOrderBy')->once()->andReturnNull();
+        $this->mockRequest->shouldReceive('getPage')->once()->andReturnNull();
+        $this->mockRequest->shouldReceive('getPerPage')->once()->andReturnNull();
+        $this->mockRequest->shouldReceive('getOrderDirection')->once()->andReturn($orderDirection);
 
 
         // Act
@@ -213,10 +204,10 @@ class UserCore_GetAll_Test extends TestCase
 
 
         // Assert
-        $this->mockedRequestMethods['getOrderBy']
-            ->once()
-            ->withNoArgs()
-            ->andReturn($orderBy);
+        $this->mockRequest->shouldReceive('getOrderDirection')->once()->andReturnNull();
+        $this->mockRequest->shouldReceive('getPage')->once()->andReturnNull();
+        $this->mockRequest->shouldReceive('getPerPage')->once()->andReturnNull();
+        $this->mockRequest->shouldReceive('getOrderBy')->once()->andReturn($orderBy);
 
 
         // Act

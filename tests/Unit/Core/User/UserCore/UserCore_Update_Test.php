@@ -21,10 +21,7 @@ class UserCore_Update_Test extends TestCase
 
     protected UserCore $core;
 
-    protected UpdateUserPort $mockRequest;
-
-    /** @var (\Mockery\ExpectationInterface|\Mockery\Expectation|\Mockery\HigherOrderMessage)[] */
-    protected $mockedRequestMethods;
+    protected UpdateUserPort|MockInterface $mockRequest;
 
     protected function setUp(): void
     {
@@ -32,12 +29,7 @@ class UserCore_Update_Test extends TestCase
 
         $this->core = new UserCore();
 
-        $this->mockRequest = $this->mock(UpdateUserPort::class, function (MockInterface $mock) {
-            $this->getClassMethods(UpdateUserPort::class)->each(
-                fn (string $methodName) =>
-                $this->mockedRequestMethods[$methodName] = $mock->shouldReceive($methodName)
-            );
-        });
+        $this->mockRequest = $this->mock(UpdateUserPort::class);
     }
 
     #[Test]
@@ -61,11 +53,8 @@ class UserCore_Update_Test extends TestCase
 
 
         // Assert
-        $this->mockedRequestMethods['getUserModel']->once()->withNoArgs()
-            ->andReturn($user);
-
-        $this->mockedRequestMethods['getEmail']->once()->withNoArgs()
-            ->andReturn($duplicatedUser->email);
+        $this->mockRequest->shouldReceive('getUserModel')->once()->andReturn($user);
+        $this->mockRequest->shouldReceive('getEmail')->once()->andReturn($duplicatedUser->email);
 
         $expectedException = new UserEmailDuplicatedException(new ExceptionMessageStandard(
             'Email is already in used',
@@ -93,24 +82,18 @@ class UserCore_Update_Test extends TestCase
         // Arrange
         User::factory()->count(5)->create();
         $user = User::find($this->faker()->numberBetween(1, User::count()));
+        assert($user instanceof User);
+
         $email = $this->faker()->email();
         $name = $this->faker()->name();
         $password = $this->faker()->words(3, true);
 
 
         // Assert
-        assert($user instanceof User);
-        $this->mockedRequestMethods['getUserModel']->once()->withNoArgs()
-            ->andReturn($user);
-
-        $this->mockedRequestMethods['getEmail']->once()->withNoArgs()
-            ->andReturn($email);
-
-        $this->mockedRequestMethods['getName']->once()->withNoArgs()
-            ->andReturn($name);
-
-        $this->mockedRequestMethods['getUserPassword']->once()->withNoArgs()
-            ->andReturn($password);
+        $this->mockRequest->shouldReceive('getUserModel')->once()->andReturn($user);
+        $this->mockRequest->shouldReceive('getEmail')->once()->andReturn($email);
+        $this->mockRequest->shouldReceive('getName')->once()->andReturn($name);
+        $this->mockRequest->shouldReceive('getUserPassword')->once()->andReturn($password);
 
         $mockedPassword = $this->faker()->words(4, true);
         Hash::shouldReceive('make')->with($password)->once()
@@ -141,19 +124,14 @@ class UserCore_Update_Test extends TestCase
         $user = User::find($this->faker()->numberBetween(1, User::count()));
         assert($user instanceof User);
 
-        $this->mockedRequestMethods['getUserModel']->once()->withNoArgs()
-            ->andReturn($user);
-
-        $this->mockedRequestMethods['getEmail']->once()->withNoArgs()
-            ->andReturn($user->email);
+        $this->mockRequest->shouldReceive('getUserModel')->once()->andReturn($user);
+        $this->mockRequest->shouldReceive('getEmail')->once()->andReturn($user->email);
 
         $name = $this->faker()->name();
-        $this->mockedRequestMethods['getName']->once()->withNoArgs()
-            ->andReturn($name);
+        $this->mockRequest->shouldReceive('getName')->once()->andReturn($name);
 
         $password = $this->faker()->words(3, true);
-        $this->mockedRequestMethods['getUserPassword']->once()->withNoArgs()
-            ->andReturn($password);
+        $this->mockRequest->shouldReceive('getUserPassword')->once()->andReturn($password);
 
         $mockedPassword = $this->faker()->words(4, true);
         Hash::shouldReceive('make')->with($password)->once()

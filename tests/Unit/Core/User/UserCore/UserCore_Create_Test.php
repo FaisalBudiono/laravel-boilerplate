@@ -21,10 +21,7 @@ class UserCore_Create_Test extends TestCase
 
     protected UserCore $core;
 
-    protected CreateUserPort $mockRequest;
-
-    /** @var (\Mockery\ExpectationInterface|\Mockery\Expectation|\Mockery\HigherOrderMessage)[] */
-    protected $mockedRequestMethods;
+    protected CreateUserPort|MockInterface $mockRequest;
 
     protected function setUp(): void
     {
@@ -32,12 +29,7 @@ class UserCore_Create_Test extends TestCase
 
         $this->core = new UserCore();
 
-        $this->mockRequest = $this->mock(CreateUserPort::class, function (MockInterface $mock) {
-            $this->getClassMethods(CreateUserPort::class)->each(
-                fn (string $methodName) =>
-                $this->mockedRequestMethods[$methodName] = $mock->shouldReceive($methodName)
-            );
-        });
+        $this->mockRequest = $this->mock(CreateUserPort::class);
     }
 
     #[Test]
@@ -57,9 +49,9 @@ class UserCore_Create_Test extends TestCase
 
 
         // Assert
-        $this->mockedRequestMethods['getName']->once()->andReturn($name);
-        $this->mockedRequestMethods['getEmail']->once()->andReturn($email);
-        $this->mockedRequestMethods['getUserPassword']->once()->andReturn($password);
+        $this->mockRequest->shouldReceive('getName')->once()->andReturn($name);
+        $this->mockRequest->shouldReceive('getEmail')->once()->andReturn($email);
+        $this->mockRequest->shouldReceive('getUserPassword')->once()->andReturn($password);
 
         $hashedPassword = $this->faker->words(7, true);
         Hash::shouldReceive('make')->with($password)->andReturn($hashedPassword);
@@ -93,7 +85,7 @@ class UserCore_Create_Test extends TestCase
 
 
         // Assert
-        $this->mockedRequestMethods['getEmail']->once()->andReturn($email);
+        $this->mockRequest->shouldReceive('getEmail')->once()->andReturn($email);
 
         $expectedException = new UserEmailDuplicatedException(new ExceptionMessageStandard(
             'Email is duplicated',
