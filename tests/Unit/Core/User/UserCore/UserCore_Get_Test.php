@@ -2,20 +2,15 @@
 
 namespace Tests\Unit\Core\User\UserCore;
 
-use App\Core\User\UserCore;
-use App\Core\User\UserCoreContract;
 use App\Models\User\User;
 use App\Port\Core\User\GetUserPort;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
 
-class UserCore_Get_Test extends TestCase
+class UserCore_Get_Test extends UserCoreBaseTestCase
 {
     use RefreshDatabase;
-
-    protected UserCore $core;
 
     protected GetUserPort|MockInterface $mockRequest;
 
@@ -23,16 +18,7 @@ class UserCore_Get_Test extends TestCase
     {
         parent::setUp();
 
-        $this->core = new UserCore();
-
         $this->mockRequest = $this->mock(GetUserPort::class);
-    }
-
-    #[Test]
-    public function should_implement_right_interface(): void
-    {
-        // Assert
-        $this->assertInstanceOf(UserCoreContract::class, $this->core);
     }
 
     #[Test]
@@ -50,7 +36,7 @@ class UserCore_Get_Test extends TestCase
 
 
         // Act
-        $result = $this->core->get($this->mockRequest);
+        $result = $this->makeService()->get($this->mockRequest);
 
 
         // Assert

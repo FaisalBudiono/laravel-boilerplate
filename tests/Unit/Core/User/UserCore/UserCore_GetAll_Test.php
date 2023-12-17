@@ -4,8 +4,6 @@ namespace Tests\Unit\Core\User\UserCore;
 
 use App\Core\Query\OrderDirection;
 use App\Core\User\Query\UserOrderBy;
-use App\Core\User\UserCore;
-use App\Core\User\UserCoreContract;
 use App\Models\User\User;
 use App\Port\Core\User\GetAllUserPort;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -15,13 +13,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Helper\QueryDataProvider;
-use Tests\TestCase;
 
-class UserCore_GetAll_Test extends TestCase
+class UserCore_GetAll_Test extends UserCoreBaseTestCase
 {
     use RefreshDatabase;
-
-    protected UserCore $core;
 
     protected GetAllUserPort|MockInterface $mockRequest;
 
@@ -29,16 +24,7 @@ class UserCore_GetAll_Test extends TestCase
     {
         parent::setUp();
 
-        $this->core = new UserCore();
-
         $this->mockRequest = $this->mock(GetAllUserPort::class);
-    }
-
-    #[Test]
-    public function should_implement_right_interface(): void
-    {
-        // Assert
-        $this->assertInstanceOf(UserCoreContract::class, $this->core);
     }
 
     #[Test]
@@ -56,7 +42,7 @@ class UserCore_GetAll_Test extends TestCase
 
 
         // Act
-        $results = $this->core->getAll($this->mockRequest);
+        $results = $this->makeService()->getAll($this->mockRequest);
 
 
         // Assert
@@ -93,7 +79,7 @@ class UserCore_GetAll_Test extends TestCase
 
 
         // Act
-        $results = $this->core->getAll($this->mockRequest);
+        $results = $this->makeService()->getAll($this->mockRequest);
 
 
         // Assert
@@ -131,7 +117,7 @@ class UserCore_GetAll_Test extends TestCase
 
 
         // Act
-        $results = $this->core->getAll($this->mockRequest);
+        $results = $this->makeService()->getAll($this->mockRequest);
 
 
         // Assert
@@ -171,7 +157,7 @@ class UserCore_GetAll_Test extends TestCase
 
 
         // Act
-        $results = $this->core->getAll($this->mockRequest);
+        $results = $this->makeService()->getAll($this->mockRequest);
 
 
         // Assert
@@ -211,7 +197,7 @@ class UserCore_GetAll_Test extends TestCase
 
 
         // Act
-        $results = $this->core->getAll($this->mockRequest);
+        $results = $this->makeService()->getAll($this->mockRequest);
 
 
         // Assert

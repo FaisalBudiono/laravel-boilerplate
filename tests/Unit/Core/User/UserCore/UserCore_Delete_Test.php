@@ -2,20 +2,15 @@
 
 namespace Tests\Unit\Core\User\UserCore;
 
-use App\Core\User\UserCore;
-use App\Core\User\UserCoreContract;
 use App\Models\User\User;
 use App\Port\Core\User\DeleteUserPort;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
 
-class UserCore_Delete_Test extends TestCase
+class UserCore_Delete_Test extends UserCoreBaseTestCase
 {
     use RefreshDatabase;
-
-    protected UserCore $core;
 
     protected DeleteUserPort|MockInterface $mockRequest;
 
@@ -23,16 +18,7 @@ class UserCore_Delete_Test extends TestCase
     {
         parent::setUp();
 
-        $this->core = new UserCore();
-
         $this->mockRequest = $this->mock(DeleteUserPort::class);
-    }
-
-    #[Test]
-    public function should_implement_right_interface(): void
-    {
-        // Assert
-        $this->assertInstanceOf(UserCoreContract::class, $this->core);
     }
 
     #[Test]
@@ -51,7 +37,7 @@ class UserCore_Delete_Test extends TestCase
 
 
         // Act
-        $this->core->delete($this->mockRequest);
+        $this->makeService()->delete($this->mockRequest);
 
 
         // Assert

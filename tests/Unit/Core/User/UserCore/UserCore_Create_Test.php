@@ -3,8 +3,6 @@
 namespace Tests\Unit\Core\User\UserCore;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
-use App\Core\User\UserCore;
-use App\Core\User\UserCoreContract;
 use App\Exceptions\Core\User\UserEmailDuplicatedException;
 use App\Models\User\Enum\UserExceptionCode;
 use App\Models\User\User;
@@ -13,13 +11,10 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
 
-class UserCore_Create_Test extends TestCase
+class UserCore_Create_Test extends UserCoreBaseTestCase
 {
     use RefreshDatabase;
-
-    protected UserCore $core;
 
     protected CreateUserPort|MockInterface $mockRequest;
 
@@ -27,16 +22,7 @@ class UserCore_Create_Test extends TestCase
     {
         parent::setUp();
 
-        $this->core = new UserCore();
-
         $this->mockRequest = $this->mock(CreateUserPort::class);
-    }
-
-    #[Test]
-    public function should_implement_user_core_contract(): void
-    {
-        // Assert
-        $this->assertInstanceOf(UserCoreContract::class, $this->core);
     }
 
     #[Test]
@@ -58,7 +44,7 @@ class UserCore_Create_Test extends TestCase
 
 
         // Act
-        $result = $this->core->create($this->mockRequest);
+        $result = $this->makeService()->create($this->mockRequest);
 
 
         // Assert
@@ -95,6 +81,6 @@ class UserCore_Create_Test extends TestCase
 
 
         // Act
-        $this->core->create($this->mockRequest);
+        $this->makeService()->create($this->mockRequest);
     }
 }
