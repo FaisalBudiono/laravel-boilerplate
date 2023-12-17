@@ -18,6 +18,11 @@ class PostPolicy
         return $this->isOwner($user, $post) || $this->isAdmin($user);
     }
 
+    public function update(User $user, Post $post): bool
+    {
+        return $this->isOwner($user, $post) || $this->isAdmin($user);
+    }
+
     protected function isAdmin(User $user): bool
     {
         return $user->roles->contains('name', RoleName::ADMIN);
