@@ -8,8 +8,6 @@ use App\Port\Core\Post\CreatePostPort;
 
 class CreatePostRequest extends BaseRequest implements CreatePostPort
 {
-    protected ?User $authenticatedUser = null;
-
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -46,14 +44,5 @@ class CreatePostRequest extends BaseRequest implements CreatePostPort
     public function getUserActor(): User
     {
         return $this->getAuthenticatedUser();
-    }
-
-    protected function getAuthenticatedUser(): User
-    {
-        if (is_null($this->authenticatedUser)) {
-            $this->authenticatedUser = $this->getUserOrFail();
-        }
-
-        return $this->authenticatedUser;
     }
 }

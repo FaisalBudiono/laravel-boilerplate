@@ -14,6 +14,8 @@ use Illuminate\Foundation\Http\FormRequest;
 
 abstract class BaseRequest extends FormRequest
 {
+    protected ?User $authenticatedUser = null;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -70,6 +72,15 @@ abstract class BaseRequest extends FormRequest
             ExceptionErrorCode::INVALID_VALIDATION->value,
             $validator->errors()->jsonSerialize(),
         ));
+    }
+
+    protected function getAuthenticatedUser(): User
+    {
+        if (is_null($this->authenticatedUser)) {
+            $this->authenticatedUser = $this->getUserOrFail();
+        }
+
+        return $this->authenticatedUser;
     }
 
     protected function getLoggedInUserInstance(): User

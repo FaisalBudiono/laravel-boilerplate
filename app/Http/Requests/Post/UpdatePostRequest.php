@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Post;
 
 use App\Http\Requests\BaseRequest;
+use App\Http\Requests\Traits\PostFromRouteTrait;
 use App\Models\Permission\Enum\RoleName;
 use App\Models\Post\Post;
 use App\Models\User\User;
@@ -10,8 +11,7 @@ use App\Port\Core\Post\UpdatePostPort;
 
 class UpdatePostRequest extends BaseRequest implements UpdatePostPort
 {
-    protected ?User $authenticatedUser = null;
-    protected ?Post $postFromRoute = null;
+    use PostFromRouteTrait;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -54,24 +54,6 @@ class UpdatePostRequest extends BaseRequest implements UpdatePostPort
     public function getPostContent(): ?string
     {
         return $this->input('content');
-    }
-
-    protected function getAuthenticatedUser(): User
-    {
-        if (is_null($this->authenticatedUser)) {
-            $this->authenticatedUser = $this->getUserOrFail();
-        }
-
-        return $this->authenticatedUser;
-    }
-
-    protected function getPostFromRoute(): Post
-    {
-        if (is_null($this->postFromRoute)) {
-            $this->postFromRoute = $this->route('postID');
-        }
-
-        return $this->postFromRoute;
     }
 
     protected function isAdmin(User $user): bool

@@ -8,8 +8,6 @@ use App\Port\Core\Post\GetAllPostPort;
 
 class GetAllPostRequest extends BaseRequest implements GetAllPostPort
 {
-    protected ?User $authenticatedUser = null;
-
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -54,14 +52,5 @@ class GetAllPostRequest extends BaseRequest implements GetAllPostPort
         $userID = $this->input('user_id');
 
         return is_null($userID) ? null : User::findByIDOrFail($userID);
-    }
-
-    protected function getAuthenticatedUser(): User
-    {
-        if (is_null($this->authenticatedUser)) {
-            $this->authenticatedUser = $this->getUserOrFail();
-        }
-
-        return $this->authenticatedUser;
     }
 }
