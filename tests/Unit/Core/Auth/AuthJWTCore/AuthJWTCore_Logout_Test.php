@@ -9,21 +9,13 @@ use PHPUnit\Framework\Attributes\Test;
 
 class AuthJWTCore_Logout_Test extends AuthJWTCoreBaseTestCase
 {
-    protected LogoutPort $mockRequest;
-
-    /** @var (\Mockery\ExpectationInterface|\Mockery\Expectation|\Mockery\HigherOrderMessage)[] */
-    protected $mockedRequestMethods;
+    protected LogoutPort|MockInterface $mockRequest;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->mockRequest = $this->mock(LogoutPort::class, function (MockInterface $mock) {
-            $this->getClassMethods(LogoutPort::class)->each(
-                fn (string $methodName) =>
-                $this->mockedRequestMethods[$methodName] = $mock->shouldReceive($methodName)
-            );
-        });
+        $this->mockRequest = $this->mock(LogoutPort::class);
     }
 
     #[Test]
@@ -34,7 +26,7 @@ class AuthJWTCore_Logout_Test extends AuthJWTCoreBaseTestCase
 
 
         // Assert
-        $this->mockedRequestMethods['getRefreshToken']->once()->andReturn($token);
+        $this->mockRequest->shouldReceive('getRefreshToken')->once()->andReturn($token);
 
         $mockRefreshTokenManager = $this->mock(
             RefreshTokenManagerContract::class,

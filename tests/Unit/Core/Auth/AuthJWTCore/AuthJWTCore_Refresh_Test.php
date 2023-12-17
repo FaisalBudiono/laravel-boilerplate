@@ -18,21 +18,13 @@ use PHPUnit\Framework\Attributes\Test;
 
 class AuthJWTCore_Refresh_Test extends AuthJWTCoreBaseTestCase
 {
-    protected GetRefreshTokenPort $mockRequest;
-
-    /** @var (\Mockery\ExpectationInterface|\Mockery\Expectation|\Mockery\HigherOrderMessage)[] */
-    protected $mockedRequestMethods;
+    protected GetRefreshTokenPort|MockInterface $mockRequest;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->mockRequest = $this->mock(GetRefreshTokenPort::class, function (MockInterface $mock) {
-            $this->getClassMethods(GetRefreshTokenPort::class)->each(
-                fn (string $methodName) =>
-                $this->mockedRequestMethods[$methodName] = $mock->shouldReceive($methodName)
-            );
-        });
+        $this->mockRequest = $this->mock(GetRefreshTokenPort::class);
     }
 
     #[Test]
@@ -44,7 +36,7 @@ class AuthJWTCore_Refresh_Test extends AuthJWTCoreBaseTestCase
 
 
         // Assert
-        $this->mockedRequestMethods['getRefreshToken']->once()->andReturn($token);
+        $this->mockRequest->shouldReceive('getRefreshToken')->once()->andReturn($token);
 
         $mockedClaims = $this->makeFakeClaims();
         $mockJWTMapper = $this->mock(

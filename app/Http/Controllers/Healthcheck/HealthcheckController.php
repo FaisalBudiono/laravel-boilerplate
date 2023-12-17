@@ -8,7 +8,6 @@ use App\Core\Logger\Message\LoggerMessageFactoryContract;
 use App\Exceptions\Http\InternalServerErrorException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Healthcheck\HealthcheckRequest;
-use Exception;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Throwable;

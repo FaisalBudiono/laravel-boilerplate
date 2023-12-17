@@ -2,44 +2,23 @@
 
 namespace Tests\Unit\Core\User\UserCore;
 
-use App\Core\User\UserCore;
-use App\Core\User\UserCoreContract;
 use App\Models\User\User;
 use App\Port\Core\User\GetUserPort;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
 
-class UserCore_Get_Test extends TestCase
+class UserCore_Get_Test extends UserCoreBaseTestCase
 {
     use RefreshDatabase;
 
-    protected UserCore $core;
-
-    protected GetUserPort $mockRequest;
-    /** @var (\Mockery\ExpectationInterface|\Mockery\Expectation|\Mockery\HigherOrderMessage)[] */
-    protected $mockedRequestMethods;
+    protected GetUserPort|MockInterface $mockRequest;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->core = new UserCore();
-
-        $this->mockRequest = $this->mock(GetUserPort::class, function (MockInterface $mock) {
-            $this->getClassMethods(GetUserPort::class)->each(
-                fn (string $methodName) =>
-                $this->mockedRequestMethods[$methodName] = $mock->shouldReceive($methodName)
-            );
-        });
-    }
-
-    #[Test]
-    public function should_implement_right_interface(): void
-    {
-        // Assert
-        $this->assertInstanceOf(UserCoreContract::class, $this->core);
+        $this->mockRequest = $this->mock(GetUserPort::class);
     }
 
     #[Test]
@@ -53,14 +32,11 @@ class UserCore_Get_Test extends TestCase
 
 
         // Assert
-        $this->mockedRequestMethods['getUserModel']
-            ->once()
-            ->withNoArgs()
-            ->andReturn($user);
+        $this->mockRequest->shouldReceive('getUserModel')->once()->andReturn($user);
 
 
         // Act
-        $result = $this->core->get($this->mockRequest);
+        $result = $this->makeService()->get($this->mockRequest);
 
 
         // Assert
