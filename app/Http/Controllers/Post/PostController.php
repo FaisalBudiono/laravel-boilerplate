@@ -7,6 +7,7 @@ use App\Core\Post\PostCoreContract;
 use App\Exceptions\Http\InternalServerErrorException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Post\CreatePostRequest;
+use App\Http\Requests\Post\DeletePostRequest;
 use App\Http\Requests\Post\GetAllPostRequest;
 use App\Http\Requests\Post\GetSinglePostRequest;
 use App\Http\Requests\Post\UpdatePostRequest;
@@ -18,6 +19,17 @@ class PostController extends Controller
     public function __construct(
         protected PostCoreContract $core,
     ) {
+    }
+
+    public function destroy(DeletePostRequest $request): Response
+    {
+        try {
+            $this->core->delete($request);
+
+            return response()->noContent();
+        } catch (\Throwable $e) {
+            throw new InternalServerErrorException(new ExceptionMessageGeneric);
+        }
     }
 
     public function index(GetAllPostRequest $request): Response

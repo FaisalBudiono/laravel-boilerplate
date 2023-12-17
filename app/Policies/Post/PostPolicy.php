@@ -8,6 +8,11 @@ use App\Models\User\User;
 
 class PostPolicy
 {
+    public function delete(User $user, Post $post): bool
+    {
+        return $this->isOwner($user, $post) || $this->isAdmin($user);
+    }
+
     public function seeAll(User $user): bool
     {
         return $user->roles->contains('name', RoleName::ADMIN);

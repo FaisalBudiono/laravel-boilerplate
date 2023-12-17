@@ -20,3 +20,4 @@ Route::get('posts', [PostController::class, 'index'])->name('post.index');
 Route::post('posts', [PostController::class, 'store'])->name('post.store');
 Route::get('posts/{postID}', [PostController::class, 'show'])->name('post.show');
 Route::put('posts/{postID}', [PostController::class, 'update'])->name('post.update');
+Route::delete('posts/{postID}', [PostController::class, 'destroy'])->name('post.destroy');
