@@ -18,7 +18,7 @@ use Tests\Feature\BaseFeatureTestCase;
 use Tests\Helper\ResourceAssertion\ResourceAssertion;
 use Tests\Helper\ResourceAssertion\User\ResourceAssertionUser;
 
-class CreateUserTest extends BaseFeatureTestCase
+class UserStoreTest extends BaseFeatureTestCase
 {
     use RefreshDatabase;
 

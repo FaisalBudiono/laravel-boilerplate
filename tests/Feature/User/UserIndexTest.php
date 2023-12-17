@@ -17,7 +17,7 @@ use Tests\Feature\BaseFeatureTestCase;
 use Tests\Helper\ResourceAssertion\ResourceAssertion;
 use Tests\Helper\ResourceAssertion\User\ResourceAssertionUserList;
 
-class GetAllUserTest extends BaseFeatureTestCase
+class UserIndexTest extends BaseFeatureTestCase
 {
     use RefreshDatabase;
 

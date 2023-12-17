@@ -5,27 +5,22 @@ namespace Tests\Feature\User;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
 use App\Core\User\UserCoreContract;
 use App\Models\User\User;
-use App\Port\Core\User\GetUserPort;
+use App\Port\Core\User\DeleteUserPort;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Feature\BaseFeatureTestCase;
-use Tests\Helper\ResourceAssertion\ResourceAssertion;
-use Tests\Helper\ResourceAssertion\User\ResourceAssertionUser;
 
-class GetUserTest extends BaseFeatureTestCase
+class UserDestroyTest extends BaseFeatureTestCase
 {
     use RefreshDatabase;
 
     protected User $user;
-    protected ResourceAssertion $resourceAssertion;
 
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->resourceAssertion = new ResourceAssertionUser;
 
         $this->user = User::factory()->create([
             'id' => $this->faker()->numberBetween(1, 100),
@@ -39,18 +34,17 @@ class GetUserTest extends BaseFeatureTestCase
     {
         // Arrange
         $exceptionMessage = new ExceptionMessageGeneric;
-
-        $mockException = new \Error($this->faker->sentence());
+        $mockException = new \Error('generic error');
 
 
         // Assert
         $mockCore = $this->mock(
             UserCoreContract::class,
             function (MockInterface $mock) use ($mockException) {
-                $mock->shouldReceive('get')
+                $mock->shouldReceive('delete')
                     ->once()
                     ->withArgs(fn (
-                        GetUserPort $argInput
+                        DeleteUserPort $argInput
                     ) => $this->validateRequest($argInput))
                     ->andThrow($mockException);
             }
@@ -59,7 +53,7 @@ class GetUserTest extends BaseFeatureTestCase
 
 
         // Act
-        $response = $this->getJson(
+        $response = $this->deleteJson(
             $this->getEndpointUrl($this->user->id),
         );
 
@@ -70,44 +64,38 @@ class GetUserTest extends BaseFeatureTestCase
     }
 
     #[Test]
-    public function should_show_200_when_successfully_get_user_instance(): void
+    public function should_show_204_when_successfully_delete_user(): void
     {
-        // Arrange
-        $mockedUser = User::factory()->create()->fresh();
-
-
         // Assert
         $mockCore = $this->mock(
             UserCoreContract::class,
-            function (MockInterface $mock) use ($mockedUser) {
-                $mock->shouldReceive('get')
+            function (MockInterface $mock) {
+                $mock->shouldReceive('delete')
                     ->once()
                     ->withArgs(fn (
-                        GetUserPort $argInput
-                    ) => $this->validateRequest($argInput))
-                    ->andReturn($mockedUser);
+                        DeleteUserPort $argInput
+                    ) => $this->validateRequest($argInput));
             }
         );
         $this->instance(UserCoreContract::class, $mockCore);
 
 
         // Act
-        $response = $this->getJson(
+        $response = $this->deleteJson(
             $this->getEndpointUrl($this->user->id),
         );
 
 
         // Assert
-        $response->assertOk();
-        $this->resourceAssertion->assertResource($this, $response);
+        $response->assertNoContent();
     }
 
     protected function getEndpointUrl(int $userId): string
     {
-        return route('user.show', ['userID' => $userId]);
+        return route('user.destroy', ['userID' => $userId]);
     }
 
-    protected function validateRequest(GetUserPort $argInput): bool
+    protected function validateRequest(DeleteUserPort $argInput): bool
     {
         try {
             $this->assertTrue($argInput->getUserModel()->is($this->user));

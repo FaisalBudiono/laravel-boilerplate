@@ -11,15 +11,14 @@ use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Feature\BaseFeatureTestCase;
-use Tests\Helper\MockInstance\Middleware\MockerAuthenticatedByJWT;
 use Tests\Helper\ResourceAssertion\ResourceAssertion;
 use Tests\Helper\ResourceAssertion\User\ResourceAssertionUser;
 
-class GetMyInformationTest extends BaseFeatureTestCase
+class UserShowTest extends BaseFeatureTestCase
 {
     use RefreshDatabase;
 
-    protected User $mockUser;
+    protected User $user;
     protected ResourceAssertion $resourceAssertion;
 
     protected function setUp(): void
@@ -28,9 +27,9 @@ class GetMyInformationTest extends BaseFeatureTestCase
 
         $this->resourceAssertion = new ResourceAssertionUser;
 
-        $this->mockUser = User::factory()->create([
+        $this->user = User::factory()->create([
             'id' => $this->faker()->numberBetween(1, 100),
-        ])->fresh();
+        ]);
 
         $this->instance(UserCoreContract::class, $this->mock(UserCoreContract::class));
     }
@@ -45,18 +44,15 @@ class GetMyInformationTest extends BaseFeatureTestCase
 
 
         // Assert
-        MockerAuthenticatedByJWT::make($this)
-            ->mockLogin($this->mockUser)
-            ->bindInstance();
-
         $mockCore = $this->mock(
             UserCoreContract::class,
             function (MockInterface $mock) use ($mockException) {
                 $mock->shouldReceive('get')
                     ->once()
-                    ->withArgs(
-                        fn (GetUserPort $argInput) => $this->validateRequest($argInput)
-                    )->andThrow($mockException);
+                    ->withArgs(fn (
+                        GetUserPort $argInput
+                    ) => $this->validateRequest($argInput))
+                    ->andThrow($mockException);
             }
         );
         $this->instance(UserCoreContract::class, $mockCore);
@@ -64,7 +60,7 @@ class GetMyInformationTest extends BaseFeatureTestCase
 
         // Act
         $response = $this->getJson(
-            $this->getEndpointUrl(),
+            $this->getEndpointUrl($this->user->id),
         );
 
 
@@ -74,21 +70,22 @@ class GetMyInformationTest extends BaseFeatureTestCase
     }
 
     #[Test]
-    public function should_show_200_when_successfully_fetch_user_information(): void
+    public function should_show_200_when_successfully_get_user_instance(): void
     {
-        // Assert
-        MockerAuthenticatedByJWT::make($this)
-            ->mockLogin($this->mockUser)
-            ->bindInstance();
+        // Arrange
+        $mockedUser = User::factory()->create()->fresh();
 
+
+        // Assert
         $mockCore = $this->mock(
             UserCoreContract::class,
-            function (MockInterface $mock) {
+            function (MockInterface $mock) use ($mockedUser) {
                 $mock->shouldReceive('get')
                     ->once()
-                    ->withArgs(
-                        fn (GetUserPort $argInput) => $this->validateRequest($argInput)
-                    )->andReturn($this->mockUser);
+                    ->withArgs(fn (
+                        GetUserPort $argInput
+                    ) => $this->validateRequest($argInput))
+                    ->andReturn($mockedUser);
             }
         );
         $this->instance(UserCoreContract::class, $mockCore);
@@ -96,7 +93,7 @@ class GetMyInformationTest extends BaseFeatureTestCase
 
         // Act
         $response = $this->getJson(
-            $this->getEndpointUrl(),
+            $this->getEndpointUrl($this->user->id),
         );
 
 
@@ -105,15 +102,15 @@ class GetMyInformationTest extends BaseFeatureTestCase
         $this->resourceAssertion->assertResource($this, $response);
     }
 
-    protected function getEndpointUrl(): string
+    protected function getEndpointUrl(int $userId): string
     {
-        return route('me');
+        return route('user.show', ['userID' => $userId]);
     }
 
     protected function validateRequest(GetUserPort $argInput): bool
     {
         try {
-            $this->assertEquals($this->mockUser, $argInput->getUserModel());
+            $this->assertTrue($argInput->getUserModel()->is($this->user));
             return true;
         } catch (\Throwable $e) {
             dd($e);
