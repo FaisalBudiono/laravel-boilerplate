@@ -19,16 +19,18 @@ class PostResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $resource = $this->resource;
-        assert($resource instanceof Post);
-
         return [
-            'id' => $resource->id,
-            'title' => $resource->title,
-            'content' => $resource->content,
+            'id' => $this->model()->id,
+            'title' => $this->model()->title,
+            'content' => $this->model()->content,
             'user' => UserResource::make($this->whenLoaded('user')),
-            'created_at' => $resource->created_at?->format(DatetimeFormat::ISO_WITH_MILLIS->value),
-            'updated_at' => $resource->updated_at?->format(DatetimeFormat::ISO_WITH_MILLIS->value),
+            'createdAt' => $this->model()->created_at?->format(DatetimeFormat::ISO_WITH_MILLIS->value),
+            'updatedAt' => $this->model()->updated_at?->format(DatetimeFormat::ISO_WITH_MILLIS->value),
         ];
+    }
+
+    protected function model(): Post
+    {
+        return $this->resource;
     }
 }

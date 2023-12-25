@@ -32,8 +32,8 @@ class UserResourceTest extends TestCase
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
-            'created_at' => $user->created_at->format(DatetimeFormat::ISO_WITH_MILLIS->value),
-            'updated_at' => $user->updated_at->format(DatetimeFormat::ISO_WITH_MILLIS->value),
+            'createdAt' => $user->created_at->format(DatetimeFormat::ISO_WITH_MILLIS->value),
+            'updatedAt' => $user->updated_at->format(DatetimeFormat::ISO_WITH_MILLIS->value),
         ], $result);
     }
 
@@ -57,8 +57,8 @@ class UserResourceTest extends TestCase
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
-            'created_at' => null,
-            'updated_at' => null,
+            'createdAt' => null,
+            'updatedAt' => null,
         ], $result);
     }
 }

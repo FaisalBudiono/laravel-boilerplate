@@ -40,8 +40,8 @@ class PostResourceTest extends TestCase
             'id' => $post->id,
             'title' => $post->title,
             'content' => $post->content,
-            'created_at' => $post->created_at?->format(DatetimeFormat::ISO_WITH_MILLIS->value),
-            'updated_at' => $post->updated_at?->format(DatetimeFormat::ISO_WITH_MILLIS->value),
+            'createdAt' => $post->created_at?->format(DatetimeFormat::ISO_WITH_MILLIS->value),
+            'updatedAt' => $post->updated_at?->format(DatetimeFormat::ISO_WITH_MILLIS->value),
         ], $result);
     }
 
@@ -75,8 +75,8 @@ class PostResourceTest extends TestCase
             'title' => $post->title,
             'content' => $post->content,
             'user' => json_decode(UserResource::make($post->user)->toJson(), true),
-            'created_at' => $post->created_at?->format(DatetimeFormat::ISO_WITH_MILLIS->value),
-            'updated_at' => $post->updated_at?->format(DatetimeFormat::ISO_WITH_MILLIS->value),
+            'createdAt' => $post->created_at?->format(DatetimeFormat::ISO_WITH_MILLIS->value),
+            'updatedAt' => $post->updated_at?->format(DatetimeFormat::ISO_WITH_MILLIS->value),
         ], $result);
     }
 }
