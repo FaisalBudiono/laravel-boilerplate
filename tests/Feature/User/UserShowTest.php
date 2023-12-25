@@ -6,28 +6,25 @@ namespace Tests\Feature\User;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
 use App\Core\User\UserCoreContract;
+use App\Http\Resources\User\UserResource;
 use App\Models\User\User;
 use App\Port\Core\User\GetUserPort;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
-use Symfony\Component\HttpFoundation\Response;
 use Tests\Feature\BaseFeatureTestCase;
-use Tests\Helper\ResourceAssertion\ResourceAssertion;
-use Tests\Helper\ResourceAssertion\User\ResourceAssertionUser;
+use Tests\Helper\Trait\JSONTrait;
 
 class UserShowTest extends BaseFeatureTestCase
 {
+    use JSONTrait;
     use RefreshDatabase;
 
     protected User $user;
-    protected ResourceAssertion $resourceAssertion;
 
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->resourceAssertion = new ResourceAssertionUser();
 
         $this->user = User::factory()->create([
             'id' => $this->faker()->numberBetween(1, 100),
@@ -67,7 +64,7 @@ class UserShowTest extends BaseFeatureTestCase
 
 
         // Assert
-        $response->assertStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+        $response->assertInternalServerError();
         $response->assertJsonPath('errors', $exceptionMessage->getJsonResponse()->toArray());
     }
 
@@ -101,7 +98,10 @@ class UserShowTest extends BaseFeatureTestCase
 
         // Assert
         $response->assertOk();
-        $this->resourceAssertion->assertResource($this, $response);
+        $response->assertJsonPath(
+            'data',
+            $this->jsonToArray(UserResource::make($mockedUser)->toJson()),
+        );
     }
 
     protected function getEndpointUrl(int $userId): string

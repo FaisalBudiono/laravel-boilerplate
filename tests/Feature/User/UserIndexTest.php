@@ -8,30 +8,26 @@ use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
 use App\Core\Query\Enum\OrderDirection;
 use App\Core\User\Query\UserOrderBy;
 use App\Core\User\UserCoreContract;
+use App\Http\Resources\User\UserResource;
 use App\Models\User\User;
 use App\Port\Core\User\GetAllUserPort;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
-use Symfony\Component\HttpFoundation\Response;
 use Tests\Feature\BaseFeatureTestCase;
-use Tests\Helper\ResourceAssertion\ResourceAssertion;
-use Tests\Helper\ResourceAssertion\User\ResourceAssertionUserList;
+use Tests\Helper\Trait\JSONTrait;
 
 class UserIndexTest extends BaseFeatureTestCase
 {
+    use JSONTrait;
     use RefreshDatabase;
-
-    protected ResourceAssertion $resourceAssertion;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         User::factory()->count(10)->create();
-
-        $this->resourceAssertion = new ResourceAssertionUserList();
 
         $this->instance(UserCoreContract::class, $this->mock(UserCoreContract::class));
     }
@@ -165,7 +161,7 @@ class UserIndexTest extends BaseFeatureTestCase
 
 
         // Assert
-        $response->assertStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+        $response->assertInternalServerError();
         $response->assertJsonPath(
             'errors',
             $exceptionMessage->getJsonResponse()->toArray()
@@ -178,15 +174,17 @@ class UserIndexTest extends BaseFeatureTestCase
         array $input,
     ): void {
         // Assert
+        $mockedResults = User::query()->paginate();
+
         $mockCore = $this->mock(
             UserCoreContract::class,
-            function (MockInterface $mock) use ($input) {
+            function (MockInterface $mock) use ($input, $mockedResults) {
                 $mock->shouldReceive('getAll')
                     ->once()
                     ->withArgs(fn (
                         GetAllUserPort $argInput
                     ) => $this->validateRequest($argInput, $input))
-                    ->andReturn(User::query()->paginate());
+                    ->andReturn($mockedResults);
             }
         );
         $this->instance(UserCoreContract::class, $mockCore);
@@ -201,7 +199,10 @@ class UserIndexTest extends BaseFeatureTestCase
 
         // Assert
         $response->assertOk();
-        $this->resourceAssertion->assertResource($this, $response);
+        $response->assertJsonPath(
+            'data',
+            $this->jsonToArray(UserResource::collection($mockedResults)->toJson()),
+        );
     }
 
     public static function validDataProvider(): array
