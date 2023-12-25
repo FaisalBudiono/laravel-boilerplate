@@ -43,7 +43,7 @@ class AuthJWTCore implements AuthJWTCoreContract
                 $refreshTokenClaims->id,
             );
         } catch (ModelNotFoundException $e) {
-            $this->throwInvalidCredential();
+            $this->throwInvalidCredential($e);
         } catch (\Throwable $e) {
             throw $e;
         }
@@ -66,11 +66,11 @@ class AuthJWTCore implements AuthJWTCoreContract
         );
     }
 
-    protected function throwInvalidCredential(): never
+    protected function throwInvalidCredential(\Throwable $e = null): never
     {
         throw new InvalidCredentialException(new ExceptionMessageStandard(
             'Credential is invalid',
             UserExceptionCode::INVALID_CREDENTIAL->value,
-        ));
+        ), $e);
     }
 }

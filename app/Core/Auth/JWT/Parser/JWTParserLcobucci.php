@@ -40,7 +40,7 @@ class JWTParserLcobucci implements JWTParser
             throw  new FailedParsingException(new ExceptionMessageStandard(
                 'Failed to decode JWT token',
                 JWTParserExceptionCode::FAILED_DECODING->value,
-            ));
+            ), $e);
         }
     }
 

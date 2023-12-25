@@ -34,7 +34,7 @@ class UserController extends Controller
 
             return response()->json([], Response::HTTP_NO_CONTENT);
         } catch (Throwable $e) {
-            throw new InternalServerErrorException(new ExceptionMessageGeneric());
+            throw new InternalServerErrorException(new ExceptionMessageGeneric(), $e);
         }
     }
 
@@ -45,7 +45,7 @@ class UserController extends Controller
 
             return UserResource::collection($users);
         } catch (Throwable $e) {
-            throw new InternalServerErrorException(new ExceptionMessageGeneric());
+            throw new InternalServerErrorException(new ExceptionMessageGeneric(), $e);
         }
     }
 
@@ -58,7 +58,7 @@ class UserController extends Controller
                 ->response()
                 ->setStatusCode(Response::HTTP_OK);
         } catch (Throwable $e) {
-            throw new InternalServerErrorException(new ExceptionMessageGeneric());
+            throw new InternalServerErrorException(new ExceptionMessageGeneric(), $e);
         }
     }
 
@@ -71,7 +71,7 @@ class UserController extends Controller
                 ->response()
                 ->setStatusCode(Response::HTTP_OK);
         } catch (Throwable $e) {
-            throw new InternalServerErrorException(new ExceptionMessageGeneric());
+            throw new InternalServerErrorException(new ExceptionMessageGeneric(), $e);
         }
     }
 
@@ -84,9 +84,9 @@ class UserController extends Controller
                 ->response()
                 ->setStatusCode(Response::HTTP_CREATED);
         } catch (UserEmailDuplicatedException $e) {
-            throw new ConflictException($e->exceptionMessage);
+            throw new ConflictException($e->exceptionMessage, $e);
         } catch (Throwable $e) {
-            throw new InternalServerErrorException(new ExceptionMessageGeneric());
+            throw new InternalServerErrorException(new ExceptionMessageGeneric(), $e);
         }
     }
 
@@ -97,9 +97,9 @@ class UserController extends Controller
 
             return UserResource::make($user);
         } catch (UserEmailDuplicatedException $e) {
-            throw new ConflictException($e->exceptionMessage);
+            throw new ConflictException($e->exceptionMessage, $e);
         } catch (Throwable $e) {
-            throw new InternalServerErrorException(new ExceptionMessageGeneric());
+            throw new InternalServerErrorException(new ExceptionMessageGeneric(), $e);
         }
     }
 }

@@ -47,7 +47,7 @@ class UserCore implements UserCoreContract
             DB::commit();
 
             return $user;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             DB::rollBack();
             throw $e;
         }
@@ -103,7 +103,7 @@ class UserCore implements UserCoreContract
             DB::commit();
 
             return $user;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             DB::rollBack();
             throw $e;
         }
