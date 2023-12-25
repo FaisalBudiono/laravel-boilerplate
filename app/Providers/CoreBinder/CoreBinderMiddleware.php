@@ -17,23 +17,26 @@ class CoreBinderMiddleware implements CoreBinder
 {
     public function bootCore(Application $app): void
     {
-        $app->bind(AuthenticatedByJWT::class, function (Application $app) {
-            return new AuthenticatedByJWT(
+        $app->bind(
+            AuthenticatedByJWT::class,
+            fn (Application $app) => new AuthenticatedByJWT(
                 $app->make(JWTSigner::class),
                 $app->make(JWTParser::class),
-            );
-        });
+            )
+        );
 
-        $app->bind(LoggingMiddleware::class, function (Application $app) {
-            return new LoggingMiddleware(
+        $app->bind(
+            LoggingMiddleware::class,
+            fn (Application $app) => new LoggingMiddleware(
                 $app->make(LoggerMessageFactoryContract::class),
-            );
-        });
+            )
+        );
 
-        $app->bind(XRequestIDMiddleware::class, function (Application $app) {
-            return new XRequestIDMiddleware(
+        $app->bind(
+            XRequestIDMiddleware::class,
+            fn (Application $app) => new XRequestIDMiddleware(
                 $app->make(Randomizer::class),
-            );
-        });
+            )
+        );
     }
 }

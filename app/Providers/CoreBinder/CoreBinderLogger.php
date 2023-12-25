@@ -13,10 +13,11 @@ class CoreBinderLogger implements CoreBinder
 {
     public function bootCore(Application $app): void
     {
-        $app->bind(LoggerMessageFactoryContract::class, function (Application $app) {
-            return new LoggerMessageFactory(
+        $app->bind(
+            LoggerMessageFactoryContract::class,
+            fn (Application $app) => new LoggerMessageFactory(
                 $app->make(Request::class),
-            );
-        });
+            )
+        );
     }
 }

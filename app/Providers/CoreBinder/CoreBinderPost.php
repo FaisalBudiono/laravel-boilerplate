@@ -12,8 +12,9 @@ class CoreBinderPost implements CoreBinder
 {
     public function bootCore(Application $app): void
     {
-        $app->bind(PostCoreContract::class, function (Application $app) {
-            return new PostCore();
-        });
+        $app->bind(
+            PostCoreContract::class,
+            fn (Application $app) => new PostCore()
+        );
     }
 }
