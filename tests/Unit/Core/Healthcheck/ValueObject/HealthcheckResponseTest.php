@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\Core\Healthcheck\ValueObject;
 
 use App\Core\Healthcheck\ValueObject\HealthcheckResponse;

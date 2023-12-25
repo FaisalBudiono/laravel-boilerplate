@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature\User;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
@@ -33,7 +35,7 @@ class UserDestroyTest extends BaseFeatureTestCase
     public function should_show_500_when_thrown_generic_error(): void
     {
         // Arrange
-        $exceptionMessage = new ExceptionMessageGeneric;
+        $exceptionMessage = new ExceptionMessageGeneric();
         $mockException = new \Error('generic error');
 
 

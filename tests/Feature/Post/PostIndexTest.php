@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature\Post;
 
 use App\Core\Formatter\ExceptionErrorCode;
@@ -133,7 +135,7 @@ class PostIndexTest extends BaseFeatureTestCase
         MockerAuthenticatedByJWT::make($this)
             ->mockLogin($mockedLoggedInUser);
 
-        $exceptionMessage = new ExceptionMessageGeneric;
+        $exceptionMessage = new ExceptionMessageGeneric();
         $mockException = new Exception($this->faker->sentence());
 
 

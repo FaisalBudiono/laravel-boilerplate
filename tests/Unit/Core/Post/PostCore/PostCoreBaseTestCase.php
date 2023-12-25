@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\Core\Post\PostCore;
 
 use App\Core\Post\PostCore;
@@ -14,7 +16,7 @@ class PostCoreBaseTestCase extends TestCase
 
     protected function makeService(): PostCore
     {
-        return new PostCore;
+        return new PostCore();
     }
 
     protected function assertLoadedRelationships(Post $model): void

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers\CoreBinder;
 
 use App\Core\Formatter\Randomizer\Randomizer;
@@ -11,7 +13,7 @@ class CoreBinderFormatter implements CoreBinder
     public function bootCore(Application $app): void
     {
         $app->bind(Randomizer::class, function (Application $app) {
-            return new RandomizerUUID;
+            return new RandomizerUUID();
         });
     }
 }

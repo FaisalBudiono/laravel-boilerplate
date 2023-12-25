@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Core\Auth\JWT\Signer;
 
 use App\Core\Auth\JWT\Signer\JWTSigner;
@@ -55,7 +57,7 @@ class JWTSignerLcobucci implements JWTSigner
 
     protected function formatToken(string $token): Token
     {
-        $parser = new Parser(new JoseEncoder);
+        $parser = new Parser(new JoseEncoder());
         return $parser->parse($token);
     }
 
@@ -82,8 +84,7 @@ class JWTSignerLcobucci implements JWTSigner
         return $this->makeValidator()->validate(
             $token,
             new LooseValidAt(
-                new class implements ClockInterface
-                {
+                new class () implements ClockInterface {
                     public function now(): \DateTimeImmutable
                     {
                         return now()->toDateTimeImmutable();
@@ -95,7 +96,7 @@ class JWTSignerLcobucci implements JWTSigner
 
     protected function makeBuilder(): Builder
     {
-        return new Builder(new JoseEncoder, ChainedFormatter::default());
+        return new Builder(new JoseEncoder(), ChainedFormatter::default());
     }
 
     protected function makeSigner(): Signer
@@ -105,6 +106,6 @@ class JWTSignerLcobucci implements JWTSigner
 
     protected function makeValidator(): Validator
     {
-        return new Validator;
+        return new Validator();
     }
 }

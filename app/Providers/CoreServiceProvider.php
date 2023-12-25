@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
@@ -23,7 +25,7 @@ class CoreServiceProvider extends ServiceProvider
     {
         foreach ($this->coreBinders as $classNameBinder) {
             /** @var \App\Providers\CoreBinder\CoreBinder */
-            $coreBinder = new $classNameBinder;
+            $coreBinder = new $classNameBinder();
 
             $coreBinder->bootCore($this->app);
         }

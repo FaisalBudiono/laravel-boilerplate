@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature\User;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessage;
@@ -28,7 +30,7 @@ class UserUpdateTest extends BaseFeatureTestCase
     {
         parent::setUp();
 
-        $this->resourceAssertion = new ResourceAssertionUser;
+        $this->resourceAssertion = new ResourceAssertionUser();
 
         $this->user = User::factory()->create([
             'id' => $this->faker()->numberBetween(1, 100),
@@ -205,7 +207,7 @@ class UserUpdateTest extends BaseFeatureTestCase
         // Arrange
         $input = $this->validRequestInput();
 
-        $exceptionMessage = new ExceptionMessageGeneric;
+        $exceptionMessage = new ExceptionMessageGeneric();
         $mockException = new \Error($this->faker->sentence);
 
 

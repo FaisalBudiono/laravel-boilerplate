@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Core\Auth\JWT\Refresh;
 
 use App\Core\Auth\JWT\Refresh\Cacher\Cacher;
@@ -71,7 +73,7 @@ class RefreshTokenManager implements RefreshTokenManagerContract
         $this->validateTokenExpiry($oldRefreshToken->expiredAt);
 
         $newRefreshedToken = $this->userTokenMapper->map(
-            User::findByIDOrFail($oldRefreshToken->user->id)
+            User::findByIDOrFail(intval($oldRefreshToken->user->id))
         );
 
         $this->cacher->save($newRefreshedToken);

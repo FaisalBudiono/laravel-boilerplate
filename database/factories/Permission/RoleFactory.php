@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories\Permission;
 
 use App\Models\Permission\Enum\RoleName;

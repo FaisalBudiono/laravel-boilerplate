@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\Core\Auth\JWT\Mapper;
 
 use App\Core\Auth\JWT\Mapper\JWTMapper;
@@ -44,7 +46,7 @@ class JWTMapperTest extends TestCase
 
         // Assert
         $expectedResult = new Claims(
-            new ClaimsUser($user->id, $user->email),
+            new ClaimsUser((string)$user->id, $user->email),
             collect($this->getAudience()),
             now()->subSecond(),
             now()->subSecond(),
@@ -60,11 +62,11 @@ class JWTMapperTest extends TestCase
 
     protected function getTTLInSeconds(): int
     {
-        return config('jwt.ttl');
+        return intval(config('jwt.ttl'));
     }
 
     protected function makeService(): JWTMapper
     {
-        return new JWTMapper;
+        return new JWTMapper();
     }
 }

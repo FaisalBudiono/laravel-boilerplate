@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\Core\User\UserCore;
 
 use App\Core\User\UserCore;
@@ -9,6 +11,6 @@ abstract class UserCoreBaseTestCase extends TestCase
 {
     protected function makeService(): UserCore
     {
-        return new UserCore;
+        return new UserCore();
     }
 }

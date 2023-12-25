@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Core\Auth\JWT\Mapper;
 
 use App\Core\Auth\JWT\ValueObject\Claims;
@@ -11,7 +13,7 @@ class JWTMapper implements JWTMapperContract
     public function map(User $user): Claims
     {
         return new Claims(
-            new ClaimsUser($user->id, $user->email),
+            new ClaimsUser((string)$user->id, $user->email),
             collect($this->getAudience()),
             now()->subSecond(),
             now()->subSecond(),
@@ -26,6 +28,6 @@ class JWTMapper implements JWTMapperContract
 
     protected function getTTLInSeconds(): int
     {
-        return config('jwt.ttl');
+        return intval(config('jwt.ttl'));
     }
 }

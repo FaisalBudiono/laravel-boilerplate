@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature\User;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
@@ -29,7 +31,7 @@ class UserIndexTest extends BaseFeatureTestCase
 
         User::factory()->count(10)->create();
 
-        $this->resourceAssertion = new ResourceAssertionUserList;
+        $this->resourceAssertion = new ResourceAssertionUserList();
 
         $this->instance(UserCoreContract::class, $this->mock(UserCoreContract::class));
     }
@@ -135,7 +137,7 @@ class UserIndexTest extends BaseFeatureTestCase
     {
         // Arrange
         $input = $this->validRequestInput();
-        $exceptionMessage = new ExceptionMessageGeneric;
+        $exceptionMessage = new ExceptionMessageGeneric();
 
         $mockException = new \Error($this->faker->sentence);
 

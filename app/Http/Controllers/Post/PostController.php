@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Post;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
@@ -28,7 +30,7 @@ class PostController extends Controller
 
             return response()->noContent();
         } catch (\Throwable $e) {
-            throw new InternalServerErrorException(new ExceptionMessageGeneric);
+            throw new InternalServerErrorException(new ExceptionMessageGeneric());
         }
     }
 
@@ -41,7 +43,7 @@ class PostController extends Controller
                 ->response()
                 ->setStatusCode(Response::HTTP_OK);
         } catch (\Throwable $e) {
-            throw new InternalServerErrorException(new ExceptionMessageGeneric);
+            throw new InternalServerErrorException(new ExceptionMessageGeneric());
         }
     }
 
@@ -54,7 +56,7 @@ class PostController extends Controller
                 ->response()
                 ->setStatusCode(Response::HTTP_OK);
         } catch (\Throwable $e) {
-            throw new InternalServerErrorException(new ExceptionMessageGeneric);
+            throw new InternalServerErrorException(new ExceptionMessageGeneric());
         }
     }
 
@@ -67,7 +69,7 @@ class PostController extends Controller
                 ->response()
                 ->setStatusCode(Response::HTTP_CREATED);
         } catch (\Throwable $e) {
-            throw new InternalServerErrorException(new ExceptionMessageGeneric);
+            throw new InternalServerErrorException(new ExceptionMessageGeneric());
         }
     }
 
@@ -81,7 +83,7 @@ class PostController extends Controller
                 ->setStatusCode(Response::HTTP_OK);
             return response()->json();
         } catch (\Throwable $e) {
-            throw new InternalServerErrorException(new ExceptionMessageGeneric);
+            throw new InternalServerErrorException(new ExceptionMessageGeneric());
         }
     }
 }

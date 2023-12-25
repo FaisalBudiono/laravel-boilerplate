@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\Core\Auth\JWT\Parser;
 
 use App\Core\Auth\JWT\Parser\JWTParserExceptionCode;
@@ -56,7 +58,7 @@ class JWTParserLcobucciTest extends TestCase
             ->canOnlyBeUsedAfter(now()->subYear()->toImmutable())
             ->issuedAt(now()->subYear()->toImmutable())
             ->expiresAt(now()->addYear()->toImmutable())
-            ->getToken(new Sha256, InMemory::plainText(random_bytes(32)))
+            ->getToken(new Sha256(), InMemory::plainText(random_bytes(32)))
             ->toString();
 
         $invalidHeader = Str::substr($token, 1, Str::length($token));
@@ -96,7 +98,7 @@ class JWTParserLcobucciTest extends TestCase
 
 
         // Arrange
-        $this->assertEquals($expectedClaim, $result,);
+        $this->assertEquals($expectedClaim, $result, );
     }
 
     public static function validJwtTokenDataProvider(): array
@@ -124,7 +126,7 @@ class JWTParserLcobucciTest extends TestCase
                     ->withClaim('user', [
                         'id' => $userId,
                         'email' => $userEmail,
-                    ])->getToken(new Sha256, InMemory::plainText(random_bytes(32)))
+                    ])->getToken(new Sha256(), InMemory::plainText(random_bytes(32)))
                     ->toString(),
                 new Claims(
                     new ClaimsUser($userId, $userEmail),
@@ -143,7 +145,7 @@ class JWTParserLcobucciTest extends TestCase
                     ->permittedFor(...$audiences)
                     ->withClaim('user', [
                         'email' => $userEmail,
-                    ])->getToken(new Sha256, InMemory::plainText(random_bytes(32)))
+                    ])->getToken(new Sha256(), InMemory::plainText(random_bytes(32)))
                     ->toString(),
                 new Claims(
                     new ClaimsUser('', $userEmail),
@@ -161,7 +163,7 @@ class JWTParserLcobucciTest extends TestCase
                     ->permittedFor(...$audiences)
                     ->withClaim('user', [
                         'id' => $userId,
-                    ])->getToken(new Sha256, InMemory::plainText(random_bytes(32)))
+                    ])->getToken(new Sha256(), InMemory::plainText(random_bytes(32)))
                     ->toString(),
                 new Claims(
                     new ClaimsUser($userId, ''),
@@ -177,7 +179,7 @@ class JWTParserLcobucciTest extends TestCase
                     ->expiresAt($expiredAt->toImmutable())
                     ->canOnlyBeUsedAfter($notBeforeAt->toImmutable())
                     ->permittedFor(...$audiences)
-                    ->getToken(new Sha256, InMemory::plainText(random_bytes(32)))
+                    ->getToken(new Sha256(), InMemory::plainText(random_bytes(32)))
                     ->toString(),
                 new Claims(
                     new ClaimsUser('', ''),
@@ -197,7 +199,7 @@ class JWTParserLcobucciTest extends TestCase
                     ->withClaim('user', [
                         'id' => $userId,
                         'email' => $userEmail,
-                    ])->getToken(new Sha256, InMemory::plainText(random_bytes(32)))
+                    ])->getToken(new Sha256(), InMemory::plainText(random_bytes(32)))
                     ->toString(),
                 new Claims(
                     new ClaimsUser($userId, $userEmail),
@@ -215,7 +217,7 @@ class JWTParserLcobucciTest extends TestCase
                     ->withClaim('user', [
                         'id' => $userId,
                         'email' => $userEmail,
-                    ])->getToken(new Sha256, InMemory::plainText(random_bytes(32)))
+                    ])->getToken(new Sha256(), InMemory::plainText(random_bytes(32)))
                     ->toString(),
                 new Claims(
                     new ClaimsUser($userId, $userEmail),
@@ -234,7 +236,7 @@ class JWTParserLcobucciTest extends TestCase
                     ->withClaim('user', [
                         'id' => $userId,
                         'email' => $userEmail,
-                    ])->getToken(new Sha256, InMemory::plainText(random_bytes(32)))
+                    ])->getToken(new Sha256(), InMemory::plainText(random_bytes(32)))
                     ->toString(),
                 new Claims(
                     new ClaimsUser($userId, $userEmail),
@@ -253,7 +255,7 @@ class JWTParserLcobucciTest extends TestCase
                     ->withClaim('user', [
                         'id' => $userId,
                         'email' => $userEmail,
-                    ])->getToken(new Sha256, InMemory::plainText(random_bytes(32)))
+                    ])->getToken(new Sha256(), InMemory::plainText(random_bytes(32)))
                     ->toString(),
                 new Claims(
                     new ClaimsUser($userId, $userEmail),
@@ -272,7 +274,7 @@ class JWTParserLcobucciTest extends TestCase
                     ->withClaim('user', [
                         'id' => $userId,
                         'email' => $userEmail,
-                    ])->getToken(new Sha256, InMemory::plainText(random_bytes(32)))
+                    ])->getToken(new Sha256(), InMemory::plainText(random_bytes(32)))
                     ->toString(),
                 new Claims(
                     new ClaimsUser($userId, $userEmail),
@@ -292,11 +294,11 @@ class JWTParserLcobucciTest extends TestCase
 
     protected static function makeBuilder(): Builder
     {
-        return new Builder(new JoseEncoder, ChainedFormatter::default());
+        return new Builder(new JoseEncoder(), ChainedFormatter::default());
     }
 
     protected function makeService(): JWTParserLcobucci
     {
-        return new JWTParserLcobucci;
+        return new JWTParserLcobucci();
     }
 }

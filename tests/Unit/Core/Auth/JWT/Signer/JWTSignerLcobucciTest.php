@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\Core\Auth\JWT\Signer;
 
 use App\Core\Auth\JWT\Signer\JWTSignerExceptionCode;
@@ -50,8 +52,8 @@ class JWTSignerLcobucciTest extends TestCase
             Carbon::parse($this->faker->dateTime),
         );
 
-        $parser = new Parser(new JoseEncoder);
-        $validator = new Validator;
+        $parser = new Parser(new JoseEncoder());
+        $validator = new Validator();
 
 
         // Act
@@ -191,7 +193,7 @@ class JWTSignerLcobucciTest extends TestCase
 
     protected function makeBuilder(): Builder
     {
-        return new Builder(new JoseEncoder, ChainedFormatter::default());
+        return new Builder(new JoseEncoder(), ChainedFormatter::default());
     }
 
     protected function makeSigner(): Signer
@@ -201,6 +203,6 @@ class JWTSignerLcobucciTest extends TestCase
 
     protected function makeService(): JWTSignerLcobucci
     {
-        return new JWTSignerLcobucci;
+        return new JWTSignerLcobucci();
     }
 }

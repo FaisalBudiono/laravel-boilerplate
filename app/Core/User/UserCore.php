@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Core\User;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
@@ -36,7 +38,7 @@ class UserCore implements UserCoreContract
                 ));
             }
 
-            $user = new User;
+            $user = new User();
             $user->name = $request->getName();
             $user->email = $email;
             $user->password = Hash::make($request->getUserPassword());

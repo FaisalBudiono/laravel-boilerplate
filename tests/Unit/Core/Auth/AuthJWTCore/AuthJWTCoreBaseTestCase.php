@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\Core\Auth\AuthJWTCore;
 
 use App\Core\Auth\AuthJWTCore;

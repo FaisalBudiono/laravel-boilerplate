@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Core\Auth\JWT\Mapper;
 
 use App\Core\Auth\JWT\ValueObject\Claims;

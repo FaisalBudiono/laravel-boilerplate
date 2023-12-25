@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers\ModelBinding;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
@@ -15,11 +17,11 @@ class ModelBindingPost implements ModelBinding
     {
         Route::bind('postID', function ($value) {
             try {
-                return Post::findByIDOrFail($value);
+                return Post::findByIDOrFail(intval($value));
             } catch (ModelNotFoundException $e) {
                 throw new NotFoundException($e->exceptionMessage);
             } catch (\Throwable $e) {
-                throw new InternalServerErrorException(new ExceptionMessageGeneric);
+                throw new InternalServerErrorException(new ExceptionMessageGeneric());
             }
         });
     }

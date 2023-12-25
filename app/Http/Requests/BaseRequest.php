@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests;
 
 use App\Core\Formatter\ExceptionErrorCode;
@@ -88,7 +90,7 @@ abstract class BaseRequest extends FormRequest
         $user = auth()->user();
 
         if (is_null($user)) {
-            return new User;
+            return new User();
         }
 
         return $user;

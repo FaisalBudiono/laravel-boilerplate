@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Auth;
 
 use App\Core\Auth\AuthJWTCoreContract;
@@ -32,7 +34,7 @@ class AuthController extends Controller
         } catch (InvalidCredentialException $e) {
             throw new UnauthorizedException($e->exceptionMessage);
         } catch (Throwable $e) {
-            throw new InternalServerErrorException(new ExceptionMessageGeneric);
+            throw new InternalServerErrorException(new ExceptionMessageGeneric());
         }
     }
 
@@ -45,7 +47,7 @@ class AuthController extends Controller
         } catch (JWTException $e) {
             throw new UnauthorizedException($e->exceptionMessage);
         } catch (Throwable $e) {
-            throw new InternalServerErrorException(new ExceptionMessageGeneric);
+            throw new InternalServerErrorException(new ExceptionMessageGeneric());
         }
     }
 
@@ -60,7 +62,7 @@ class AuthController extends Controller
         } catch (JWTException $e) {
             throw new UnauthorizedException($e->exceptionMessage);
         } catch (Throwable $e) {
-            throw new InternalServerErrorException(new ExceptionMessageGeneric);
+            throw new InternalServerErrorException(new ExceptionMessageGeneric());
         }
     }
 }

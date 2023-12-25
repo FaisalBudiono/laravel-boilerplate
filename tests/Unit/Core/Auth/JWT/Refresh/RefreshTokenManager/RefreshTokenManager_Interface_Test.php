@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\Core\Auth\JWT\Refresh\RefreshTokenManager;
 
 use App\Core\Auth\JWT\Refresh\RefreshTokenManagerContract;

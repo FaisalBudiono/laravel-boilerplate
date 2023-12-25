@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Post;
 
 use App\Http\Requests\BaseRequest;
@@ -39,18 +41,28 @@ class GetAllPostRequest extends BaseRequest implements GetAllPostPort
 
     public function getPerPage(): ?int
     {
-        return $this->input('per_page');
+        $perPage = $this->input('per_page');
+
+        return is_null($perPage)
+            ? null
+            : intval($perPage);
     }
 
     public function getPage(): int
     {
-        return $this->input('page') ?? 1;
+        $page = $this->input('page');
+
+        return is_null($page)
+            ? 1
+            : intval($page);
     }
 
     public function getUserFilter(): ?User
     {
         $userID = $this->input('user_id');
 
-        return is_null($userID) ? null : User::findByIDOrFail($userID);
+        return is_null($userID)
+            ? null
+            : User::findByIDOrFail(intval($userID));
     }
 }

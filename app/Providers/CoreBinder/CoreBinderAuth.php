@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers\CoreBinder;
 
 use App\Core\Auth\AuthJWTCore;
@@ -42,19 +44,19 @@ class CoreBinderAuth implements CoreBinder
         });
 
         $app->bind(JWTMapperContract::class, function (Application $app) {
-            return new JWTMapper;
+            return new JWTMapper();
         });
 
         $app->bind(JWTParser::class, function (Application $app) {
-            return new JWTParserLcobucci;
+            return new JWTParserLcobucci();
         });
 
         $app->bind(JWTSigner::class, function (Application $app) {
-            return new JWTSignerLcobucci;
+            return new JWTSignerLcobucci();
         });
 
         $app->bind(RefreshTokenCacher::class, function (Application $app) {
-            return new RefreshTokenCacherLaravel;
+            return new RefreshTokenCacherLaravel();
         });
 
         $app->bind(RefreshTokenManagerContract::class, function (Application $app) {
@@ -65,7 +67,7 @@ class CoreBinderAuth implements CoreBinder
         });
 
         $app->bind(RefreshTokenUserTokenMapperContract::class, function (Application $app) {
-            return new RefreshTokenUserTokenMapper;
+            return new RefreshTokenUserTokenMapper();
         });
     }
 }
