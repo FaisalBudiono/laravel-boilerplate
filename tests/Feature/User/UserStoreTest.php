@@ -12,7 +12,6 @@ use App\Http\Resources\User\UserResource;
 use App\Models\User\User;
 use App\Port\Core\User\CreateUserPort;
 use Exception;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -23,7 +22,6 @@ use Tests\Helper\Trait\JSONTrait;
 class UserStoreTest extends BaseFeatureTestCase
 {
     use JSONTrait;
-    use RefreshDatabase;
 
     protected function setUp(): void
     {

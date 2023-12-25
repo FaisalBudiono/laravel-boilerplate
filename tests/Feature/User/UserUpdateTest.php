@@ -11,18 +11,15 @@ use App\Exceptions\Core\User\UserEmailDuplicatedException;
 use App\Http\Resources\User\UserResource;
 use App\Models\User\User;
 use App\Port\Core\User\UpdateUserPort;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
-use Symfony\Component\HttpFoundation\Response;
 use Tests\Feature\BaseFeatureTestCase;
 use Tests\Helper\Trait\JSONTrait;
 
 class UserUpdateTest extends BaseFeatureTestCase
 {
     use JSONTrait;
-    use RefreshDatabase;
 
     protected User $user;
 

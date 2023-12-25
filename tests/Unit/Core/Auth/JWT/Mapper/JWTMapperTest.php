@@ -10,14 +10,11 @@ use App\Core\Auth\JWT\ValueObject\Claims;
 use App\Core\Auth\JWT\ValueObject\ClaimsUser;
 use App\Models\User\User;
 use Carbon\Carbon;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class JWTMapperTest extends TestCase
 {
-    use RefreshDatabase;
-
     protected function setUp(): void
     {
         parent::setUp();

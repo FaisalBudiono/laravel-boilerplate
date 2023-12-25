@@ -14,7 +14,6 @@ use App\Models\Post\Post;
 use App\Models\User\User;
 use App\Port\Core\Post\GetSinglePostPort;
 use Exception;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\ExpectationFailedException;
@@ -24,8 +23,6 @@ use Tests\Helper\MockInstance\Middleware\MockerAuthenticatedByJWT;
 
 class PostShowTest extends BaseFeatureTestCase
 {
-    use RefreshDatabase;
-
     protected Post $mockPost;
 
     protected function setUp(): void

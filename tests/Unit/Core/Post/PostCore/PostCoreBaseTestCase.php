@@ -6,14 +6,11 @@ namespace Tests\Unit\Core\Post\PostCore;
 
 use App\Core\Post\PostCore;
 use App\Models\Post\Post;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
 use Tests\TestCase;
 
 class PostCoreBaseTestCase extends TestCase
 {
-    use RefreshDatabase;
-
     protected function makeService(): PostCore
     {
         return new PostCore();

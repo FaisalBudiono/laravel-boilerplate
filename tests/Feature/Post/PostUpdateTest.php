@@ -14,7 +14,6 @@ use App\Models\Post\Post;
 use App\Models\User\User;
 use App\Port\Core\Post\UpdatePostPort;
 use Exception;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -25,8 +24,6 @@ use Tests\Helper\MockInstance\Middleware\MockerAuthenticatedByJWT;
 
 class PostUpdateTest extends BaseFeatureTestCase
 {
-    use RefreshDatabase;
-
     protected Post $mockPost;
 
     protected function setUp(): void

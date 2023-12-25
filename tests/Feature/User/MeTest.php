@@ -9,7 +9,6 @@ use App\Core\User\UserCoreContract;
 use App\Http\Resources\User\UserResource;
 use App\Models\User\User;
 use App\Port\Core\User\GetUserPort;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Feature\BaseFeatureTestCase;
@@ -19,7 +18,6 @@ use Tests\Helper\Trait\JSONTrait;
 class MeTest extends BaseFeatureTestCase
 {
     use JSONTrait;
-    use RefreshDatabase;
 
     protected User $mockUser;
 

@@ -6,15 +6,12 @@ namespace Tests\Unit\Database\Seeder\Base;
 
 use App\Models\Permission\Enum\RoleName;
 use Database\Seeders\Base\RoleSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class RoleSeederTest extends TestCase
 {
-    use RefreshDatabase;
-
     public const DEFAULT_GUARD_NAME = 'auth.defaults.guard';
 
     protected string $mockedGuardName;

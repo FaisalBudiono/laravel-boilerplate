@@ -7,14 +7,11 @@ namespace Tests\Unit\Http\Resource\User;
 use App\Core\Date\DatetimeFormat;
 use App\Http\Resources\User\UserResource;
 use App\Models\User\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class UserResourceTest extends TestCase
 {
-    use RefreshDatabase;
-
     #[Test]
     public function should_return_right_arrayable_format(): void
     {

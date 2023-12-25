@@ -6,14 +6,11 @@ namespace Tests\Unit\Models\User;
 
 use App\Models\Post\Post;
 use App\Models\User\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class User_Posts_Test extends TestCase
 {
-    use RefreshDatabase;
-
     #[Test]
     public function should_be_able_to_call_posts_relationship(): void
     {

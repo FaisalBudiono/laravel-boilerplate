@@ -9,15 +9,12 @@ use App\Http\Resources\Post\PostResource;
 use App\Http\Resources\User\UserResource;
 use App\Models\Post\Post;
 use Carbon\Carbon;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class PostResourceTest extends TestCase
 {
-    use RefreshDatabase;
-
     #[Test]
     #[DataProvider('dateDataProvider')]
     public function should_return_right_arrayable_format(
