@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers\CoreBinder;
 
 use App\Core\Post\PostCore;
@@ -11,7 +13,7 @@ class CoreBinderPost implements CoreBinder
     public function bootCore(Application $app): void
     {
         $app->bind(PostCoreContract::class, function (Application $app) {
-            return new PostCore;
+            return new PostCore();
         });
     }
 }

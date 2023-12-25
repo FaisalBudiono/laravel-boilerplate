@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Models\User\Enum;
+declare(strict_types=1);
 
+namespace App\Models\User\Enum;
 
 enum UserExceptionCode: string
 {

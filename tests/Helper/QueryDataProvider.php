@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Helper;
 
 use App\Core\Query\Enum\OrderDirection;

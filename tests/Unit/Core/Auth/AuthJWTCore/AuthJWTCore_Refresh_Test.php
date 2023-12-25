@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\Core\Auth\AuthJWTCore;
 
 use App\Core\Auth\JWT\Mapper\JWTMapperContract;
@@ -110,7 +112,7 @@ class AuthJWTCore_Refresh_Test extends AuthJWTCoreBaseTestCase
     {
         return new RefreshTokenClaims(
             $this->faker->uuid(),
-            new RefreshTokenClaimsUser(1, $this->faker->email),
+            new RefreshTokenClaimsUser('1', $this->faker->email),
             Carbon::parse($this->faker->dateTime),
             $this->faker->uuid(),
         );

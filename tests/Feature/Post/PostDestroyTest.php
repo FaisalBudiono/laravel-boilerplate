@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature\Post;
 
 use App\Core\Formatter\ExceptionErrorCode;
@@ -63,7 +65,6 @@ class PostDestroyTest extends BaseFeatureTestCase
         // Act
         $response = $this->deleteJson(
             $this->getEndpointUrl($this->mockPost->id),
-            $this->validRequestInput(),
         );
 
 
@@ -83,12 +84,10 @@ class PostDestroyTest extends BaseFeatureTestCase
     public function should_show_500_when_generic_error_is_thrown(): void
     {
         // Arrange
-        $input = $this->validRequestInput();
-
         MockerAuthenticatedByJWT::make($this)
             ->mockLogin($this->mockPost->user);
 
-        $exceptionMessage = new ExceptionMessageGeneric;
+        $exceptionMessage = new ExceptionMessageGeneric();
         $mockException = new Exception($this->faker->sentence());
 
 
@@ -110,12 +109,11 @@ class PostDestroyTest extends BaseFeatureTestCase
         // Act
         $response = $this->deleteJson(
             $this->getEndpointUrl($this->mockPost->id),
-            $input,
-        );
+        )->dump();
 
 
         // Assert
-        $response->assertStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+        $response->assertInternalServerError();
         $response->assertJsonPath(
             'errors',
             $exceptionMessage->getJsonResponse()->toArray()
@@ -126,8 +124,6 @@ class PostDestroyTest extends BaseFeatureTestCase
     public function should_show_204_when_owner_successfully_delete_post(): void
     {
         // Arrange
-        $input = $this->validRequestInput();
-
         MockerAuthenticatedByJWT::make($this)->mockLogin($this->mockPost->user);
 
 
@@ -149,7 +145,6 @@ class PostDestroyTest extends BaseFeatureTestCase
         // Act
         $response = $this->deleteJson(
             $this->getEndpointUrl($this->mockPost->id),
-            $input,
         );
 
 
@@ -161,8 +156,6 @@ class PostDestroyTest extends BaseFeatureTestCase
     public function should_show_204_when_admin_successfully_delete_post(): void
     {
         // Arrange
-        $input = $this->validRequestInput();
-
         $adminRole = Role::create([
             'name' => RoleName::ADMIN,
         ]);
@@ -191,7 +184,6 @@ class PostDestroyTest extends BaseFeatureTestCase
         // Act
         $response = $this->deleteJson(
             $this->getEndpointUrl($this->mockPost->id),
-            $input,
         );
 
 
@@ -222,15 +214,5 @@ class PostDestroyTest extends BaseFeatureTestCase
             dump($e);
             return false;
         }
-    }
-
-    protected static function validRequestInput(): array
-    {
-        $faker = self::makeFaker();
-
-        return [
-            'title' => $faker->words(3, true),
-            'content' => $faker->sentences(3, true),
-        ];
     }
 }

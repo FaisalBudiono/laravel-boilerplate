@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers;
 
 use App\Http\Controllers\Healthcheck\HealthcheckController;
@@ -48,7 +50,7 @@ class RouteServiceProvider extends ServiceProvider
     {
         foreach ($this->modelBindings as $binding) {
             /** @var \App\Providers\ModelBinding\ModelBinding */
-            $bindingClass = new $binding;
+            $bindingClass = new $binding();
 
             $bindingClass->bindModel();
             $bindingClass->registerPattern();

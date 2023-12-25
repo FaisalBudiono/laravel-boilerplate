@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature\Post;
 
 use App\Core\Formatter\ExceptionErrorCode;
@@ -86,7 +88,7 @@ class PostShowTest extends BaseFeatureTestCase
         MockerAuthenticatedByJWT::make($this)
             ->mockLogin($this->mockPost->user);
 
-        $exceptionMessage = new ExceptionMessageGeneric;
+        $exceptionMessage = new ExceptionMessageGeneric();
         $mockException = new Exception($this->faker->sentence());
 
 

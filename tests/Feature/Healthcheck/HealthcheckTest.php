@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature\Healthcheck;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
@@ -40,7 +42,7 @@ class HealthcheckTest extends BaseFeatureTestCase
         $mockException = new \Error($this->faker->sentence);
         $mockCore = $this->mock(
             HealthcheckCoreContract::class,
-            function (MockInterface $mock)  use ($mockException) {
+            function (MockInterface $mock) use ($mockException) {
                 $mock->shouldReceive('getHealthiness')
                     ->once()
                     ->andThrow($mockException);
@@ -117,7 +119,7 @@ class HealthcheckTest extends BaseFeatureTestCase
         // Assert
         $response->assertStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
 
-        $exceptionMessage = new ExceptionMessageGeneric;
+        $exceptionMessage = new ExceptionMessageGeneric();
 
         $response->assertJsonPath(
             'errors',

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Post\PostController;
 use App\Http\Controllers\User\UserController;

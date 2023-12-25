@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Core\Auth\JWT;
 
 use App\Core\Auth\JWT\Parser\JWTParser;
@@ -157,7 +159,7 @@ class JWTGuard implements JWTGuardContract
         $this->signer->validate($token);
 
         $claims = $this->parser->parse($token);
-        $user = User::findByIDOrFail($claims->user->id);
+        $user = User::findByIDOrFail(intval($claims->user->id));
 
         $this->setUser($user);
     }

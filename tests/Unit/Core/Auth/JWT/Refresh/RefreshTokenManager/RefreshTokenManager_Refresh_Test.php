@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\Core\Auth\JWT\Refresh\RefreshTokenManager;
 
 use App\Core\Auth\JWT\Refresh\Cacher\Cacher;
@@ -17,7 +19,7 @@ use PHPUnit\Framework\Attributes\Test;
 
 class RefreshTokenManager_Refresh_Test extends RefreshTokenManagerBaseTestCase
 {
-    const REFRESH_GRACE_PERIOD = 10;
+    public const REFRESH_GRACE_PERIOD = 10;
 
     protected function setUp(): void
     {
@@ -135,7 +137,7 @@ class RefreshTokenManager_Refresh_Test extends RefreshTokenManagerBaseTestCase
 
         $mockedNewRefreshToken = new RefreshTokenClaims(
             $this->faker->uuid(),
-            new RefreshTokenClaimsUser($mockUser->id, $this->faker->email()),
+            new RefreshTokenClaimsUser((string)$mockUser->id, $this->faker->email()),
             now()->addSeconds(1),
         );
 
@@ -160,7 +162,7 @@ class RefreshTokenManager_Refresh_Test extends RefreshTokenManagerBaseTestCase
 
         $mockedRefreshToken = new RefreshTokenClaims(
             $this->faker->uuid(),
-            new RefreshTokenClaimsUser($mockUser->id, $this->faker->email()),
+            new RefreshTokenClaimsUser((string)$mockUser->id, $this->faker->email()),
             now()->addSeconds(1),
         );
 
@@ -243,7 +245,7 @@ class RefreshTokenManager_Refresh_Test extends RefreshTokenManagerBaseTestCase
 
         $mockedOldRefreshToken = new RefreshTokenClaims(
             $this->faker->uuid(),
-            new RefreshTokenClaimsUser($mockUser->id, $this->faker->email()),
+            new RefreshTokenClaimsUser((string)$mockUser->id, $this->faker->email()),
             now()->addSeconds(1),
             null,
             now()
@@ -285,7 +287,7 @@ class RefreshTokenManager_Refresh_Test extends RefreshTokenManagerBaseTestCase
 
         $mockedOldRefreshToken = new RefreshTokenClaims(
             $this->faker->uuid(),
-            new RefreshTokenClaimsUser($mockUser->id, $this->faker->email()),
+            new RefreshTokenClaimsUser((string)$mockUser->id, $this->faker->email()),
             now()->addSeconds(1),
             $this->faker->uuid(),
             now(),
@@ -293,7 +295,7 @@ class RefreshTokenManager_Refresh_Test extends RefreshTokenManagerBaseTestCase
 
         $mockedChildRefreshToken = new RefreshTokenClaims(
             $mockedOldRefreshToken->childID,
-            new RefreshTokenClaimsUser($mockUser->id, $this->faker->email()),
+            new RefreshTokenClaimsUser((string)$mockUser->id, $this->faker->email()),
             now()->addSeconds(1),
         );
 

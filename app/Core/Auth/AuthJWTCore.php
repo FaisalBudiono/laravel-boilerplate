@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Core\Auth;
 
 use App\Core\Auth\JWT\Mapper\JWTMapperContract;
@@ -56,7 +58,7 @@ class AuthJWTCore implements AuthJWTCoreContract
     {
         $refreshTokenClaims = $this->refreshTokenManager->refresh($request->getRefreshToken());
 
-        $user = User::findByIDOrFail($refreshTokenClaims->user->id);
+        $user = User::findByIDOrFail(intval($refreshTokenClaims->user->id));
 
         return new TokenPair(
             $this->jwtSigner->sign($this->jwtMapper->map($user)),

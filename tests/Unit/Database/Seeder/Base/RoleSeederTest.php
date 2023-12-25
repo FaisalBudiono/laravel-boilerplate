@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\Database\Seeder\Base;
 
 use App\Models\Permission\Enum\RoleName;
@@ -13,7 +15,7 @@ class RoleSeederTest extends TestCase
 {
     use RefreshDatabase;
 
-    const DEFAULT_GUARD_NAME = 'auth.defaults.guard';
+    public const DEFAULT_GUARD_NAME = 'auth.defaults.guard';
 
     protected string $mockedGuardName;
 

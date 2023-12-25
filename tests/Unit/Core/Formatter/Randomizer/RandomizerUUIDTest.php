@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\Core\Formatter\Randomizer;
 
 use App\Core\Formatter\Randomizer\Randomizer;
@@ -34,6 +36,6 @@ class RandomizerUUIDTest extends TestCase
 
     protected function makeService(): RandomizerUUID
     {
-        return new RandomizerUUID;
+        return new RandomizerUUID();
     }
 }

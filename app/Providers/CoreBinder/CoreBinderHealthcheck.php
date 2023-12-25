@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers\CoreBinder;
 
 use App\Core\Healthcheck\HealthcheckCore;
@@ -33,7 +35,7 @@ class CoreBinderHealthcheck implements CoreBinder
         });
 
         $app->bind(VersionFetcher::class, function (Application $app) {
-            return new VersionFetcherConfig;
+            return new VersionFetcherConfig();
         });
     }
 }

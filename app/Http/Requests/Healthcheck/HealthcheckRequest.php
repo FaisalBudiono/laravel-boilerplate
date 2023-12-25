@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Healthcheck;
 
 use App\Http\Requests\BaseRequest;

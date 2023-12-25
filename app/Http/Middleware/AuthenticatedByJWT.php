@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Middleware;
 
 use App\Core\Auth\JWT\Parser\JWTParser;
@@ -65,7 +67,7 @@ class AuthenticatedByJWT
             $this->signer->validate($token);
 
             $claims = $this->parser->parse($token);
-            User::findByIDOrFail($claims->user->id);
+            User::findByIDOrFail(intval($claims->user->id));
         } catch (JWTException $e) {
             throw new UnauthorizedException($e->exceptionMessage);
         } catch (\Throwable $e) {

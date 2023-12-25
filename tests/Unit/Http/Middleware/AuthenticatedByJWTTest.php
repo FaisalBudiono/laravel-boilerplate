@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\Http\Middleware;
 
 use App\Core\Auth\JWT\Parser\JWTParser;
@@ -221,7 +223,7 @@ class AuthenticatedByJWTTest extends TestCase
                     ->once()
                     ->with($mockedToken)
                     ->andReturn(new Claims(
-                        new ClaimsUser($mockUser->id, $this->faker->email()),
+                        new ClaimsUser((string)$mockUser->id, $this->faker->email()),
                         collect(),
                         now(),
                         now(),

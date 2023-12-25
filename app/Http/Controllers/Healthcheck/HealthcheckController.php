@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Healthcheck;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
@@ -49,7 +51,7 @@ class HealthcheckController extends Controller
                 ->setStatusCode(Response::HTTP_SERVICE_UNAVAILABLE);
         } catch (Throwable $e) {
             Log::error($this->logFormatter->makeHTTPError($e));
-            throw new InternalServerErrorException(new ExceptionMessageGeneric);
+            throw new InternalServerErrorException(new ExceptionMessageGeneric());
         }
     }
 }

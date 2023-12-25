@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\User;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
@@ -32,7 +34,7 @@ class UserController extends Controller
 
             return response()->json([], Response::HTTP_NO_CONTENT);
         } catch (Throwable $e) {
-            throw new InternalServerErrorException(new ExceptionMessageGeneric);
+            throw new InternalServerErrorException(new ExceptionMessageGeneric());
         }
     }
 
@@ -43,7 +45,7 @@ class UserController extends Controller
 
             return UserResource::collection($users);
         } catch (Throwable $e) {
-            throw new InternalServerErrorException(new ExceptionMessageGeneric);
+            throw new InternalServerErrorException(new ExceptionMessageGeneric());
         }
     }
 
@@ -56,7 +58,7 @@ class UserController extends Controller
                 ->response()
                 ->setStatusCode(Response::HTTP_OK);
         } catch (Throwable $e) {
-            throw new InternalServerErrorException(new ExceptionMessageGeneric);
+            throw new InternalServerErrorException(new ExceptionMessageGeneric());
         }
     }
 
@@ -69,7 +71,7 @@ class UserController extends Controller
                 ->response()
                 ->setStatusCode(Response::HTTP_OK);
         } catch (Throwable $e) {
-            throw new InternalServerErrorException(new ExceptionMessageGeneric);
+            throw new InternalServerErrorException(new ExceptionMessageGeneric());
         }
     }
 
@@ -84,7 +86,7 @@ class UserController extends Controller
         } catch (UserEmailDuplicatedException $e) {
             throw new ConflictException($e->exceptionMessage);
         } catch (Throwable $e) {
-            throw new InternalServerErrorException(new ExceptionMessageGeneric);
+            throw new InternalServerErrorException(new ExceptionMessageGeneric());
         }
     }
 
@@ -97,7 +99,7 @@ class UserController extends Controller
         } catch (UserEmailDuplicatedException $e) {
             throw new ConflictException($e->exceptionMessage);
         } catch (Throwable $e) {
-            throw new InternalServerErrorException(new ExceptionMessageGeneric);
+            throw new InternalServerErrorException(new ExceptionMessageGeneric());
         }
     }
 }

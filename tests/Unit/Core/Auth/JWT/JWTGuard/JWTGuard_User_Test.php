@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\Core\Auth\JWT\JWTGuard;
 
 use App\Core\Auth\JWT\Parser\JWTParser;
@@ -102,7 +104,7 @@ class JWTGuard_User_Test extends JWTGuardBaseTestCase
                     ->once()
                     ->with($mockedToken)
                     ->andReturn(new Claims(
-                        new ClaimsUser($mockedUser->id, $mockedUser->email),
+                        new ClaimsUser((string)$mockedUser->id, $mockedUser->email),
                         collect([]),
                         now(),
                         now(),
@@ -155,7 +157,7 @@ class JWTGuard_User_Test extends JWTGuardBaseTestCase
                     ->once()
                     ->with($mockedToken)
                     ->andReturn(new Claims(
-                        new ClaimsUser($mockedUser->id, $mockedUser->email),
+                        new ClaimsUser((string)$mockedUser->id, $mockedUser->email),
                         collect([]),
                         now(),
                         now(),

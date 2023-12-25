@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers\CoreBinder;
 
 use App\Core\User\UserCore;
@@ -11,7 +13,7 @@ class CoreBinderUser implements CoreBinder
     public function bootCore(Application $app): void
     {
         $app->bind(UserCoreContract::class, function (Application $app) {
-            return new UserCore;
+            return new UserCore();
         });
     }
 }

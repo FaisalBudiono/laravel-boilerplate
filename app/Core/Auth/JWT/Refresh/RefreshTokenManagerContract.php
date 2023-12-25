@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Core\Auth\JWT\Refresh;
 
 use App\Core\Auth\JWT\Refresh\ValueObject\RefreshTokenClaims;

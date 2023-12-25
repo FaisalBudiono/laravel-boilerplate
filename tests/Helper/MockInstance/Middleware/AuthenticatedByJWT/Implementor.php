@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Helper\MockInstance\Middleware\AuthenticatedByJWT;
 
 use App\Core\Auth\JWT\JWTGuardContract;

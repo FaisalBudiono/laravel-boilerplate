@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Core\Auth\JWT\Parser;
 
 use App\Core\Auth\JWT\ValueObject\Claims;
@@ -56,6 +58,6 @@ class JWTParserLcobucci implements JWTParser
 
     protected function makeParser(): Parser
     {
-        return new Parser(new JoseEncoder);
+        return new Parser(new JoseEncoder());
     }
 }

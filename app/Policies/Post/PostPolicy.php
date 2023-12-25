@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies\Post;
 
 use App\Models\Permission\Enum\RoleName;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Core\Formatter\ExceptionMessage;
 
 use App\Core\Formatter\ExceptionErrorCode;
@@ -12,7 +14,7 @@ class ExceptionMessageGenericTest extends TestCase
     public function should_implement_right_interface(): void
     {
         // Arrange
-        $exceptionMessage = new ExceptionMessageGeneric;
+        $exceptionMessage = new ExceptionMessageGeneric();
 
 
         // Assert
@@ -23,7 +25,7 @@ class ExceptionMessageGenericTest extends TestCase
     public function getJsonResponse_should_return_generic_json_response(): void
     {
         // Arrange
-        $exceptionMessage = new ExceptionMessageGeneric;
+        $exceptionMessage = new ExceptionMessageGeneric();
 
 
         // Act
@@ -42,7 +44,7 @@ class ExceptionMessageGenericTest extends TestCase
     public function getMessage_should_return_generic_message(): void
     {
         // Arrange
-        $exceptionMessage = new ExceptionMessageGeneric;
+        $exceptionMessage = new ExceptionMessageGeneric();
 
 
         // Act

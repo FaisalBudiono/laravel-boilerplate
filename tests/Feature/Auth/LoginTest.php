@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature\Auth;
 
 use App\Core\Auth\AuthJWTCoreContract;
@@ -121,7 +123,7 @@ class LoginTest extends BaseFeatureTestCase
         // Arrange
         $input = $this->validRequestInput();
 
-        $exceptionMessage = new ExceptionMessageGeneric;
+        $exceptionMessage = new ExceptionMessageGeneric();
         $mockException = new \Error($this->faker->sentence());
 
 

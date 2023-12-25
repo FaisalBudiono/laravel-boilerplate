@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\User;
 
 use App\Core\Query\Enum\OrderDirection;
@@ -35,25 +37,25 @@ class GetAllUserRequest extends BaseRequest implements GetAllUserPort
 
     public function getOrderBy(): ?UserOrderBy
     {
-        return UserOrderBy::tryFrom($this->input('orderBy'));
+        return UserOrderBy::tryFrom((string)$this->input('orderBy'));
     }
 
     public function getOrderDirection(): ?OrderDirection
     {
-        return OrderDirection::tryFrom($this->input('orderDir'));
+        return OrderDirection::tryFrom((string)$this->input('orderDir'));
     }
 
     public function getPage(): ?int
     {
         return is_null($this->input('page'))
             ? null
-            : $this->input('page');
+            : intval($this->input('page'));
     }
 
     public function getPerPage(): ?int
     {
         return is_null($this->input('perPage'))
             ? null
-            : $this->input('perPage');
+            : intval($this->input('perPage'));
     }
 }

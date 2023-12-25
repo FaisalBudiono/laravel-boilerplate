@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature\User;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
@@ -26,7 +28,7 @@ class MeTest extends BaseFeatureTestCase
     {
         parent::setUp();
 
-        $this->resourceAssertion = new ResourceAssertionUser;
+        $this->resourceAssertion = new ResourceAssertionUser();
 
         $this->mockUser = User::factory()->create([
             'id' => $this->faker()->numberBetween(1, 100),
@@ -39,7 +41,7 @@ class MeTest extends BaseFeatureTestCase
     public function should_show_500_when_thrown_generic_error(): void
     {
         // Arrange
-        $exceptionMessage = new ExceptionMessageGeneric;
+        $exceptionMessage = new ExceptionMessageGeneric();
 
         $mockException = new \Error($this->faker->sentence());
 

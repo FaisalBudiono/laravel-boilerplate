@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\Http\Middleware;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
@@ -277,15 +279,15 @@ class LoggingMiddlewareTest extends TestCase
         $previousException = new \Error(self::makeFaker()->sentence());
 
         $internalServerErrorWithoutPrevious = new InternalServerErrorException(
-            new ExceptionMessageGeneric
+            new ExceptionMessageGeneric()
         );
         $unauthorizedWithoutPrevious = new UnauthorizedException(
-            new ExceptionMessageGeneric
+            new ExceptionMessageGeneric()
         );
 
         return [
             '500++ exception (internal server error)' => [
-                new InternalServerErrorException(new ExceptionMessageGeneric, $previousException),
+                new InternalServerErrorException(new ExceptionMessageGeneric(), $previousException),
                 $previousException,
                 'error',
             ],
@@ -296,12 +298,12 @@ class LoggingMiddlewareTest extends TestCase
             ],
 
             '400-499 exception (unauthorized)' => [
-                new UnauthorizedException(new ExceptionMessageGeneric, $previousException),
+                new UnauthorizedException(new ExceptionMessageGeneric(), $previousException),
                 $previousException,
                 'warning',
             ],
             '400-499 exception (conflict)' => [
-                new ConflictException(new ExceptionMessageGeneric, $previousException),
+                new ConflictException(new ExceptionMessageGeneric(), $previousException),
                 $previousException,
                 'warning',
             ],

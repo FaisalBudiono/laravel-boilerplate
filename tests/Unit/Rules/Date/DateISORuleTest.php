@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\Rules\Date;
 
 use App\Rules\Date\DateISORule;
@@ -77,6 +79,6 @@ class DateISORuleTest extends TestCase
 
     protected function makeService(): DateISORule
     {
-        return new DateISORule;
+        return new DateISORule();
     }
 }
