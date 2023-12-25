@@ -12,8 +12,9 @@ class CoreBinderUser implements CoreBinder
 {
     public function bootCore(Application $app): void
     {
-        $app->bind(UserCoreContract::class, function (Application $app) {
-            return new UserCore();
-        });
+        $app->bind(
+            UserCoreContract::class,
+            fn (Application $app) => new UserCore()
+        );
     }
 }

@@ -6,19 +6,20 @@ namespace App\Http\Controllers\Healthcheck;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
 use App\Core\Healthcheck\HealthcheckCoreContract;
-use App\Core\Logger\Message\LoggerMessageFactoryContract;
+use App\Core\Logger\Message\LogMessageBuilderContract;
+use App\Core\Logger\Message\LogMessageDirectorContract;
 use App\Exceptions\Http\InternalServerErrorException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Healthcheck\HealthcheckRequest;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
-use Throwable;
 
 class HealthcheckController extends Controller
 {
     public function __construct(
         protected HealthcheckCoreContract $core,
-        protected LoggerMessageFactoryContract $logFormatter,
+        protected LogMessageDirectorContract $logDirector,
+        protected LogMessageBuilderContract $logBuilder,
     ) {
     }
 
@@ -26,32 +27,49 @@ class HealthcheckController extends Controller
     {
         try {
             Log::info(
-                $this->logFormatter->makeHTTPStart(
-                    'Healthcheck endpoint',
-                    [],
-                ),
+                $this->logDirector->buildBegin(
+                    clone $this->logBuilder
+                )->message('Healthcheck endpoint')
+                    ->build()
             );
 
             $status = $this->core->getHealthiness($request);
 
             if ($status->isHealthy()) {
-                Log::info($this->logFormatter->makeHTTPSuccess('Healthcheck endpoint', []));
+                Log::info(
+                    $this->logDirector->buildSuccess(
+                        clone $this->logBuilder
+                    )->message('Healthcheck endpoint')
+                        ->build()
+                );
 
                 return response()
                     ->json($status->toArray())
                     ->setStatusCode(Response::HTTP_OK);
             }
 
-            Log::emergency($this->logFormatter->makeHTTPSuccess('Healthcheck endpoint', [
-                'detail' => $status->toArrayDetail(),
-            ]));
+            Log::emergency(
+                $this->logDirector->buildSuccess(
+                    clone $this->logBuilder
+                )->message('Healthcheck endpoint')
+                    ->meta([
+                        'detail' => $status->toArrayDetail(),
+                    ])->build()
+            );
 
             return response()
                 ->json($status->toArray())
                 ->setStatusCode(Response::HTTP_SERVICE_UNAVAILABLE);
-        } catch (Throwable $e) {
-            Log::error($this->logFormatter->makeHTTPError($e));
-            throw new InternalServerErrorException(new ExceptionMessageGeneric(), $e);
+        } catch (\Throwable $e) {
+            Log::error(
+                $this->logDirector->buildForException(
+                    $this->logDirector->buildError(
+                        clone $this->logBuilder
+                    ),
+                    $e,
+                )->build()
+            );
+            throw new InternalServerErrorException(new ExceptionMessageGeneric());
         }
     }
 }

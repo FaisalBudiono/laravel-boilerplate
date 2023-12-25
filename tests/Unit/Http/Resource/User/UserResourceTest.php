@@ -16,7 +16,6 @@ class UserResourceTest extends TestCase
     public function should_return_right_arrayable_format(): void
     {
         // Arrange
-        /** @var User */
         $user = User::factory()->create();
 
 
@@ -38,7 +37,6 @@ class UserResourceTest extends TestCase
     public function should_return_right_arrayable_format_when_nullable_date_is_null(): void
     {
         // Arrange
-        /** @var User */
         $user = User::factory()->create([
             'created_at' => null,
             'updated_at' => null,

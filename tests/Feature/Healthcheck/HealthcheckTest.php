@@ -8,13 +8,16 @@ use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
 use App\Core\Healthcheck\HealthcheckCoreContract;
 use App\Core\Healthcheck\ValueObject\HealthcheckResponse;
 use App\Core\Healthcheck\ValueObject\HealthcheckStatus;
-use App\Core\Logger\Message\LoggerMessageFactoryContract;
+use App\Core\Logger\Message\LogMessageBuilderContract;
+use App\Core\Logger\Message\LogMessageDirectorContract;
+use App\Core\Logger\Message\ValueObject\LogMessage;
 use Illuminate\Support\Facades\Log;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Feature\BaseFeatureTestCase;
+use Tests\Helper\MockInstance\Core\Logger\Message\MockerLogMessageDirector;
 
 class HealthcheckTest extends BaseFeatureTestCase
 {
@@ -22,22 +25,24 @@ class HealthcheckTest extends BaseFeatureTestCase
     {
         parent::setUp();
 
-        $this->instance(HealthcheckCoreContract::class, $this->mock(HealthcheckCoreContract::class));
         $this->instance(
-            LoggerMessageFactoryContract::class,
-            $this->mock(LoggerMessageFactoryContract::class)
+            HealthcheckCoreContract::class,
+            $this->mock(HealthcheckCoreContract::class),
+        );
+        $this->instance(
+            LogMessageDirectorContract::class,
+            $this->mock(LogMessageDirectorContract::class),
+        );
+        $this->instance(
+            LogMessageBuilderContract::class,
+            $this->mock(LogMessageBuilderContract::class),
         );
         Log::partialMock();
     }
 
     #[Test]
-    public function should_show_500_when_generic_error_is_thrown(): void
+    public function should_show_500_when_generic_error_is_thrown()
     {
-        // Arrange
-        $logInfoMessage = $this->faker->sentence;
-        $logErrorMessage = $this->faker->sentence;
-
-
         // Assert
         $mockException = new \Error($this->faker->sentence);
         $mockCore = $this->mock(
@@ -50,64 +55,33 @@ class HealthcheckTest extends BaseFeatureTestCase
         );
         $this->instance(HealthcheckCoreContract::class, $mockCore);
 
-        $this->instance(
-            LoggerMessageFactoryContract::class,
-            $this->mock(
-                LoggerMessageFactoryContract::class,
-                function (MockInterface $mock) use (
-                    $mockException,
-                    $logInfoMessage,
-                    $logErrorMessage,
-                ) {
-                    $mock->shouldReceive('makeHTTPStart')
-                        ->once()
-                        ->withArgs(function (
-                            string $argMessage,
-                            array $argInput
-                        ) {
-                            try {
-                                $this->assertSame('Healthcheck endpoint', $argMessage);
-                                $this->assertEquals([], $argInput);
-                                return true;
-                            } catch (\Throwable $e) {
-                                dd($e);
-                            }
-                        })->andReturn($this->makeStringable($logInfoMessage));
+        $mockedLogMessage = $this->mock(LogMessage::class);
 
-                    $mock->shouldReceive('makeHTTPError')
-                        ->once()
-                        ->withArgs(function (
-                            \Throwable $argError,
-                        ) use ($mockException) {
-                            try {
-                                $this->assertSame($mockException, $argError);
-                                return true;
-                            } catch (\Throwable $e) {
-                                dd($e);
-                            }
-                        })->andReturn($this->makeStringable($logErrorMessage));
-                }
-            ),
+        $mockLogMessageBuilder = $this->mock(
+            LogMessageBuilderContract::class,
+            function (MockInterface $mock) use ($mockedLogMessage) {
+                $mock->shouldReceive('message')->once()->with('Healthcheck endpoint')->andReturn($mock);
+
+                $mock->shouldReceive('build')->twice()->andReturn($mockedLogMessage);
+            }
+        );
+        assert($mockLogMessageBuilder instanceof LogMessageBuilderContract);
+        $this->instance(LogMessageBuilderContract::class, $mockLogMessageBuilder);
+
+        $this->instance(
+            LogMessageDirectorContract::class,
+            MockerLogMessageDirector::make($this, $mockLogMessageBuilder)
+                ->normal(['buildBegin', 'buildError'])
+                ->forException($mockException)
+                ->build(),
         );
 
         Log::shouldReceive('info')
-            ->withArgs(function ($argMessage) use ($logInfoMessage) {
-                try {
-                    $this->assertEquals($logInfoMessage, $argMessage);
-                    return true;
-                } catch (\Throwable $e) {
-                    dd($e);
-                }
-            })->once();
+            ->with($mockedLogMessage)
+            ->once();
         Log::shouldReceive('error')
-            ->withArgs(function ($argMessage) use ($logErrorMessage) {
-                try {
-                    $this->assertEquals($logErrorMessage, $argMessage);
-                    return true;
-                } catch (\Throwable $e) {
-                    dd($e);
-                }
-            })->once();
+            ->with($mockedLogMessage)
+            ->once();
 
 
         // Act
@@ -117,7 +91,7 @@ class HealthcheckTest extends BaseFeatureTestCase
 
 
         // Assert
-        $response->assertStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+        $response->assertInternalServerError();
 
         $exceptionMessage = new ExceptionMessageGeneric();
 
@@ -131,12 +105,7 @@ class HealthcheckTest extends BaseFeatureTestCase
     #[DataProvider('healthyHealthStatusDataProvider')]
     public function should_show_200_when_all_dependencies_is_healthy(
         HealthcheckResponse $mockedHealthcheckResponse,
-    ): void {
-        // Arrange
-        $logInfoMessage = $this->faker->sentence;
-        $logSuccessMessage = $this->faker->sentence;
-
-
+    ) {
         // Assert
         $mockCore = $this->mock(
             HealthcheckCoreContract::class,
@@ -148,62 +117,29 @@ class HealthcheckTest extends BaseFeatureTestCase
         );
         $this->instance(HealthcheckCoreContract::class, $mockCore);
 
-        $this->instance(
-            LoggerMessageFactoryContract::class,
-            $this->mock(
-                LoggerMessageFactoryContract::class,
-                function (MockInterface $mock) use ($logInfoMessage, $logSuccessMessage) {
-                    $mock->shouldReceive('makeHTTPStart')
-                        ->once()
-                        ->withArgs(function (
-                            string $argMessage,
-                            array $argInput
-                        ) {
-                            try {
-                                $this->assertSame('Healthcheck endpoint', $argMessage);
-                                $this->assertEquals([], $argInput);
-                                return true;
-                            } catch (\Throwable $e) {
-                                dd($e);
-                            }
-                        })->andReturn($this->makeStringable($logInfoMessage));
+        $mockedLogMessage = $this->mock(LogMessage::class);
 
-                    $mock->shouldReceive('makeHTTPSuccess')
-                        ->once()
-                        ->withArgs(function (
-                            string $argMessage,
-                            array $argMeta,
-                        ) {
-                            try {
-                                $this->assertSame('Healthcheck endpoint', $argMessage);
-                                $this->assertEquals([], $argMeta);
-                                return true;
-                            } catch (\Throwable $e) {
-                                dd($e);
-                            }
-                        })->andReturn($this->makeStringable($logSuccessMessage));
-                }
-            ),
+        $mockLogMessageBuilder = $this->mock(
+            LogMessageBuilderContract::class,
+            function (MockInterface $mock) use ($mockedLogMessage) {
+                $mock->shouldReceive('message')->twice()->with('Healthcheck endpoint')->andReturn($mock);
+
+                $mock->shouldReceive('build')->twice()->andReturn($mockedLogMessage);
+            }
+        );
+        assert($mockLogMessageBuilder instanceof LogMessageBuilderContract);
+        $this->instance(LogMessageBuilderContract::class, $mockLogMessageBuilder);
+
+        $this->instance(
+            LogMessageDirectorContract::class,
+            MockerLogMessageDirector::make($this, $mockLogMessageBuilder)
+                ->normal(['buildBegin', 'buildSuccess'])
+                ->build(),
         );
 
         Log::shouldReceive('info')
-            ->withArgs(function ($argMessage) use ($logInfoMessage) {
-                try {
-                    $this->assertEquals($logInfoMessage, $argMessage);
-                    return true;
-                } catch (\Throwable $e) {
-                    dd($e);
-                }
-            })->once();
-        Log::shouldReceive('info')
-            ->withArgs(function ($argMessage) use ($logSuccessMessage) {
-                try {
-                    $this->assertEquals($logSuccessMessage, $argMessage);
-                    return true;
-                } catch (\Throwable $e) {
-                    dd($e);
-                }
-            })->once();
+            ->with($mockedLogMessage)
+            ->twice();
 
 
         // Act
@@ -240,12 +176,7 @@ class HealthcheckTest extends BaseFeatureTestCase
     #[DataProvider('badHealthStatusDataProvider')]
     public function should_show_503_when_some_dependency_is_bad(
         HealthcheckResponse $mockedHealthcheckResponse,
-    ): void {
-        // Arrange
-        $logInfoMessage = $this->faker->sentence;
-        $logErrorMessage = $this->faker->sentence;
-
-
+    ) {
         // Assert
         $mockCore = $this->mock(
             HealthcheckCoreContract::class,
@@ -257,69 +188,36 @@ class HealthcheckTest extends BaseFeatureTestCase
         );
         $this->instance(HealthcheckCoreContract::class, $mockCore);
 
-        $this->instance(
-            LoggerMessageFactoryContract::class,
-            $this->mock(
-                LoggerMessageFactoryContract::class,
-                function (MockInterface $mock) use (
-                    $logInfoMessage,
-                    $logErrorMessage,
-                    $mockedHealthcheckResponse,
-                ) {
-                    $mock->shouldReceive('makeHTTPStart')
-                        ->once()
-                        ->withArgs(function (
-                            string $argMessage,
-                            array $argInput
-                        ) {
-                            try {
-                                $this->assertSame('Healthcheck endpoint', $argMessage);
-                                $this->assertEquals([], $argInput);
-                                return true;
-                            } catch (\Throwable $e) {
-                                dd($e);
-                            }
-                        })->andReturn($this->makeStringable($logInfoMessage));
+        $mockedLogMessage = $this->mock(LogMessage::class);
 
-                    $mock->shouldReceive('makeHTTPSuccess')
-                        ->once()
-                        ->withArgs(function (
-                            string $argMessage,
-                            array $argMeta,
-                        ) use ($mockedHealthcheckResponse) {
-                            try {
-                                $this->assertSame('Healthcheck endpoint', $argMessage);
-                                $this->assertEquals([
-                                    'detail' => $mockedHealthcheckResponse->toArrayDetail(),
-                                ], $argMeta);
-                                return true;
-                            } catch (\Throwable $e) {
-                                dd($e);
-                            }
-                        })->andReturn($this->makeStringable($logErrorMessage));
-                }
-            ),
+        $mockLogMessageBuilder = $this->mock(
+            LogMessageBuilderContract::class,
+            function (MockInterface $mock) use ($mockedLogMessage, $mockedHealthcheckResponse) {
+                $mock->shouldReceive('message')->twice()->with('Healthcheck endpoint')->andReturn($mock);
+
+                $mock->shouldReceive('meta')->once()->with([
+                    'detail' => $mockedHealthcheckResponse->toArrayDetail(),
+                ])->andReturn($mock);
+
+                $mock->shouldReceive('build')->twice()->andReturn($mockedLogMessage);
+            }
+        );
+        assert($mockLogMessageBuilder instanceof LogMessageBuilderContract);
+        $this->instance(LogMessageBuilderContract::class, $mockLogMessageBuilder);
+
+        $this->instance(
+            LogMessageDirectorContract::class,
+            MockerLogMessageDirector::make($this, $mockLogMessageBuilder)
+                ->normal(['buildBegin', 'buildSuccess'])
+                ->build(),
         );
 
         Log::shouldReceive('info')
-            ->withArgs(function ($argMessage) use ($logInfoMessage) {
-                try {
-                    $this->assertEquals($logInfoMessage, $argMessage);
-                    return true;
-                } catch (\Throwable $e) {
-                    dd($e);
-                }
-            })->once();
+            ->with($mockedLogMessage)
+            ->once();
         Log::shouldReceive('emergency')
-            ->withArgs(function ($argMessage) use ($logErrorMessage) {
-                try {
-                    $this->assertEquals($logErrorMessage, $argMessage);
-                    return true;
-                } catch (\Throwable $e) {
-                    dd($e);
-                }
-            })->once();
-
+            ->with($mockedLogMessage)
+            ->once();
 
         // Act
         $response = $this->getJson(
@@ -355,20 +253,5 @@ class HealthcheckTest extends BaseFeatureTestCase
     protected function getEndpointUrl(): string
     {
         return route('healthcheck');
-    }
-
-    protected function makeStringable(string $logMessage): \Stringable
-    {
-        $stringable = $this->mock(
-            \Stringable::class,
-            fn (MockInterface $mock) =>
-            $mock->shouldReceive('__toString')
-                ->once()
-                ->withNoArgs()
-                ->andReturn($logMessage)
-        );
-        assert($stringable instanceof \Stringable);
-
-        return $stringable;
     }
 }

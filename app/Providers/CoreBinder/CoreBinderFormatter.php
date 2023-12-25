@@ -12,8 +12,9 @@ class CoreBinderFormatter implements CoreBinder
 {
     public function bootCore(Application $app): void
     {
-        $app->bind(Randomizer::class, function (Application $app) {
-            return new RandomizerUUID();
-        });
+        $app->bind(
+            Randomizer::class,
+            fn (Application $app) => new RandomizerUUID()
+        );
     }
 }
