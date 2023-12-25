@@ -7,7 +7,8 @@ namespace App\Providers\CoreBinder;
 use App\Core\Auth\JWT\Parser\JWTParser;
 use App\Core\Auth\JWT\Signer\JWTSigner;
 use App\Core\Formatter\Randomizer\Randomizer;
-use App\Core\Logger\Message\LoggerMessageFactoryContract;
+use App\Core\Logger\Message\LogMessageBuilderContract;
+use App\Core\Logger\Message\LogMessageDirectorContract;
 use App\Http\Middleware\AuthenticatedByJWT;
 use App\Http\Middleware\LoggingMiddleware;
 use App\Http\Middleware\XRequestIDMiddleware;
@@ -28,7 +29,8 @@ class CoreBinderMiddleware implements CoreBinder
         $app->bind(
             LoggingMiddleware::class,
             fn (Application $app) => new LoggingMiddleware(
-                $app->make(LoggerMessageFactoryContract::class),
+                $app->make(LogMessageDirectorContract::class),
+                $app->make(LogMessageBuilderContract::class),
             )
         );
 

@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Tests\Unit\Http\Middleware;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
-use App\Core\Logger\Message\LoggerMessageFactoryContract;
+use App\Core\Logger\Message\LogMessageBuilderContract;
+use App\Core\Logger\Message\LogMessageDirectorContract;
+use App\Core\Logger\Message\ValueObject\LogMessage;
 use App\Exceptions\Http\ConflictException;
 use App\Exceptions\Http\InternalServerErrorException;
 use App\Exceptions\Http\UnauthorizedException;
@@ -15,6 +17,7 @@ use Illuminate\Support\Facades\Log;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\Helper\MockInstance\Core\Logger\Message\MockerLogMessageDirector;
 use Tests\TestCase;
 
 class LoggingMiddlewareTest extends TestCase
@@ -31,95 +34,45 @@ class LoggingMiddlewareTest extends TestCase
     public function should_successfully_log_before_and_after_response_when_no_exception_thrown(
         array $mockedInput,
         array $expectedInput,
-    ): void {
+    ) {
         // Arrange
-        $mockedMethod = $this->faker->randomElement(self::getMethods());
-        $mockedURL = $this->faker->url();
-
         $mockRequest = $this->mock(
             Request::class,
-            function (MockInterface $mock) use ($mockedMethod, $mockedURL, $mockedInput) {
-                $mock->shouldReceive('all')
-                    ->atLeast()
-                    ->once()
-                    ->andReturn($mockedInput);
-
-                $mock->shouldReceive('method')
-                    ->atLeast()
-                    ->once()
-                    ->andReturn($mockedMethod);
-
-                $mock->shouldReceive('url')
-                    ->atLeast()
-                    ->once()
-                    ->andReturn($mockedURL);
+            function (
+                MockInterface $mock,
+            ) use ($mockedInput) {
+                $mock->shouldReceive('all')->atLeast()->once()->andReturn($mockedInput);
             }
         );
         assert($mockRequest instanceof Request);
 
-        $mockedStartLog = $this->faker->sentence();
-        $mockedSuccessLog = $this->faker->sentence();
+        $mockedLogMessage = $this->mock(LogMessage::class);
 
-        $mockLoggerMessageFactory = $this->mock(
-            LoggerMessageFactoryContract::class,
-            function (MockInterface $mock) use (
-                $mockedStartLog,
-                $mockedSuccessLog,
-                $mockedMethod,
-                $mockedURL,
-                $expectedInput,
-            ) {
-                $mock->shouldReceive('makeHTTPStart')
-                    ->once()
-                    ->with("{$mockedMethod} {$mockedURL}", $expectedInput)
-                    ->andReturn(
-                        $this->mock(
-                            \Stringable::class,
-                            function (MockInterface $mock) use ($mockedStartLog) {
-                                $mock->shouldReceive('__toString')->andReturn($mockedStartLog);
-                            }
-                        )
-                    );
-
-                $mock->shouldReceive('makeHTTPSuccess')
-                    ->once()
-                    ->with("{$mockedMethod} {$mockedURL}", [])
-                    ->andReturn(
-                        $this->mock(
-                            \Stringable::class,
-                            function (MockInterface $mock) use ($mockedSuccessLog) {
-                                $mock->shouldReceive('__toString')->andReturn($mockedSuccessLog);
-                            }
-                        )
-                    );
+        $mockLogMessageBuilder = $this->mock(
+            LogMessageBuilderContract::class,
+            function (MockInterface $mock) use ($mockedLogMessage, $expectedInput) {
+                $mock->shouldReceive('message')->once()->with('start')->andReturn($mock);
+                $mock->shouldReceive('message')->once()->with('end')->andReturn($mock);
+                $mock->shouldReceive('meta')->once()->with($expectedInput)->andReturn($mock);
+                $mock->shouldReceive('build')->twice()->andReturn($mockedLogMessage);
             }
         );
-        assert($mockLoggerMessageFactory instanceof LoggerMessageFactoryContract);
+        assert($mockLogMessageBuilder instanceof LogMessageBuilderContract);
 
-        $middleware = $this->makeMiddleware($mockLoggerMessageFactory);
+        $mockLogMessageDirector = MockerLogMessageDirector::make($this, $mockLogMessageBuilder)
+            ->normal(['buildBegin', 'buildSuccess'])
+            ->build();
+
+        $middleware = $this->makeMiddleware(
+            $mockLogMessageDirector,
+            $mockLogMessageBuilder,
+        );
 
 
         // Pre-Assert
         Log::shouldReceive('info')
-            ->once()
-            ->withArgs(function ($argMessage) use ($mockedStartLog) {
-                try {
-                    $this->assertEquals($mockedStartLog, $argMessage);
-                    return true;
-                } catch (\Exception $e) {
-                    dd($e);
-                }
-            });
-        Log::shouldReceive('info')
-            ->once()
-            ->withArgs(function ($argMessage) use ($mockedSuccessLog) {
-                try {
-                    $this->assertEquals($mockedSuccessLog, $argMessage);
-                    return true;
-                } catch (\Exception $e) {
-                    dd($e);
-                }
-            });
+            ->with($mockedLogMessage)
+            ->twice();
 
 
         // Act
@@ -164,105 +117,57 @@ class LoggingMiddlewareTest extends TestCase
         \Throwable $mockedResponseException,
         \Throwable $expectedPreviousException,
         string $expectedErrorLogLevel,
-    ): void {
+    ) {
         // Arrange
-        $mockedMethod = $this->faker->randomElement(self::getMethods());
-        $mockedURL = $this->faker->url();
         $mockedInput = [
-            'foo' => 'bar',
+            'foo' => 'bar'
         ];
 
         $mockRequest = $this->mock(
             Request::class,
-            function (MockInterface $mock) use ($mockedMethod, $mockedURL, $mockedInput) {
-                $mock->shouldReceive('all')
-                    ->atLeast()
-                    ->once()
-                    ->andReturn($mockedInput);
-
-                $mock->shouldReceive('method')
-                    ->atLeast()
-                    ->once()
-                    ->andReturn($mockedMethod);
-
-                $mock->shouldReceive('url')
-                    ->atLeast()
-                    ->once()
-                    ->andReturn($mockedURL);
+            function (
+                MockInterface $mock,
+            ) use ($mockedInput) {
+                $mock->shouldReceive('all')->atLeast()->once()->andReturn($mockedInput);
             }
         );
         assert($mockRequest instanceof Request);
 
-        $mockedStartLog = $this->faker->sentence();
-        $mockedErrorLog = $this->faker->sentence();
+        $mockedLogMessage = $this->mock(LogMessage::class);
 
-        $mockLoggerMessageFactory = $this->mock(
-            LoggerMessageFactoryContract::class,
+        $mockLogMessageBuilder = $this->mock(
+            LogMessageBuilderContract::class,
             function (MockInterface $mock) use (
-                $mockedStartLog,
-                $mockedErrorLog,
-                $mockedMethod,
-                $mockedURL,
+                $mockedLogMessage,
                 $mockedInput,
-                $expectedPreviousException,
             ) {
-                $mock->shouldReceive('makeHTTPStart')
-                    ->once()
-                    ->with("{$mockedMethod} {$mockedURL}", $mockedInput)
-                    ->andReturn(
-                        $this->mock(
-                            \Stringable::class,
-                            function (MockInterface $mock) use ($mockedStartLog) {
-                                $mock->shouldReceive('__toString')->andReturn($mockedStartLog);
-                            }
-                        )
-                    );
+                $mock->shouldReceive('message')->once()->with('start')->andReturn($mock);
+                $mock->shouldReceive('meta')->once()->with($mockedInput)->andReturn($mock);
 
-                $mock->shouldReceive('makeHTTPError')
-                    ->once()
-                    ->withArgs(function (\Throwable $argException) use ($expectedPreviousException) {
-                        try {
-                            $this->assertSame($expectedPreviousException, $argException);
-                            return true;
-                        } catch (\Throwable $e) {
-                            dd($e);
-                        }
-                    })->andReturn(
-                        $this->mock(
-                            \Stringable::class,
-                            function (MockInterface $mock) use ($mockedErrorLog) {
-                                $mock->shouldReceive('__toString')->andReturn($mockedErrorLog);
-                            }
-                        )
-                    );
+                $mock->shouldReceive('build')->twice()->andReturn($mockedLogMessage);
             }
         );
-        assert($mockLoggerMessageFactory instanceof LoggerMessageFactoryContract);
+        assert($mockLogMessageBuilder instanceof LogMessageBuilderContract);
 
-        $middleware = $this->makeMiddleware($mockLoggerMessageFactory);
+        $mockLogMessageDirector = MockerLogMessageDirector::make($this, $mockLogMessageBuilder)
+            ->normal(['buildBegin', 'buildError'])
+            ->forException($expectedPreviousException)
+            ->build();
+
+        $middleware = $this->makeMiddleware(
+            $mockLogMessageDirector,
+            $mockLogMessageBuilder,
+        );
 
 
         // Pre-Assert
         Log::shouldReceive('info')
-            ->once()
-            ->withArgs(function ($argMessage) use ($mockedStartLog) {
-                try {
-                    $this->assertEquals($mockedStartLog, $argMessage);
-                    return true;
-                } catch (\Exception $e) {
-                    dd($e);
-                }
-            });
+            ->with($mockedLogMessage)
+            ->once();
         Log::shouldReceive($expectedErrorLogLevel)
-            ->once()
-            ->withArgs(function ($argMessage) use ($mockedErrorLog) {
-                try {
-                    $this->assertEquals($mockedErrorLog, $argMessage);
-                    return true;
-                } catch (\Exception $e) {
-                    dd($e);
-                }
-            });
+            ->with($mockedLogMessage)
+            ->once();
+
 
 
         // Act
@@ -337,13 +242,13 @@ class LoggingMiddlewareTest extends TestCase
     }
 
     protected function makeMiddleware(
-        ?LoggerMessageFactoryContract $loggerMessageFactory = null,
+        ?LogMessageDirectorContract $logMessageDirector = null,
+        ?LogMessageBuilderContract $logMessageBuilder = null,
     ): LoggingMiddleware {
-        if (is_null($loggerMessageFactory)) {
-            $loggerMessageFactory = $this->mock(LoggerMessageFactoryContract::class);
-        }
-
-        return new LoggingMiddleware($loggerMessageFactory);
+        return new LoggingMiddleware(
+            $logMessageDirector ?? $this->mock(LogMessageDirectorContract::class),
+            $logMessageBuilder ?? $this->mock(LogMessageBuilderContract::class),
+        );
     }
 
     protected static function getMethods(): array

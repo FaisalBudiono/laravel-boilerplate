@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
-use App\Core\Logger\Message\LoggerMessageFactoryContract;
+use App\Core\Logger\Message\LogMessageBuilderContract;
+use App\Core\Logger\Message\LogMessageDirectorContract;
 use Closure;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,7 +15,8 @@ use Symfony\Component\HttpFoundation\Response;
 class LoggingMiddleware
 {
     public function __construct(
-        protected LoggerMessageFactoryContract $logFormatter,
+        protected LogMessageDirectorContract $logDirector,
+        protected LogMessageBuilderContract $logBuilder,
     ) {
     }
 
@@ -25,13 +27,12 @@ class LoggingMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $endpointInfo = "{$request->method()} {$request->url()}";
-
         Log::info(
-            $this->logFormatter->makeHTTPStart(
-                $endpointInfo,
-                $this->cleanUpInput($request->all()),
-            )
+            $this->logDirector->buildBegin(
+                clone $this->logBuilder
+            )->message('start')
+                ->meta($this->cleanUpInput($request->all()))
+                ->build()
         );
 
         /** @var JsonResponse */
@@ -41,15 +42,23 @@ class LoggingMiddleware
 
         if (is_null($exception)) {
             Log::info(
-                $this->logFormatter->makeHTTPSuccess($endpointInfo, [])
+                $this->logDirector->buildSuccess(
+                    clone $this->logBuilder
+                )->message('end')
+                    ->build()
             );
 
             return $response;
         }
 
-        $exceptionMessage = $this->logFormatter->makeHTTPError(
-            $exception->getPrevious() ?? $exception
-        );
+        $prevException = $exception->getPrevious() ?? $exception;
+        $exceptionMessage = $this->logDirector->buildForException(
+            $this->logDirector->buildError(
+                clone $this->logBuilder
+            ),
+            $prevException,
+        )->build();
+
         if ($this->isHTTPClientError($exception->getCode())) {
             Log::warning($exceptionMessage);
 
