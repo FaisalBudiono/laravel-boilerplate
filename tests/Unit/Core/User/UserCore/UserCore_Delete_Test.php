@@ -27,8 +27,8 @@ class UserCore_Delete_Test extends UserCoreBaseTestCase
         $totalData = 5;
         User::factory()->count($totalData)->create();
 
-        /** @var User */
         $user = User::find($this->faker()->numberBetween(1, User::count()));
+        assert($user instanceof User);
 
 
         // Assert
