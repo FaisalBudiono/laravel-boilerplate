@@ -95,7 +95,9 @@ class UserController extends Controller
         try {
             $user = $this->core->update($request);
 
-            return UserResource::make($user);
+            return UserResource::make($user)
+                ->response()
+                ->setStatusCode(Response::HTTP_OK);
         } catch (UserEmailDuplicatedException $e) {
             throw new ConflictException($e->exceptionMessage, $e);
         } catch (Throwable $e) {

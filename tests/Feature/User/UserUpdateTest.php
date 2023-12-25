@@ -269,7 +269,7 @@ class UserUpdateTest extends BaseFeatureTestCase
 
 
         // Assert
-        $response->assertCreated();
+        $response->assertOk();
         $response->assertJsonPath(
             'data',
             $this->jsonToArray(UserResource::make($mockedUser)->toJson()),
