@@ -6,29 +6,24 @@ namespace Tests\Feature\User;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
 use App\Core\User\UserCoreContract;
+use App\Http\Resources\User\UserResource;
 use App\Models\User\User;
 use App\Port\Core\User\GetUserPort;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
-use Symfony\Component\HttpFoundation\Response;
 use Tests\Feature\BaseFeatureTestCase;
 use Tests\Helper\MockInstance\Middleware\MockerAuthenticatedByJWT;
-use Tests\Helper\ResourceAssertion\ResourceAssertion;
-use Tests\Helper\ResourceAssertion\User\ResourceAssertionUser;
+use Tests\Helper\Trait\JSONTrait;
 
 class MeTest extends BaseFeatureTestCase
 {
-    use RefreshDatabase;
+    use JSONTrait;
 
     protected User $mockUser;
-    protected ResourceAssertion $resourceAssertion;
 
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->resourceAssertion = new ResourceAssertionUser();
 
         $this->mockUser = User::factory()->create([
             'id' => $this->faker()->numberBetween(1, 100),
@@ -70,7 +65,7 @@ class MeTest extends BaseFeatureTestCase
 
 
         // Assert
-        $response->assertStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+        $response->assertInternalServerError();
         $response->assertJsonPath('errors', $exceptionMessage->getJsonResponse()->toArray());
     }
 
@@ -102,7 +97,10 @@ class MeTest extends BaseFeatureTestCase
 
         // Assert
         $response->assertOk();
-        $this->resourceAssertion->assertResource($this, $response);
+        $response->assertJsonPath(
+            'data',
+            $this->jsonToArray(UserResource::make($this->mockUser)->toJson()),
+        );
     }
 
     protected function getEndpointUrl(): string

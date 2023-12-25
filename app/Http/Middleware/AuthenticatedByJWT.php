@@ -69,12 +69,12 @@ class AuthenticatedByJWT
             $claims = $this->parser->parse($token);
             User::findByIDOrFail(intval($claims->user->id));
         } catch (JWTException $e) {
-            throw new UnauthorizedException($e->exceptionMessage);
+            throw new UnauthorizedException($e->exceptionMessage, $e);
         } catch (\Throwable $e) {
             throw new UnauthorizedException(new ExceptionMessageStandard(
                 'Failed to validate provided token',
                 ExceptionErrorCode::AUTHENTICATION_NEEDED->value,
-            ));
+            ), $e);
         }
     }
 }

@@ -7,14 +7,11 @@ namespace Tests\Unit\Http\Resource\User;
 use App\Core\Date\DatetimeFormat;
 use App\Http\Resources\User\UserResource;
 use App\Models\User\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class UserResourceTest extends TestCase
 {
-    use RefreshDatabase;
-
     #[Test]
     public function should_return_right_arrayable_format(): void
     {
@@ -32,8 +29,8 @@ class UserResourceTest extends TestCase
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
-            'created_at' => $user->created_at->format(DatetimeFormat::ISO_WITH_MILLIS->value),
-            'updated_at' => $user->updated_at->format(DatetimeFormat::ISO_WITH_MILLIS->value),
+            'createdAt' => $user->created_at->format(DatetimeFormat::ISO_WITH_MILLIS->value),
+            'updatedAt' => $user->updated_at->format(DatetimeFormat::ISO_WITH_MILLIS->value),
         ], $result);
     }
 
@@ -57,8 +54,8 @@ class UserResourceTest extends TestCase
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
-            'created_at' => null,
-            'updated_at' => null,
+            'createdAt' => null,
+            'updatedAt' => null,
         ], $result);
     }
 }

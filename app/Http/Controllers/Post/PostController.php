@@ -30,7 +30,7 @@ class PostController extends Controller
 
             return response()->noContent();
         } catch (\Throwable $e) {
-            throw new InternalServerErrorException(new ExceptionMessageGeneric());
+            throw new InternalServerErrorException(new ExceptionMessageGeneric(), $e);
         }
     }
 
@@ -43,7 +43,7 @@ class PostController extends Controller
                 ->response()
                 ->setStatusCode(Response::HTTP_OK);
         } catch (\Throwable $e) {
-            throw new InternalServerErrorException(new ExceptionMessageGeneric());
+            throw new InternalServerErrorException(new ExceptionMessageGeneric(), $e);
         }
     }
 
@@ -56,7 +56,7 @@ class PostController extends Controller
                 ->response()
                 ->setStatusCode(Response::HTTP_OK);
         } catch (\Throwable $e) {
-            throw new InternalServerErrorException(new ExceptionMessageGeneric());
+            throw new InternalServerErrorException(new ExceptionMessageGeneric(), $e);
         }
     }
 
@@ -69,7 +69,7 @@ class PostController extends Controller
                 ->response()
                 ->setStatusCode(Response::HTTP_CREATED);
         } catch (\Throwable $e) {
-            throw new InternalServerErrorException(new ExceptionMessageGeneric());
+            throw new InternalServerErrorException(new ExceptionMessageGeneric(), $e);
         }
     }
 
@@ -83,7 +83,7 @@ class PostController extends Controller
                 ->setStatusCode(Response::HTTP_OK);
             return response()->json();
         } catch (\Throwable $e) {
-            throw new InternalServerErrorException(new ExceptionMessageGeneric());
+            throw new InternalServerErrorException(new ExceptionMessageGeneric(), $e);
         }
     }
 }

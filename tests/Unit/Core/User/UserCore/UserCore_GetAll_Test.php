@@ -8,7 +8,6 @@ use App\Core\Query\Enum\OrderDirection;
 use App\Core\User\Query\UserOrderBy;
 use App\Models\User\User;
 use App\Port\Core\User\GetAllUserPort;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -18,8 +17,6 @@ use Tests\Helper\QueryDataProvider;
 
 class UserCore_GetAll_Test extends UserCoreBaseTestCase
 {
-    use RefreshDatabase;
-
     protected GetAllUserPort|MockInterface $mockRequest;
 
     protected function setUp(): void

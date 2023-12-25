@@ -12,7 +12,6 @@ use App\Models\Post\Post;
 use App\Models\User\User;
 use App\Port\Core\Post\GetAllPostPort;
 use Exception;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -23,8 +22,6 @@ use Tests\Helper\MockInstance\Middleware\MockerAuthenticatedByJWT;
 
 class PostIndexTest extends BaseFeatureTestCase
 {
-    use RefreshDatabase;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -63,18 +60,18 @@ class PostIndexTest extends BaseFeatureTestCase
         $faker = self::makeFaker();
 
         return [
-            'user_id is not a number (now contain string)' => [
-                'user_id',
+            'user.id is not a number (now contain string)' => [
+                'user.id',
                 collect(self::validRequestInput())
                     ->replace([
-                        'user_id' => $faker->words(3, true),
+                        'user' => ['id' => $faker->words(3, true)],
                     ])->toArray(),
             ],
-            'user_id is not a number (now contain array)' => [
-                'user_id',
+            'user.id is not a number (now contain array)' => [
+                'user.id',
                 collect(self::validRequestInput())
                     ->replace([
-                        'user_id' => [$faker->numberBetween()],
+                        'user' => ['id' => $faker->words()],
                     ])->toArray(),
             ],
 
@@ -93,18 +90,18 @@ class PostIndexTest extends BaseFeatureTestCase
                     ])->toArray(),
             ],
 
-            'per_page is not a number (now contain string)' => [
-                'per_page',
+            'perPage is not a number (now contain string)' => [
+                'perPage',
                 collect(self::validRequestInput())
                     ->replace([
-                        'per_page' => $faker->words(3, true),
+                        'perPage' => $faker->words(3, true),
                     ])->toArray(),
             ],
-            'per_page is not a number (now contain array)' => [
-                'per_page',
+            'perPage is not a number (now contain array)' => [
+                'perPage',
                 collect(self::validRequestInput())
                     ->replace([
-                        'per_page' => [$faker->numberBetween()],
+                        'perPage' => [$faker->numberBetween()],
                     ])->toArray(),
             ],
         ];
@@ -215,14 +212,14 @@ class PostIndexTest extends BaseFeatureTestCase
                 self::validRequestInput(),
             ],
 
-            'without per_page' => [
+            'without perPage' => [
                 collect(self::validRequestInput())
-                    ->except('per_page')
+                    ->except('perPage')
                     ->toArray(),
             ],
-            'per_page is null' => [
+            'perPage is null' => [
                 collect(self::validRequestInput())
-                    ->replace(['per_page' => null])
+                    ->replace(['perPage' => null])
                     ->toArray(),
             ],
 
@@ -237,14 +234,14 @@ class PostIndexTest extends BaseFeatureTestCase
                     ->toArray(),
             ],
 
-            'without user_id' => [
+            'without user.id' => [
                 collect(self::validRequestInput())
-                    ->except('user_id')
+                    ->except('user.id')
                     ->toArray(),
             ],
-            'user_id is null' => [
+            'user.id is null' => [
                 collect(self::validRequestInput())
-                    ->replace(['user_id' => null])
+                    ->replace(['user' => ['id' => null]])
                     ->toArray(),
             ],
         ];
@@ -262,7 +259,7 @@ class PostIndexTest extends BaseFeatureTestCase
     ): bool {
         try {
             $this->assertEquals(
-                $input['user_id'] ?? null,
+                $input['user']['id'] ?? null,
                 $argInput->getUserFilter()?->id,
             );
             $this->assertEquals(
@@ -270,7 +267,7 @@ class PostIndexTest extends BaseFeatureTestCase
                 $argInput->getPage(),
             );
             $this->assertEquals(
-                $input['per_page'] ?? null,
+                $input['perPage'] ?? null,
                 $argInput->getPerPage(),
             );
             $this->assertEquals(
@@ -301,9 +298,11 @@ class PostIndexTest extends BaseFeatureTestCase
         $faker = self::makeFaker();
 
         return [
-            'user_id' => self::userDummyID(),
+            'user' => [
+                'id' => self::userDummyID()
+            ],
             'page' => $faker->numberBetween(),
-            'per_page' => $faker->numberBetween(),
+            'perPage' => $faker->numberBetween(),
         ];
     }
 }

@@ -7,14 +7,11 @@ namespace Tests\Unit\Core\Auth\JWT\JWTGuard;
 use App\Core\Auth\JWT\JWTGuard;
 use App\Core\Auth\JWT\Parser\JWTParser;
 use App\Core\Auth\JWT\Signer\JWTSigner;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Tests\TestCase;
 
 abstract class JWTGuardBaseTestCase extends TestCase
 {
-    use RefreshDatabase;
-
     public static function noAuthorizationHeaderDataProvider(): array
     {
         $noHeader = new Request();

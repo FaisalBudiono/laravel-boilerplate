@@ -28,9 +28,9 @@ class GetAllPostRequest extends BaseRequest implements GetAllPostPort
     public function rules(): array
     {
         return [
-            'user_id' => ['integer'],
+            'user.id' => ['integer'],
             'page' => ['integer'],
-            'per_page' => ['integer'],
+            'perPage' => ['integer'],
         ];
     }
 
@@ -41,7 +41,7 @@ class GetAllPostRequest extends BaseRequest implements GetAllPostPort
 
     public function getPerPage(): ?int
     {
-        $perPage = $this->input('per_page');
+        $perPage = $this->input('perPage');
 
         return is_null($perPage)
             ? null
@@ -59,7 +59,7 @@ class GetAllPostRequest extends BaseRequest implements GetAllPostPort
 
     public function getUserFilter(): ?User
     {
-        $userID = $this->input('user_id');
+        $userID = $this->input('user.id');
 
         return is_null($userID)
             ? null

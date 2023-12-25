@@ -19,9 +19,9 @@ class ModelBindingUser implements ModelBinding
             try {
                 return User::findByIDOrFail(intval($value));
             } catch (ModelNotFoundException $e) {
-                throw new NotFoundException($e->exceptionMessage);
+                throw new NotFoundException($e->exceptionMessage, $e);
             } catch (\Throwable $e) {
-                throw new InternalServerErrorException(new ExceptionMessageGeneric());
+                throw new InternalServerErrorException(new ExceptionMessageGeneric(), $e);
             }
         });
     }

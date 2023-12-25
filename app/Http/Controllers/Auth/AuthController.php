@@ -32,9 +32,9 @@ class AuthController extends Controller
                 'data' => $tokenPair->toArray(),
             ]);
         } catch (InvalidCredentialException $e) {
-            throw new UnauthorizedException($e->exceptionMessage);
+            throw new UnauthorizedException($e->exceptionMessage, $e);
         } catch (Throwable $e) {
-            throw new InternalServerErrorException(new ExceptionMessageGeneric());
+            throw new InternalServerErrorException(new ExceptionMessageGeneric(), $e);
         }
     }
 
@@ -45,9 +45,9 @@ class AuthController extends Controller
 
             return response()->noContent();
         } catch (JWTException $e) {
-            throw new UnauthorizedException($e->exceptionMessage);
+            throw new UnauthorizedException($e->exceptionMessage, $e);
         } catch (Throwable $e) {
-            throw new InternalServerErrorException(new ExceptionMessageGeneric());
+            throw new InternalServerErrorException(new ExceptionMessageGeneric(), $e);
         }
     }
 
@@ -60,9 +60,9 @@ class AuthController extends Controller
                 'data' => $tokenPair->toArray()
             ]);
         } catch (JWTException $e) {
-            throw new UnauthorizedException($e->exceptionMessage);
+            throw new UnauthorizedException($e->exceptionMessage, $e);
         } catch (Throwable $e) {
-            throw new InternalServerErrorException(new ExceptionMessageGeneric());
+            throw new InternalServerErrorException(new ExceptionMessageGeneric(), $e);
         }
     }
 }

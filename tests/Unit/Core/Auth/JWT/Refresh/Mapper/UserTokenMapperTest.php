@@ -10,15 +10,12 @@ use App\Core\Auth\JWT\Refresh\ValueObject\RefreshTokenClaims;
 use App\Core\Auth\JWT\Refresh\ValueObject\RefreshTokenClaimsUser;
 use App\Models\User\User;
 use Carbon\Carbon;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class UserTokenMapperTest extends TestCase
 {
-    use RefreshDatabase;
-
     protected function setUp(): void
     {
         parent::setUp();

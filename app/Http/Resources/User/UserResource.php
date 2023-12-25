@@ -18,15 +18,17 @@ class UserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        /** @var User */
-        $resource = $this->resource;
-
         return [
-            'id' => $resource->id,
-            'name' => $resource->name,
-            'email' => $resource->email,
-            'created_at' => $resource->created_at?->format(DatetimeFormat::ISO_WITH_MILLIS->value),
-            'updated_at' => $resource->updated_at?->format(DatetimeFormat::ISO_WITH_MILLIS->value),
+            'id' => $this->model()->id,
+            'name' => $this->model()->name,
+            'email' => $this->model()->email,
+            'createdAt' => $this->model()->created_at?->format(DatetimeFormat::ISO_WITH_MILLIS->value),
+            'updatedAt' => $this->model()->updated_at?->format(DatetimeFormat::ISO_WITH_MILLIS->value),
         ];
+    }
+
+    protected function model(): User
+    {
+        return $this->resource;
     }
 }

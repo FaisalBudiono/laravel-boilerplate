@@ -8,29 +8,24 @@ use App\Core\Formatter\ExceptionMessage\ExceptionMessage;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
 use App\Core\User\UserCoreContract;
 use App\Exceptions\Core\User\UserEmailDuplicatedException;
+use App\Http\Resources\User\UserResource;
 use App\Models\User\User;
 use App\Port\Core\User\CreateUserPort;
 use Exception;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Feature\BaseFeatureTestCase;
-use Tests\Helper\ResourceAssertion\ResourceAssertion;
-use Tests\Helper\ResourceAssertion\User\ResourceAssertionUser;
+use Tests\Helper\Trait\JSONTrait;
 
 class UserStoreTest extends BaseFeatureTestCase
 {
-    use RefreshDatabase;
-
-    protected ResourceAssertion $resourceAssertion;
+    use JSONTrait;
 
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->resourceAssertion = new ResourceAssertionUser();
 
         $this->instance(UserCoreContract::class, $this->mock(UserCoreContract::class));
     }
@@ -192,7 +187,7 @@ class UserStoreTest extends BaseFeatureTestCase
 
 
         // Assert
-        $response->assertStatus(Response::HTTP_CONFLICT);
+        $response->assertConflict();
         $response->assertJsonPath('errors', $mockedExceptionResponse->toArray());
     }
 
@@ -229,7 +224,7 @@ class UserStoreTest extends BaseFeatureTestCase
 
 
         // Assert
-        $response->assertStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+        $response->assertInternalServerError();
         $response->assertJsonPath(
             'errors',
             $exceptionMessage->getJsonResponse()->toArray()
@@ -267,8 +262,11 @@ class UserStoreTest extends BaseFeatureTestCase
 
 
         // Assert
-        $response->assertStatus(Response::HTTP_CREATED);
-        $this->resourceAssertion->assertResource($this, $response);
+        $response->assertCreated(Response::HTTP_CREATED);
+        $response->assertJsonPath(
+            'data',
+            $this->jsonToArray(UserResource::make($mockedUser)->toJson()),
+        );
     }
 
     protected function getEndpointUrl(): string

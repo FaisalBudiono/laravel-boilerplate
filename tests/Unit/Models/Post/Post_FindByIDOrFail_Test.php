@@ -8,14 +8,11 @@ use App\Core\Formatter\ExceptionErrorCode;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
 use App\Exceptions\Models\ModelNotFoundException;
 use App\Models\Post\Post;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class Post_FindByIDOrFail_Test extends TestCase
 {
-    use RefreshDatabase;
-
     protected Post $post;
 
     protected function setUp(): void

@@ -11,7 +11,6 @@ use App\Exceptions\Core\Auth\JWT\FailedParsingException;
 use App\Exceptions\Core\Auth\JWT\InvalidTokenException;
 use App\Exceptions\Core\Auth\JWT\JWTException;
 use App\Port\Core\Auth\LogoutPort;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -20,8 +19,6 @@ use Tests\Feature\BaseFeatureTestCase;
 
 class LogoutTest extends BaseFeatureTestCase
 {
-    use RefreshDatabase;
-
     protected function setUp(): void
     {
         parent::setUp();

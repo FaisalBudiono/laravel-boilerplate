@@ -8,13 +8,10 @@ use App\Core\Auth\AuthJWTCore;
 use App\Core\Auth\JWT\Mapper\JWTMapperContract;
 use App\Core\Auth\JWT\Refresh\RefreshTokenManagerContract;
 use App\Core\Auth\JWT\Signer\JWTSigner;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 abstract class AuthJWTCoreBaseTestCase extends TestCase
 {
-    use RefreshDatabase;
-
     protected function makeService(
         ?JWTMapperContract $jwtMapper = null,
         ?JWTSigner $jwtSigner = null,

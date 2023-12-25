@@ -8,7 +8,6 @@ use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
 use App\Core\User\UserCoreContract;
 use App\Models\User\User;
 use App\Port\Core\User\DeleteUserPort;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,8 +15,6 @@ use Tests\Feature\BaseFeatureTestCase;
 
 class UserDestroyTest extends BaseFeatureTestCase
 {
-    use RefreshDatabase;
-
     protected User $user;
 
     protected function setUp(): void

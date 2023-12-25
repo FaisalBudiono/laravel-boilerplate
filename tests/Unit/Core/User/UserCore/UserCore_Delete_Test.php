@@ -6,14 +6,11 @@ namespace Tests\Unit\Core\User\UserCore;
 
 use App\Models\User\User;
 use App\Port\Core\User\DeleteUserPort;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
 
 class UserCore_Delete_Test extends UserCoreBaseTestCase
 {
-    use RefreshDatabase;
-
     protected DeleteUserPort|MockInterface $mockRequest;
 
     protected function setUp(): void

@@ -13,18 +13,14 @@ use App\Models\Post\Post;
 use App\Models\User\User;
 use App\Port\Core\Post\DeletePostPort;
 use Exception;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\ExpectationFailedException;
-use Symfony\Component\HttpFoundation\Response;
 use Tests\Feature\BaseFeatureTestCase;
 use Tests\Helper\MockInstance\Middleware\MockerAuthenticatedByJWT;
 
 class PostDestroyTest extends BaseFeatureTestCase
 {
-    use RefreshDatabase;
-
     protected Post $mockPost;
 
     protected function setUp(): void

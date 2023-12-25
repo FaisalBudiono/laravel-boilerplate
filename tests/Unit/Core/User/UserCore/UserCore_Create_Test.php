@@ -9,15 +9,12 @@ use App\Exceptions\Core\User\UserEmailDuplicatedException;
 use App\Models\User\Enum\UserExceptionCode;
 use App\Models\User\User;
 use App\Port\Core\User\CreateUserPort;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
 
 class UserCore_Create_Test extends UserCoreBaseTestCase
 {
-    use RefreshDatabase;
-
     protected CreateUserPort|MockInterface $mockRequest;
 
     protected function setUp(): void

@@ -15,7 +15,6 @@ use App\Exceptions\Http\UnauthorizedException;
 use App\Http\Middleware\AuthenticatedByJWT;
 use App\Models\User\User;
 use Exception;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -25,8 +24,6 @@ use Tests\TestCase;
 
 class AuthenticatedByJWTTest extends TestCase
 {
-    use RefreshDatabase;
-
     #[Test]
     #[DataProvider('invalidHeaderDataProvider')]
     public function should_throw_unauthorized_exception_when_no_authorization_token_provided(
