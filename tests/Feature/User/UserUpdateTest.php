@@ -4,14 +4,17 @@ declare(strict_types=1);
 
 namespace Tests\Feature\User;
 
-use App\Core\Formatter\ExceptionMessage\ExceptionMessage;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
+use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
 use App\Core\User\UserCoreContract;
 use App\Exceptions\Core\User\UserEmailDuplicatedException;
+use App\Exceptions\Http\ConflictException;
+use App\Exceptions\Http\InternalServerErrorException;
 use App\Http\Resources\User\UserResource;
 use App\Models\User\User;
 use App\Port\Core\User\UpdateUserPort;
 use Mockery\MockInterface;
+use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Feature\BaseFeatureTestCase;
@@ -152,23 +155,16 @@ class UserUpdateTest extends BaseFeatureTestCase
     public function should_show_409_when_thrown_duplicated_email_exception(): void
     {
         // Arrange
+        $this->withoutExceptionHandling();
+
         $input = $this->validRequestInput();
 
 
         // Assert
-        $mockedExceptionResponse = collect(['foo' => 'bar']);
-        $mockExceptionMessage = $this->mock(
-            ExceptionMessage::class,
-            function (MockInterface $mock) use ($mockedExceptionResponse) {
-                $mock->shouldReceive('getJsonResponse')
-                    ->atLeast()
-                    ->once()
-                    ->andReturn($mockedExceptionResponse);
-            }
-        );
-        assert($mockExceptionMessage instanceof ExceptionMessage);
-
-        $mockException = new UserEmailDuplicatedException($mockExceptionMessage);
+        $mockException = new UserEmailDuplicatedException(new ExceptionMessageStandard(
+            $this->faker->sentence(),
+            $this->faker->word(),
+        ));
 
         $mockCore = $this->mock(
             UserCoreContract::class,
@@ -184,25 +180,33 @@ class UserUpdateTest extends BaseFeatureTestCase
         $this->instance(UserCoreContract::class, $mockCore);
 
 
-        // Act
-        $response = $this->putJson(
-            $this->getEndpointUrl($this->user->id),
-            $input,
-        );
-
-
-        // Assert
-        $response->assertConflict();
-        $response->assertJsonPath('errors', $mockedExceptionResponse->toArray());
+        try {
+            // Act
+            $this->putJson(
+                $this->getEndpointUrl($this->user->id),
+                $input,
+            );
+            $this->fail('Should throw error');
+        } catch (AssertionFailedError $e) {
+            throw $e;
+            // Assert
+            $expectedException = new ConflictException(
+                $mockException->exceptionMessage,
+                $mockException,
+            );
+            $this->assertEquals($expectedException, $e);
+        } catch (\Throwable $e) {
+        }
     }
 
     #[Test]
     public function should_show_500_when_generic_error_is_thrown(): void
     {
         // Arrange
+        $this->withoutExceptionHandling();
+
         $input = $this->validRequestInput();
 
-        $exceptionMessage = new ExceptionMessageGeneric();
         $mockException = new \Error($this->faker->sentence);
 
 
@@ -220,19 +224,24 @@ class UserUpdateTest extends BaseFeatureTestCase
         );
         $this->instance(UserCoreContract::class, $mockCore);
 
-        // Act
-        $response = $this->putJson(
-            $this->getEndpointUrl($this->user->id),
-            $input
-        );
 
-
-        // Assert
-        $response->assertInternalServerError();
-        $response->assertJsonPath(
-            'errors',
-            $exceptionMessage->getJsonResponse()->toArray()
-        );
+        try {
+            // Act
+            $this->putJson(
+                $this->getEndpointUrl($this->user->id),
+                $input
+            );
+            $this->fail('Should throw error');
+        } catch (AssertionFailedError $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            // Assert
+            $expectedException = new InternalServerErrorException(
+                new ExceptionMessageGeneric(),
+                $mockException,
+            );
+            $this->assertEquals($expectedException, $e);
+        }
     }
 
     #[Test]

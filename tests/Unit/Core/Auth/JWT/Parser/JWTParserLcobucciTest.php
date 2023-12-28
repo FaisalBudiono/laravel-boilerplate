@@ -12,11 +12,13 @@ use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
 use App\Exceptions\Core\Auth\JWT\FailedParsingException;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use Lcobucci\JWT\Encoding\CannotDecodeContent;
 use Lcobucci\JWT\Encoding\ChainedFormatter;
 use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Token\Builder;
+use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -40,16 +42,21 @@ class JWTParserLcobucciTest extends TestCase
         $service = $this->makeService();
 
 
-        // Pre-Assert
-        $expectedException = new FailedParsingException(new ExceptionMessageStandard(
-            'Failed to decode JWT token',
-            JWTParserExceptionCode::FAILED_DECODING->value,
-        ));
-        $this->expectExceptionObject($expectedException);
+        try {
+            // Act
+            $service->parse($invalidToken);
+            $this->fail('Should throw error');
+        } catch (AssertionFailedError $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            $this->assertInstanceOf(CannotDecodeContent::class, $e->getPrevious());
 
-
-        // Act
-        $service->parse($invalidToken);
+            $expectedException = new FailedParsingException(new ExceptionMessageStandard(
+                'Failed to decode JWT token',
+                JWTParserExceptionCode::FAILED_DECODING->value,
+            ), $e->getPrevious());
+            $this->assertEquals($expectedException, $e);
+        }
     }
 
     public static function invalidJwtTokenDataProvider(): array
@@ -98,7 +105,7 @@ class JWTParserLcobucciTest extends TestCase
 
 
         // Arrange
-        $this->assertEquals($expectedClaim, $result, );
+        $this->assertEquals($expectedClaim, $result);
     }
 
     public static function validJwtTokenDataProvider(): array

@@ -9,9 +9,11 @@ use App\Core\Auth\JWT\ValueObject\TokenPair;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
 use App\Exceptions\Core\Auth\InvalidCredentialException;
+use App\Exceptions\Http\InternalServerErrorException;
+use App\Exceptions\Http\UnauthorizedException;
 use App\Port\Core\Auth\LoginPort;
-use Illuminate\Http\Response;
 use Mockery\MockInterface;
+use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Feature\BaseFeatureTestCase;
@@ -118,9 +120,10 @@ class LoginTest extends BaseFeatureTestCase
     public function should_show_500_when_generic_error_is_thrown(): void
     {
         // Arrange
+        $this->withoutExceptionHandling();
+
         $input = $this->validRequestInput();
 
-        $exceptionMessage = new ExceptionMessageGeneric();
         $mockException = new \Error($this->faker->sentence());
 
 
@@ -139,25 +142,31 @@ class LoginTest extends BaseFeatureTestCase
         $this->instance(AuthJWTCoreContract::class, $mockCore);
 
 
-        // Act
-        $response = $this->postJson(
-            $this->getEndpointUrl(),
-            $input,
-        );
-
-
-        // Assert
-        $response->assertStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
-        $response->assertJsonPath(
-            'errors',
-            $exceptionMessage->getJsonResponse()->toArray()
-        );
+        try {
+            // Act
+            $this->postJson(
+                $this->getEndpointUrl(),
+                $input,
+            );
+            $this->fail('Should throw error');
+        } catch (AssertionFailedError $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            // Assert
+            $expectedException = new InternalServerErrorException(
+                new ExceptionMessageGeneric(),
+                $mockException,
+            );
+            $this->assertEquals($expectedException, $e);
+        }
     }
 
     #[Test]
     public function should_show_401_when_thrown_invalid_credential(): void
     {
         // Arrange
+        $this->withoutExceptionHandling();
+
         $input = $this->validRequestInput();
 
         $mockException = new InvalidCredentialException(new ExceptionMessageStandard(
@@ -181,19 +190,23 @@ class LoginTest extends BaseFeatureTestCase
         $this->instance(AuthJWTCoreContract::class, $mockCore);
 
 
-        // Act
-        $response = $this->postJson(
-            $this->getEndpointUrl(),
-            $input,
-        );
-
-
-        // Assert
-        $response->assertUnauthorized();
-        $response->assertJsonPath(
-            'errors',
-            $mockException->exceptionMessage->getJsonResponse()->toArray(),
-        );
+        try {
+            // Act
+            $this->postJson(
+                $this->getEndpointUrl(),
+                $input,
+            );
+            $this->fail('Should throw error');
+        } catch (AssertionFailedError $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            // Assert
+            $expectedException = new UnauthorizedException(
+                $mockException->exceptionMessage,
+                $mockException,
+            );
+            $this->assertEquals($expectedException, $e);
+        }
     }
 
     #[Test]

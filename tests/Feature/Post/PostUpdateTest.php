@@ -7,6 +7,7 @@ namespace Tests\Feature\Post;
 use App\Core\Formatter\ExceptionErrorCode;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
 use App\Core\Post\PostCoreContract;
+use App\Exceptions\Http\InternalServerErrorException;
 use App\Http\Resources\Post\PostResource;
 use App\Models\Permission\Enum\RoleName;
 use App\Models\Permission\Role;
@@ -15,6 +16,7 @@ use App\Models\User\User;
 use App\Port\Core\Post\UpdatePostPort;
 use Exception;
 use Mockery\MockInterface;
+use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\ExpectationFailedException;
@@ -164,12 +166,13 @@ class PostUpdateTest extends BaseFeatureTestCase
     public function should_show_500_when_generic_error_is_thrown(): void
     {
         // Arrange
+        $this->withoutExceptionHandling();
+
         $input = $this->validRequestInput();
 
         MockerAuthenticatedByJWT::make($this)
             ->mockLogin($this->mockPost->user);
 
-        $exceptionMessage = new ExceptionMessageGeneric();
         $mockException = new Exception($this->faker->sentence());
 
 
@@ -190,19 +193,22 @@ class PostUpdateTest extends BaseFeatureTestCase
         $this->instance(PostCoreContract::class, $mockCore);
 
 
-        // Act
-        $response = $this->putJson(
-            $this->getEndpointUrl($this->mockPost->id),
-            $input,
-        );
-
-
-        // Assert
-        $response->assertStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
-        $response->assertJsonPath(
-            'errors',
-            $exceptionMessage->getJsonResponse()->toArray()
-        );
+        try {
+            // Act
+            $this->putJson(
+                $this->getEndpointUrl($this->mockPost->id),
+                $input,
+            );
+            $this->fail('Should throw error');
+        } catch (AssertionFailedError $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            $expectedException = new InternalServerErrorException(
+                new ExceptionMessageGeneric(),
+                $mockException,
+            );
+            $this->assertEquals($expectedException, $e);
+        }
     }
 
     #[Test]

@@ -8,10 +8,12 @@ use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
 use App\Core\Query\Enum\OrderDirection;
 use App\Core\User\Query\UserOrderBy;
 use App\Core\User\UserCoreContract;
+use App\Exceptions\Http\InternalServerErrorException;
 use App\Http\Resources\User\UserResource;
 use App\Models\User\User;
 use App\Port\Core\User\GetAllUserPort;
 use Mockery\MockInterface;
+use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Feature\BaseFeatureTestCase;
@@ -130,8 +132,9 @@ class UserIndexTest extends BaseFeatureTestCase
     public function should_show_500_when_generic_error_is_thrown(): void
     {
         // Arrange
+        $this->withoutExceptionHandling();
+
         $input = $this->validRequestInput();
-        $exceptionMessage = new ExceptionMessageGeneric();
 
         $mockException = new \Error($this->faker->sentence);
 
@@ -151,19 +154,23 @@ class UserIndexTest extends BaseFeatureTestCase
         $this->instance(UserCoreContract::class, $mockCore);
 
 
-        // Act
-        $response = $this->getJson(
-            $this->getEndpointUrl() . '?' . http_build_query($input),
-            $input
-        );
-
-
-        // Assert
-        $response->assertInternalServerError();
-        $response->assertJsonPath(
-            'errors',
-            $exceptionMessage->getJsonResponse()->toArray()
-        );
+        try {
+            // Act
+            $this->getJson(
+                $this->getEndpointUrl() . '?' . http_build_query($input),
+                $input
+            );
+            $this->fail('Should throw error');
+        } catch (AssertionFailedError $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            // Assert
+            $expectedException = new InternalServerErrorException(
+                new ExceptionMessageGeneric(),
+                $mockException,
+            );
+            $this->assertEquals($expectedException, $e);
+        }
     }
 
     #[Test]

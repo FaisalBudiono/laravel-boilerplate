@@ -8,6 +8,7 @@ use App\Core\Formatter\ExceptionErrorCode;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
 use App\Exceptions\Models\ModelNotFoundException;
 use App\Models\User\User;
+use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -42,15 +43,19 @@ class User_FindByEmailOrFail_Test extends TestCase
         $notFoundEmail = $this->user->email . 'notfound';
 
 
-        // Assert
-        $expectedException = new ModelNotFoundException(new ExceptionMessageStandard(
-            'User email is not found',
-            ExceptionErrorCode::MODEL_NOT_FOUND->value,
-        ));
-        $this->expectExceptionObject($expectedException);
-
-
-        // Act
-        User::findByEmailOrFail($notFoundEmail);
+        try {
+            // Act
+            User::findByEmailOrFail($notFoundEmail);
+            $this->fail('Should throw error');
+        } catch (AssertionFailedError $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            // Assert
+            $expectedException = new ModelNotFoundException(new ExceptionMessageStandard(
+                'User email is not found',
+                ExceptionErrorCode::MODEL_NOT_FOUND->value,
+            ));
+            $this->assertEquals($expectedException, $e);
+        }
     }
 }

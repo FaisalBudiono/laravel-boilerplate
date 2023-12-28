@@ -6,10 +6,12 @@ namespace Tests\Feature\User;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
 use App\Core\User\UserCoreContract;
+use App\Exceptions\Http\InternalServerErrorException;
 use App\Http\Resources\User\UserResource;
 use App\Models\User\User;
 use App\Port\Core\User\GetUserPort;
 use Mockery\MockInterface;
+use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Feature\BaseFeatureTestCase;
 use Tests\Helper\MockInstance\Middleware\MockerAuthenticatedByJWT;
@@ -36,7 +38,7 @@ class MeTest extends BaseFeatureTestCase
     public function should_show_500_when_thrown_generic_error(): void
     {
         // Arrange
-        $exceptionMessage = new ExceptionMessageGeneric();
+        $this->withoutExceptionHandling();
 
         $mockException = new \Error($this->faker->sentence());
 
@@ -58,15 +60,21 @@ class MeTest extends BaseFeatureTestCase
         $this->instance(UserCoreContract::class, $mockCore);
 
 
-        // Act
-        $response = $this->getJson(
-            $this->getEndpointUrl(),
-        );
-
-
-        // Assert
-        $response->assertInternalServerError();
-        $response->assertJsonPath('errors', $exceptionMessage->getJsonResponse()->toArray());
+        try {
+            // Act
+            $response = $this->getJson(
+                $this->getEndpointUrl(),
+            );
+            $this->fail('Should throw error');
+        } catch (AssertionFailedError $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            $expectedException = new InternalServerErrorException(
+                new ExceptionMessageGeneric(),
+                $mockException,
+            );
+            $this->assertEquals($expectedException, $e);
+        }
     }
 
     #[Test]

@@ -69,7 +69,7 @@ class HealthcheckController extends Controller
                     $e,
                 )->build()
             );
-            throw new InternalServerErrorException(new ExceptionMessageGeneric());
+            throw new InternalServerErrorException(new ExceptionMessageGeneric(), $e);
         }
     }
 }

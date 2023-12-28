@@ -11,6 +11,7 @@ use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
 use App\Exceptions\Core\Auth\JWT\InvalidTokenException;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
+use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -29,15 +30,20 @@ class CacherLaravel_Find_Test extends CacherLaravelBaseTestCase
             ->once()
             ->andReturn(false);
 
-        $expectedException =  new InvalidTokenException(new ExceptionMessageStandard(
-            'Refresh token not found',
-            RefreshTokenExceptionCode::NOT_FOUND->value,
-        ));
-        $this->expectExceptionObject($expectedException);
 
-
-        // Act
-        $this->makeService()->find($mockedID);
+        try {
+            // Act
+            $this->makeService()->find($mockedID);
+            $this->fail('Should throw error');
+        } catch (AssertionFailedError $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            $expectedException =  new InvalidTokenException(new ExceptionMessageStandard(
+                'Refresh token not found',
+                RefreshTokenExceptionCode::NOT_FOUND->value,
+            ));
+            $this->assertEquals($expectedException, $e);
+        }
     }
 
     #[Test]

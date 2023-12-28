@@ -6,9 +6,11 @@ namespace Tests\Feature\User;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
 use App\Core\User\UserCoreContract;
+use App\Exceptions\Http\InternalServerErrorException;
 use App\Models\User\User;
 use App\Port\Core\User\DeleteUserPort;
 use Mockery\MockInterface;
+use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Feature\BaseFeatureTestCase;
@@ -32,7 +34,8 @@ class UserDestroyTest extends BaseFeatureTestCase
     public function should_show_500_when_thrown_generic_error(): void
     {
         // Arrange
-        $exceptionMessage = new ExceptionMessageGeneric();
+        $this->withoutExceptionHandling();
+
         $mockException = new \Error('generic error');
 
 
@@ -51,15 +54,21 @@ class UserDestroyTest extends BaseFeatureTestCase
         $this->instance(UserCoreContract::class, $mockCore);
 
 
-        // Act
-        $response = $this->deleteJson(
-            $this->getEndpointUrl($this->user->id),
-        );
-
-
-        // Assert
-        $response->assertStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
-        $response->assertJsonPath('errors', $exceptionMessage->getJsonResponse()->toArray());
+        try {
+            // Act
+            $this->deleteJson(
+                $this->getEndpointUrl($this->user->id),
+            );
+            $this->fail('Should throw error');
+        } catch (AssertionFailedError $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            $expectedException = new InternalServerErrorException(
+                new ExceptionMessageGeneric(),
+                $mockException,
+            );
+            $this->assertEquals($expectedException, $e);
+        }
     }
 
     #[Test]

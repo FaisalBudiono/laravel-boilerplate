@@ -15,7 +15,7 @@ abstract class AbstractHttpException extends RuntimeException
         ?Throwable $previousException = null
     ) {
         parent::__construct(
-            $this->exceptionMessage->getJsonResponse()->toJson(),
+            $this->exceptionMessage->getMessage(),
             $this->getStatusCode(),
             $previousException
         );
