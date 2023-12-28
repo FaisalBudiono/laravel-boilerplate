@@ -14,7 +14,7 @@ abstract class BaseException extends Exception
         ?\Throwable $previousException = null
     ) {
         parent::__construct(
-            $this->exceptionMessage->getJsonResponse()->toJson(),
+            $this->exceptionMessage->getMessage(),
             0,
             $previousException
         );

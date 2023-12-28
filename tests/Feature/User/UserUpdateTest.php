@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature\User;
 
-use App\Core\Formatter\ExceptionMessage\ExceptionMessage;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
+use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
 use App\Core\User\UserCoreContract;
 use App\Exceptions\Core\User\UserEmailDuplicatedException;
 use App\Http\Resources\User\UserResource;
@@ -156,19 +156,10 @@ class UserUpdateTest extends BaseFeatureTestCase
 
 
         // Assert
-        $mockedExceptionResponse = collect(['foo' => 'bar']);
-        $mockExceptionMessage = $this->mock(
-            ExceptionMessage::class,
-            function (MockInterface $mock) use ($mockedExceptionResponse) {
-                $mock->shouldReceive('getJsonResponse')
-                    ->atLeast()
-                    ->once()
-                    ->andReturn($mockedExceptionResponse);
-            }
-        );
-        assert($mockExceptionMessage instanceof ExceptionMessage);
-
-        $mockException = new UserEmailDuplicatedException($mockExceptionMessage);
+        $mockException = new UserEmailDuplicatedException(new ExceptionMessageStandard(
+            $this->faker->sentence(),
+            $this->faker->word(),
+        ));
 
         $mockCore = $this->mock(
             UserCoreContract::class,
@@ -193,7 +184,10 @@ class UserUpdateTest extends BaseFeatureTestCase
 
         // Assert
         $response->assertConflict();
-        $response->assertJsonPath('errors', $mockedExceptionResponse->toArray());
+        $response->assertJsonPath(
+            'errors',
+            $mockException->exceptionMessage->getJsonResponse()->toArray(),
+        );
     }
 
     #[Test]

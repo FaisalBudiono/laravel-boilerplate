@@ -32,6 +32,7 @@ abstract class HttpExceptionBaseTestCase extends TestCase
             MockInterface $mock
         ) {
             $mock->shouldReceive('getJsonResponse')->andReturn($this->mockedJsonResponse);
+            $mock->shouldReceive('getMessage')->andReturn($this->faker->sentence());
         });
     }
 
@@ -56,7 +57,7 @@ abstract class HttpExceptionBaseTestCase extends TestCase
 
 
         // Assert
-        $this->assertEquals($this->mockedJsonResponse->toJson(), $result);
+        $this->assertEquals($this->mockExceptionMessage->getMessage(), $result);
     }
 
     #[Test]
