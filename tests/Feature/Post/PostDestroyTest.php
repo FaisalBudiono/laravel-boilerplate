@@ -105,7 +105,7 @@ class PostDestroyTest extends BaseFeatureTestCase
         // Act
         $response = $this->deleteJson(
             $this->getEndpointUrl($this->mockPost->id),
-        )->dump();
+        );
 
 
         // Assert
