@@ -50,47 +50,47 @@ class UserIndexTest extends BaseFeatureTestCase
     public static function invalidDataProvider(): array
     {
         return [
-            'orderBy is not string (now contain array)' => [
-                'orderBy',
+            'order_by is not string (now contain array)' => [
+                'order_by',
                 collect(self::validRequestInput())
                     ->replace([
-                        'orderBy' => ['kuda'],
+                        'order_by' => ['kuda'],
                     ])->toArray(),
             ],
-            'orderBy is not string (now contain integer)' => [
-                'orderBy',
+            'order_by is not string (now contain integer)' => [
+                'order_by',
                 collect(self::validRequestInput())
                     ->replace([
-                        'orderBy' => 123,
+                        'order_by' => 123,
                     ])->toArray(),
             ],
-            'orderBy is not valid enum (now contain random string)' => [
-                'orderBy',
+            'order_by is not valid enum (now contain random string)' => [
+                'order_by',
                 collect(self::validRequestInput())
                     ->replace([
-                        'orderBy' => 'kuda',
+                        'order_by' => 'kuda',
                     ])->toArray(),
             ],
 
-            'orderDir is not string (now contain array)' => [
-                'orderDir',
+            'order_dir is not string (now contain array)' => [
+                'order_dir',
                 collect(self::validRequestInput())
                     ->replace([
-                        'orderDir' => ['kuda'],
+                        'order_dir' => ['kuda'],
                     ])->toArray(),
             ],
-            'orderDir is not string (now contain integer)' => [
-                'orderDir',
+            'order_dir is not string (now contain integer)' => [
+                'order_dir',
                 collect(self::validRequestInput())
                     ->replace([
-                        'orderDir' => 123,
+                        'order_dir' => 123,
                     ])->toArray(),
             ],
-            'orderDir is not valid enum (now contain random string)' => [
-                'orderDir',
+            'order_dir is not valid enum (now contain random string)' => [
+                'order_dir',
                 collect(self::validRequestInput())
                     ->replace([
-                        'orderDir' => 'kuda',
+                        'order_dir' => 'kuda',
                     ])->toArray(),
             ],
 
@@ -109,18 +109,18 @@ class UserIndexTest extends BaseFeatureTestCase
                     ])->toArray(),
             ],
 
-            'perPage is not integer (now contain array)' => [
-                'perPage',
+            'per_page is not integer (now contain array)' => [
+                'per_page',
                 collect(self::validRequestInput())
                     ->replace([
-                        'perPage' => [2],
+                        'per_page' => [2],
                     ])->toArray(),
             ],
-            'perPage is not integer (now contain string)' => [
-                'perPage',
+            'per_page is not integer (now contain string)' => [
+                'per_page',
                 collect(self::validRequestInput())
                     ->replace([
-                        'perPage' => 'kambing',
+                        'per_page' => 'kambing',
                     ])->toArray(),
             ],
         ];
@@ -211,27 +211,27 @@ class UserIndexTest extends BaseFeatureTestCase
                     ->toArray(),
             ],
 
-            'orderBy is null' => [
+            'order_by is null' => [
                 collect(self::validRequestInput())
                     ->replace([
-                        'orderBy' => null
+                        'order_by' => null
                     ])->toArray(),
             ],
-            'without orderBy' => [
+            'without order_by' => [
                 collect(self::validRequestInput())
-                    ->except('orderBy')
+                    ->except('order_by')
                     ->toArray(),
             ],
 
-            'orderDir is null' => [
+            'order_dir is null' => [
                 collect(self::validRequestInput())
                     ->replace([
-                        'orderDir' => null
+                        'order_dir' => null
                     ])->toArray(),
             ],
-            'without orderDir' => [
+            'without order_dir' => [
                 collect(self::validRequestInput())
-                    ->except('orderDir')
+                    ->except('order_dir')
                     ->toArray(),
             ],
 
@@ -247,15 +247,15 @@ class UserIndexTest extends BaseFeatureTestCase
                     ->toArray(),
             ],
 
-            'perPage is null' => [
+            'per_page is null' => [
                 collect(self::validRequestInput())
                     ->replace([
-                        'perPage' => null
+                        'per_page' => null
                     ])->toArray(),
             ],
-            'without perPage' => [
+            'without per_page' => [
                 collect(self::validRequestInput())
-                    ->except('perPage')
+                    ->except('per_page')
                     ->toArray(),
             ],
         ];
@@ -272,11 +272,11 @@ class UserIndexTest extends BaseFeatureTestCase
     ): bool {
         try {
             $this->assertSame(
-                $input['orderBy'] ?? null,
+                $input['order_by'] ?? null,
                 $argInput->getOrderBy()?->value
             );
             $this->assertSame(
-                $input['orderDir'] ?? null,
+                $input['order_dir'] ?? null,
                 $argInput->getOrderDirection()?->value
             );
             $this->assertSame(
@@ -284,7 +284,7 @@ class UserIndexTest extends BaseFeatureTestCase
                 $argInput->getPage()
             );
             $this->assertSame(
-                $input['perPage'] ?? null,
+                $input['per_page'] ?? null,
                 $argInput->getPerPage()
             );
             return true;
@@ -296,10 +296,10 @@ class UserIndexTest extends BaseFeatureTestCase
     protected static function validRequestInput(): array
     {
         return [
-            'orderBy' => UserOrderBy::NAME->value,
-            'orderDir' => OrderDirection::ASCENDING->value,
+            'order_by' => UserOrderBy::NAME->value,
+            'order_dir' => OrderDirection::ASCENDING->value,
             'page' => 1,
-            'perPage' => 15,
+            'per_page' => 15,
         ];
     }
 }

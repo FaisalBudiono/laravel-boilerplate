@@ -28,21 +28,21 @@ class GetAllUserRequest extends BaseRequest implements GetAllUserPort
     public function rules(): array
     {
         return [
-            'orderBy' => ['bail', 'string', new BackedEnumRule(UserOrderBy::NAME)],
-            'orderDir' => ['bail', 'string', new BackedEnumRule(OrderDirection::ASCENDING)],
+            'order_by' => ['bail', 'string', new BackedEnumRule(UserOrderBy::NAME)],
+            'order_dir' => ['bail', 'string', new BackedEnumRule(OrderDirection::ASCENDING)],
             'page' => ['bail', 'integer'],
-            'perPage' => ['bail', 'integer'],
+            'per_page' => ['bail', 'integer'],
         ];
     }
 
     public function getOrderBy(): ?UserOrderBy
     {
-        return UserOrderBy::tryFrom((string)$this->input('orderBy'));
+        return UserOrderBy::tryFrom((string)$this->input('order_by'));
     }
 
     public function getOrderDirection(): ?OrderDirection
     {
-        return OrderDirection::tryFrom((string)$this->input('orderDir'));
+        return OrderDirection::tryFrom((string)$this->input('order_dir'));
     }
 
     public function getPage(): ?int
@@ -54,8 +54,8 @@ class GetAllUserRequest extends BaseRequest implements GetAllUserPort
 
     public function getPerPage(): ?int
     {
-        return is_null($this->input('perPage'))
+        return is_null($this->input('per_page'))
             ? null
-            : intval($this->input('perPage'));
+            : intval($this->input('per_page'));
     }
 }
