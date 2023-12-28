@@ -11,8 +11,10 @@ use App\Core\Healthcheck\ValueObject\HealthcheckStatus;
 use App\Core\Logger\Message\LogMessageBuilderContract;
 use App\Core\Logger\Message\LogMessageDirectorContract;
 use App\Core\Logger\Message\ValueObject\LogMessage;
+use App\Exceptions\Http\InternalServerErrorException;
 use Illuminate\Support\Facades\Log;
 use Mockery\MockInterface;
+use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\HttpFoundation\Response;
@@ -44,6 +46,8 @@ class HealthcheckTest extends BaseFeatureTestCase
     public function should_show_500_when_generic_error_is_thrown()
     {
         // Assert
+        $this->withoutExceptionHandling();
+
         $mockException = new \Error($this->faker->sentence);
         $mockCore = $this->mock(
             HealthcheckCoreContract::class,
@@ -84,21 +88,22 @@ class HealthcheckTest extends BaseFeatureTestCase
             ->once();
 
 
-        // Act
-        $response = $this->getJson(
-            $this->getEndpointUrl(),
-        );
-
-
-        // Assert
-        $response->assertInternalServerError();
-
-        $exceptionMessage = new ExceptionMessageGeneric();
-
-        $response->assertJsonPath(
-            'errors',
-            $exceptionMessage->getJsonResponse()->toArray()
-        );
+        try {
+            // Act
+            $this->getJson(
+                $this->getEndpointUrl(),
+            );
+            $this->fail('Should throw error');
+        } catch (AssertionFailedError $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            // Assert
+            $expectException = new InternalServerErrorException(
+                new ExceptionMessageGeneric(),
+                $mockException,
+            );
+            $this->assertEquals($expectException, $e);
+        }
     }
 
     #[Test]

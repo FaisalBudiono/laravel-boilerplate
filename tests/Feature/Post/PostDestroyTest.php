@@ -7,6 +7,7 @@ namespace Tests\Feature\Post;
 use App\Core\Formatter\ExceptionErrorCode;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
 use App\Core\Post\PostCoreContract;
+use App\Exceptions\Http\InternalServerErrorException;
 use App\Models\Permission\Enum\RoleName;
 use App\Models\Permission\Role;
 use App\Models\Post\Post;
@@ -14,6 +15,7 @@ use App\Models\User\User;
 use App\Port\Core\Post\DeletePostPort;
 use Exception;
 use Mockery\MockInterface;
+use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\ExpectationFailedException;
 use Tests\Feature\BaseFeatureTestCase;
@@ -80,10 +82,11 @@ class PostDestroyTest extends BaseFeatureTestCase
     public function should_show_500_when_generic_error_is_thrown(): void
     {
         // Arrange
+        $this->withoutExceptionHandling();
+
         MockerAuthenticatedByJWT::make($this)
             ->mockLogin($this->mockPost->user);
 
-        $exceptionMessage = new ExceptionMessageGeneric();
         $mockException = new Exception($this->faker->sentence());
 
 
@@ -102,18 +105,22 @@ class PostDestroyTest extends BaseFeatureTestCase
         $this->instance(PostCoreContract::class, $mockCore);
 
 
-        // Act
-        $response = $this->deleteJson(
-            $this->getEndpointUrl($this->mockPost->id),
-        );
-
-
-        // Assert
-        $response->assertInternalServerError();
-        $response->assertJsonPath(
-            'errors',
-            $exceptionMessage->getJsonResponse()->toArray()
-        );
+        try {
+            // Act
+            $this->deleteJson(
+                $this->getEndpointUrl($this->mockPost->id),
+            );
+            $this->fail('Should throw error');
+        } catch (AssertionFailedError $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            // Assert
+            $expectedException = new InternalServerErrorException(
+                new ExceptionMessageGeneric(),
+                $mockException,
+            );
+            $this->assertEquals($expectedException, $e);
+        }
     }
 
     #[Test]

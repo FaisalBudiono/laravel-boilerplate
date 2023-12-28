@@ -8,11 +8,14 @@ use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
 use App\Core\User\UserCoreContract;
 use App\Exceptions\Core\User\UserEmailDuplicatedException;
+use App\Exceptions\Http\ConflictException;
+use App\Exceptions\Http\InternalServerErrorException;
 use App\Http\Resources\User\UserResource;
 use App\Models\User\User;
 use App\Port\Core\User\CreateUserPort;
 use Exception;
 use Mockery\MockInterface;
+use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\HttpFoundation\Response;
@@ -148,6 +151,8 @@ class UserStoreTest extends BaseFeatureTestCase
     public function should_show_409_when_thrown_duplicated_email(): void
     {
         // Arrange
+        $this->withoutExceptionHandling();
+
         $input = $this->validRequestInput();
 
 
@@ -171,28 +176,33 @@ class UserStoreTest extends BaseFeatureTestCase
         $this->instance(UserCoreContract::class, $mockCore);
 
 
-        // Act
-        $response = $this->postJson(
-            $this->getEndpointUrl(),
-            $input
-        );
-
-
-        // Assert
-        $response->assertConflict();
-        $response->assertJsonPath(
-            'errors',
-            $mockException->exceptionMessage->getJsonResponse()->toArray(),
-        );
+        try {
+            // Act
+            $this->postJson(
+                $this->getEndpointUrl(),
+                $input
+            );
+            $this->fail('Should throw error');
+        } catch (AssertionFailedError $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            // Assert
+            $expectedException = new ConflictException(
+                $mockException->exceptionMessage,
+                $mockException,
+            );
+            $this->assertEquals($expectedException, $e);
+        }
     }
 
     #[Test]
     public function should_show_500_when_generic_error_is_thrown(): void
     {
         // Arrange
+        $this->withoutExceptionHandling();
+
         $input = $this->validRequestInput();
 
-        $exceptionMessage = new ExceptionMessageGeneric();
         $mockException = new Exception($this->faker->sentence());
 
 
@@ -211,19 +221,23 @@ class UserStoreTest extends BaseFeatureTestCase
         $this->instance(UserCoreContract::class, $mockCore);
 
 
-        // Act
-        $response = $this->postJson(
-            $this->getEndpointUrl(),
-            $input
-        );
-
-
-        // Assert
-        $response->assertInternalServerError();
-        $response->assertJsonPath(
-            'errors',
-            $exceptionMessage->getJsonResponse()->toArray()
-        );
+        try {
+            // Act
+            $this->postJson(
+                $this->getEndpointUrl(),
+                $input
+            );
+            $this->fail('Should throw error');
+        } catch (AssertionFailedError $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            // Assert
+            $expectedException = new InternalServerErrorException(
+                new ExceptionMessageGeneric(),
+                $mockException,
+            );
+            $this->assertEquals($expectedException, $e);
+        }
     }
 
     #[Test]

@@ -11,9 +11,12 @@ use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
 use App\Exceptions\Core\Auth\JWT\FailedParsingException;
 use App\Exceptions\Core\Auth\JWT\InvalidTokenException;
 use App\Exceptions\Core\Auth\JWT\JWTException;
+use App\Exceptions\Http\InternalServerErrorException;
+use App\Exceptions\Http\UnauthorizedException;
 use App\Port\Core\Auth\GetRefreshTokenPort;
 use Illuminate\Http\Response;
 use Mockery\MockInterface;
+use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Feature\BaseFeatureTestCase;
@@ -87,9 +90,10 @@ class RefreshTest extends BaseFeatureTestCase
     public function should_show_500_when_generic_error_is_thrown(): void
     {
         // Arrange
+        $this->withoutExceptionHandling();
+
         $input = $this->validRequestInput();
 
-        $exceptionMessage = new ExceptionMessageGeneric();
         $mockException = new \Error($this->faker->sentence());
 
 
@@ -108,19 +112,23 @@ class RefreshTest extends BaseFeatureTestCase
         $this->instance(AuthJWTCoreContract::class, $mockCore);
 
 
-        // Act
-        $response = $this->postJson(
-            $this->getEndpointUrl(),
-            $input,
-        );
-
-
-        // Assert
-        $response->assertStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
-        $response->assertJsonPath(
-            'errors',
-            $exceptionMessage->getJsonResponse()->toArray(),
-        );
+        try {
+            // Act
+            $response = $this->postJson(
+                $this->getEndpointUrl(),
+                $input,
+            );
+            $this->fail('Should throw error');
+        } catch (AssertionFailedError $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            // Assert
+            $expectedException = new InternalServerErrorException(
+                new ExceptionMessageGeneric(),
+                $mockException,
+            );
+            $this->assertEquals($expectedException, $e);
+        }
     }
 
     #[Test]
@@ -129,6 +137,8 @@ class RefreshTest extends BaseFeatureTestCase
         JWTException $mockJWTException
     ): void {
         // Arrange
+        $this->withoutExceptionHandling();
+
         $input = $this->validRequestInput();
 
 
@@ -147,19 +157,23 @@ class RefreshTest extends BaseFeatureTestCase
         $this->instance(AuthJWTCoreContract::class, $mockCore);
 
 
-        // Act
-        $response = $this->postJson(
-            $this->getEndpointUrl(),
-            $input,
-        );
-
-
-        // Assert
-        $response->assertUnauthorized();
-        $response->assertJsonPath(
-            'errors',
-            $mockJWTException->exceptionMessage->getJsonResponse()->toArray(),
-        );
+        try {
+            // Act
+            $this->postJson(
+                $this->getEndpointUrl(),
+                $input,
+            );
+            $this->fail('Should throw error');
+        } catch (AssertionFailedError $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            // Assert
+            $expectedException = new UnauthorizedException(
+                $mockJWTException->exceptionMessage,
+                $mockJWTException,
+            );
+            $this->assertEquals($expectedException, $e);
+        }
     }
 
     public static function jwtExceptionDataProvider(): array
