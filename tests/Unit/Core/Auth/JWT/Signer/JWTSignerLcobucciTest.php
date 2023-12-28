@@ -22,6 +22,7 @@ use Lcobucci\JWT\Token\Parser;
 use Lcobucci\JWT\UnencryptedToken;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\Validator;
+use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -102,16 +103,20 @@ class JWTSignerLcobucciTest extends TestCase
             ->getToken($this->makeSigner(), InMemory::plainText($invalidPrivateKey));
 
 
-        // Pre-Assert
-        $expectedException = new InvalidSignatureException(new ExceptionMessageStandard(
-            'JWT signature is invalid',
-            JWTSignerExceptionCode::INVALID_SIGNATURE->value,
-        ));
-        $this->expectExceptionObject($expectedException);
-
-
-        // Act
-        $this->makeService()->validate($invalidToken->toString());
+        try {
+            // Act
+            $this->makeService()->validate($invalidToken->toString());
+            $this->fail('Should throw error');
+        } catch (AssertionFailedError $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            // Pre-Assert
+            $expectedException = new InvalidSignatureException(new ExceptionMessageStandard(
+                'JWT signature is invalid',
+                JWTSignerExceptionCode::INVALID_SIGNATURE->value,
+            ));
+            $this->assertEquals($expectedException, $e);
+        }
     }
 
     #[Test]
@@ -129,16 +134,20 @@ class JWTSignerLcobucciTest extends TestCase
             ->getToken($this->makeSigner(), InMemory::plainText($this->getPrivateKey()));
 
 
-        // Pre-Assert
-        $expectedException = new InvalidTimeRelatedClaimException(new ExceptionMessageStandard(
-            'Time related claims is invalid (e.g. nbf, exp, iat)',
-            JWTSignerExceptionCode::TIME_RELATED->value,
-        ));
-        $this->expectExceptionObject($expectedException);
-
-
-        // Act
-        $this->makeService()->validate($invalidToken->toString());
+        try {
+            // Act
+            $this->makeService()->validate($invalidToken->toString());
+            $this->fail('Should throw error');
+        } catch (AssertionFailedError $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            // Pre-Assert
+            $expectedException = new InvalidTimeRelatedClaimException(new ExceptionMessageStandard(
+                'Time related claims is invalid (e.g. nbf, exp, iat)',
+                JWTSignerExceptionCode::TIME_RELATED->value,
+            ));
+            $this->assertEquals($expectedException, $e);
+        }
     }
 
     public static function invalidTimeClaimDataProvider(): array

@@ -11,6 +11,7 @@ use App\Models\User\User;
 use App\Port\Core\User\CreateUserPort;
 use Illuminate\Support\Facades\Hash;
 use Mockery\MockInterface;
+use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Attributes\Test;
 
 class UserCore_Create_Test extends UserCoreBaseTestCase
@@ -72,14 +73,19 @@ class UserCore_Create_Test extends UserCoreBaseTestCase
         // Assert
         $this->mockRequest->shouldReceive('getEmail')->once()->andReturn($email);
 
-        $expectedException = new UserEmailDuplicatedException(new ExceptionMessageStandard(
-            'Email is duplicated',
-            UserExceptionCode::DUPLICATED->value,
-        ));
-        $this->expectExceptionObject($expectedException);
 
-
-        // Act
-        $this->makeService()->create($this->mockRequest);
+        try {
+            // Act
+            $this->makeService()->create($this->mockRequest);
+            $this->fail('Should throw error');
+        } catch (AssertionFailedError $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            $expectedException = new UserEmailDuplicatedException(new ExceptionMessageStandard(
+                'Email is duplicated',
+                UserExceptionCode::DUPLICATED->value,
+            ));
+            $this->assertEquals($expectedException, $e);
+        }
     }
 }

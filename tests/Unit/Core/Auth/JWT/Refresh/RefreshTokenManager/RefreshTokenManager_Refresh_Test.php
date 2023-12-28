@@ -15,6 +15,7 @@ use App\Models\User\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Config;
 use Mockery\MockInterface;
+use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Attributes\Test;
 
 class RefreshTokenManager_Refresh_Test extends RefreshTokenManagerBaseTestCase
@@ -54,16 +55,20 @@ class RefreshTokenManager_Refresh_Test extends RefreshTokenManagerBaseTestCase
         assert($mockCacher instanceof Cacher);
 
 
-        // Assert
-        $mockException = new InvalidTokenException(new ExceptionMessageStandard(
-            'Refresh token is already used before.',
-            RefreshTokenExceptionCode::TOKEN_IS_USED->value,
-        ));
-        $this->expectExceptionObject($mockException);
-
-
-        // Act
-        $this->makeService(null, $mockCacher)->refresh($mockedRefreshToken->id);
+        try {
+            // Act
+            $this->makeService(null, $mockCacher)->refresh($mockedRefreshToken->id);
+            $this->fail('Should throw error');
+        } catch (AssertionFailedError $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            // Assert
+            $expectedException = new InvalidTokenException(new ExceptionMessageStandard(
+                'Refresh token is already used before.',
+                RefreshTokenExceptionCode::TOKEN_IS_USED->value,
+            ));
+            $this->assertEquals($expectedException, $e);
+        }
     }
 
     #[Test]
@@ -85,16 +90,20 @@ class RefreshTokenManager_Refresh_Test extends RefreshTokenManagerBaseTestCase
         assert($mockCacher instanceof Cacher);
 
 
-        // Assert
-        $mockException = new InvalidTokenException(new ExceptionMessageStandard(
-            'Refresh token is expired',
-            RefreshTokenExceptionCode::EXPIRED->value
-        ));
-        $this->expectExceptionObject($mockException);
-
-
-        // Act
-        $this->makeService(null, $mockCacher)->refresh($mockedRefreshToken->id);
+        try {
+            // Act
+            $this->makeService(null, $mockCacher)->refresh($mockedRefreshToken->id);
+            $this->fail('Should throw error');
+        } catch (AssertionFailedError $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            // Assert
+            $expectedException = new InvalidTokenException(new ExceptionMessageStandard(
+                'Refresh token is expired',
+                RefreshTokenExceptionCode::EXPIRED->value
+            ));
+            $this->assertEquals($expectedException, $e);
+        }
     }
 
     #[Test]
@@ -116,16 +125,20 @@ class RefreshTokenManager_Refresh_Test extends RefreshTokenManagerBaseTestCase
         assert($mockCacher instanceof Cacher);
 
 
-        // Assert
-        $mockException = new InvalidTokenException(new ExceptionMessageStandard(
-            'Refresh token is expired',
-            RefreshTokenExceptionCode::EXPIRED->value
-        ));
-        $this->expectExceptionObject($mockException);
-
-
-        // Act
-        $this->makeService(null, $mockCacher)->refresh($mockedRefreshToken->id);
+        try {
+            // Act
+            $this->makeService(null, $mockCacher)->refresh($mockedRefreshToken->id);
+            $this->fail('Should throw error');
+        } catch (AssertionFailedError $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            // Assert
+            $expectedException = new InvalidTokenException(new ExceptionMessageStandard(
+                'Refresh token is expired',
+                RefreshTokenExceptionCode::EXPIRED->value
+            ));
+            $this->assertEquals($expectedException, $e);
+        }
     }
 
     #[Test]
@@ -263,19 +276,23 @@ class RefreshTokenManager_Refresh_Test extends RefreshTokenManagerBaseTestCase
         assert($mockCacher instanceof Cacher);
 
 
-        // Assert
-        $mockException =  new InvalidTokenException(new ExceptionMessageStandard(
-            'Token not found.',
-            RefreshTokenExceptionCode::NOT_FOUND->value,
-        ));
-        $this->expectExceptionObject($mockException);
-
-
-        // Act
-        $this->makeService(
-            null,
-            $mockCacher,
-        )->refresh($mockedOldRefreshToken->id);
+        try {
+            // Act
+            $this->makeService(
+                null,
+                $mockCacher,
+            )->refresh($mockedOldRefreshToken->id);
+            $this->fail('Should throw error');
+        } catch (AssertionFailedError $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            // Assert
+            $expectedException =  new InvalidTokenException(new ExceptionMessageStandard(
+                'Token not found.',
+                RefreshTokenExceptionCode::NOT_FOUND->value,
+            ));
+            $this->assertEquals($expectedException, $e);
+        }
     }
 
     #[Test]

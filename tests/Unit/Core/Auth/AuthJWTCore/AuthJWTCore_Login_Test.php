@@ -20,6 +20,7 @@ use App\Port\Core\Auth\LoginPort;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Mockery\MockInterface;
+use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Attributes\Test;
 
 class AuthJWTCore_Login_Test extends AuthJWTCoreBaseTestCase
@@ -40,19 +41,31 @@ class AuthJWTCore_Login_Test extends AuthJWTCoreBaseTestCase
         $user = User::factory()->create()->fresh();
         $notFoundEmail = $user->email . 'notemail';
 
+        $mockPrevException = null;
+        try {
+            User::findByEmailOrFail($notFoundEmail);
+        } catch (\Throwable $e) {
+            $mockPrevException = $e;
+        }
+
 
         // Assert
         $this->mockRequest->shouldReceive('getUserEmail')->once()->andReturn($notFoundEmail);
 
-        $expectedException = new InvalidCredentialException(new ExceptionMessageStandard(
-            'Credential is invalid',
-            UserExceptionCode::INVALID_CREDENTIAL->value,
-        ));
-        $this->expectExceptionObject($expectedException);
 
-
-        // Act
-        $this->makeService()->login($this->mockRequest);
+        try {
+            // Act
+            $this->makeService()->login($this->mockRequest);
+            $this->fail('Should throw error');
+        } catch (AssertionFailedError $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            $expectedException = new InvalidCredentialException(new ExceptionMessageStandard(
+                'Credential is invalid',
+                UserExceptionCode::INVALID_CREDENTIAL->value,
+            ), $mockPrevException);
+            $this->assertEquals($expectedException, $e);
+        }
     }
 
     #[Test]
@@ -72,15 +85,20 @@ class AuthJWTCore_Login_Test extends AuthJWTCoreBaseTestCase
             ->with($invalidPassword, $user->password)
             ->andReturn(false);
 
-        $expectedException = new InvalidCredentialException(new ExceptionMessageStandard(
-            'Credential is invalid',
-            UserExceptionCode::INVALID_CREDENTIAL->value,
-        ));
-        $this->expectExceptionObject($expectedException);
 
-
-        // Act
-        $this->makeService()->login($this->mockRequest);
+        try {
+            // Act
+            $this->makeService()->login($this->mockRequest);
+            $this->fail('Should throw error');
+        } catch (AssertionFailedError $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            $expectedException = new InvalidCredentialException(new ExceptionMessageStandard(
+                'Credential is invalid',
+                UserExceptionCode::INVALID_CREDENTIAL->value,
+            ));
+            $this->assertEquals($expectedException, $e);
+        }
     }
 
     #[Test]

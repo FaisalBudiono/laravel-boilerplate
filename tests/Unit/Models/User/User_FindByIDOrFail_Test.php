@@ -8,6 +8,7 @@ use App\Core\Formatter\ExceptionErrorCode;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
 use App\Exceptions\Models\ModelNotFoundException;
 use App\Models\User\User;
+use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -38,15 +39,19 @@ class User_FindByIDOrFail_Test extends TestCase
     #[Test]
     public function should_throw_model_not_found_exception_when_id_is_not_found(): void
     {
-        // Assert
-        $expectedException = new ModelNotFoundException(new ExceptionMessageStandard(
-            'User ID is not found',
-            ExceptionErrorCode::MODEL_NOT_FOUND->value,
-        ));
-        $this->expectExceptionObject($expectedException);
-
-
-        // Act
-        User::findByIDOrFail(1000);
+        try {
+            // Act
+            User::findByIDOrFail(1000);
+            $this->fail('Should throw error');
+        } catch (AssertionFailedError $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            // Assert
+            $expectedException = new ModelNotFoundException(new ExceptionMessageStandard(
+                'User ID is not found',
+                ExceptionErrorCode::MODEL_NOT_FOUND->value,
+            ));
+            $this->assertEquals($expectedException, $e);
+        }
     }
 }
