@@ -87,7 +87,7 @@ class RefreshTokenManager implements RefreshTokenManagerContract
 
     protected function getRefreshGracePeriodInSecond(): int
     {
-        return config('jwt.refresh.grace-period');
+        return intval(config('jwt.refresh.grace-period'));
     }
 
     protected function isInGracePeriod(Carbon $usedAt): bool
