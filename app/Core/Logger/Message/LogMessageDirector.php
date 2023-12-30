@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Core\Logger\Message;
 
+use App\Exceptions\BaseException;
 use App\Http\Middleware\XRequestIDMiddleware;
 use Illuminate\Http\Request;
 use Throwable;
@@ -55,16 +56,19 @@ class LogMessageDirector implements LogMessageDirectorContract
     ): LogMessageBuilderContract {
         return $builder->message($e->getMessage())
             ->meta([
+                'detail' => $this->formatExceptionDetail($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
                 'trace' => $e->getTrace(),
             ]);
     }
 
-    protected function setDefaultEndpoint(
-        LogMessageBuilderContract $builder,
-    ): LogMessageBuilderContract {
-        return $builder->endpoint(
-            "{$this->request->method()} {$this->request->url()}"
-        );
+    protected function formatExceptionDetail(Throwable $e): ?array
+    {
+        if (!$e instanceof BaseException) {
+            return null;
+        }
+        return $e->exceptionMessage->getJsonResponse()->toArray();
     }
 
     protected function getFormattedRequestID(): string
@@ -74,6 +78,14 @@ class LogMessageDirector implements LogMessageDirectorContract
         return is_array($requestID)
             ? implode(' ', $requestID)
             : $requestID ?? '';
+    }
+
+    protected function setDefaultEndpoint(
+        LogMessageBuilderContract $builder,
+    ): LogMessageBuilderContract {
+        return $builder->endpoint(
+            "{$this->request->method()} {$this->request->url()}"
+        );
     }
 
     protected function setRequestID(

@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Core\Logger\Message;
 
+use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
 use App\Core\Logger\Message\LogMessageBuilderContract;
 use App\Core\Logger\Message\LogMessageDirector;
 use App\Core\Logger\Message\LogMessageDirectorContract;
 use App\Core\Logger\Message\ProcessingStatus;
+use App\Exceptions\Core\Auth\InvalidCredentialException;
+use App\Exceptions\Core\User\UserEmailDuplicatedException;
+use App\Exceptions\Http\UnprocessableEntityException;
 use App\Http\Middleware\XRequestIDMiddleware;
 use Illuminate\Http\Request;
 use Mockery\MockInterface;
@@ -198,18 +202,17 @@ class LogMessageDirectorTest extends TestCase
     }
 
     #[Test]
-    public function buildForException_should_return_builder_correctly(): void
-    {
+    #[DataProvider('exceptionDataProvider')]
+    public function buildForException_should_return_builder_correctly(
+        \Throwable $mockedException,
+        array $expectedMeta,
+    ): void {
         // Arrange
-        $mockedException = new \Exception($this->faker->sentence());
-
         $mockLogBuilder = $this->mock(
             LogMessageBuilderContract::class,
-            function (MockInterface $mock) use ($mockedException) {
+            function (MockInterface $mock) use ($mockedException, $expectedMeta) {
                 $mock->shouldReceive('message')->once()->with($mockedException->getMessage())->andReturn($mock);
-                $mock->shouldReceive('meta')->once()->with([
-                    'trace' => $mockedException->getTrace(),
-                ])->andReturn($mock);
+                $mock->shouldReceive('meta')->once()->with($expectedMeta)->andReturn($mock);
             }
         );
         assert($mockLogBuilder instanceof LogMessageBuilderContract);
@@ -221,6 +224,47 @@ class LogMessageDirectorTest extends TestCase
 
         // Assert
         $this->assertEquals($mockLogBuilder, $result);
+    }
+
+    public static function exceptionDataProvider(): array
+    {
+        $faker = self::makeFaker();
+
+        return [
+            'generic exception' => [
+                $e = new \Error($faker->sentence()),
+                [
+                    'detail' => null,
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTrace(),
+                ],
+            ],
+            'HTTPException' => [
+                $e = new UnprocessableEntityException(new ExceptionMessageStandard(
+                    $faker->sentence(),
+                    $faker->sentence(),
+                )),
+                [
+                    'detail' => null,
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTrace(),
+                ],
+            ],
+            'BaseException' => [
+                $e = new InvalidCredentialException(new ExceptionMessageStandard(
+                    $faker->sentence(),
+                    $faker->sentence(),
+                )),
+                [
+                    'detail' => $e->exceptionMessage->getJsonResponse()->toArray(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTrace(),
+                ],
+            ],
+        ];
     }
 
     protected function makeService(
