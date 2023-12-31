@@ -6,12 +6,10 @@ namespace Tests\Feature\Post;
 
 use App\Core\Formatter\ExceptionErrorCode;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
+use App\Core\Post\Policy\PostPolicyContract;
 use App\Core\Post\PostCoreContract;
 use App\Exceptions\Http\InternalServerErrorException;
-use App\Models\Permission\Enum\RoleName;
-use App\Models\Permission\Role;
 use App\Models\Post\Post;
-use App\Models\User\User;
 use App\Port\Core\Post\DeletePostPort;
 use Exception;
 use Mockery\MockInterface;
@@ -34,6 +32,13 @@ class PostDestroyTest extends BaseFeatureTestCase
         ]);
 
         $this->instance(PostCoreContract::class, $this->mock(PostCoreContract::class));
+
+        $this->mock(
+            PostPolicyContract::class,
+            function (MockInterface $mock) {
+                $mock->shouldReceive('delete')->andReturn(true);
+            }
+        );
     }
 
     #[Test]
@@ -52,12 +57,18 @@ class PostDestroyTest extends BaseFeatureTestCase
     }
 
     #[Test]
-    public function should_show_403_when_user_neither_the_owner_or_admin(): void
+    public function should_show_403_when_denied_by_policy(): void
     {
         // Arrange
-        $notOwnerUser = User::factory()->create();
         MockerAuthenticatedByJWT::make($this)
-            ->mockLogin($notOwnerUser);
+            ->mockLogin($this->mockPost->user);
+
+        $this->mock(
+            PostPolicyContract::class,
+            function (MockInterface $mock) {
+                $mock->shouldReceive('delete')->andReturn(false);
+            }
+        );
 
 
         // Act
@@ -124,49 +135,10 @@ class PostDestroyTest extends BaseFeatureTestCase
     }
 
     #[Test]
-    public function should_show_204_when_owner_successfully_delete_post(): void
+    public function should_show_204_when_successfully_delete_post(): void
     {
         // Arrange
         MockerAuthenticatedByJWT::make($this)->mockLogin($this->mockPost->user);
-
-
-        // Assert
-        $mockCore = $this->mock(
-            PostCoreContract::class,
-            function (MockInterface $mock) {
-                $mock->shouldReceive('delete')
-                    ->once()
-                    ->withArgs(fn ($argInput) => $this->validateRequest(
-                        $argInput,
-                        $this->mockPost,
-                    ))->andReturn($this->mockPost);
-            }
-        );
-        $this->instance(PostCoreContract::class, $mockCore);
-
-
-        // Act
-        $response = $this->deleteJson(
-            $this->getEndpointUrl($this->mockPost->id),
-        );
-
-
-        // Assert
-        $response->assertNoContent();
-    }
-
-    #[Test]
-    public function should_show_204_when_admin_successfully_delete_post(): void
-    {
-        // Arrange
-        $adminRole = Role::create([
-            'name' => RoleName::ADMIN,
-        ]);
-
-        $adminNotOwner = User::factory()->create();
-        $adminNotOwner->assignRole($adminRole);
-
-        MockerAuthenticatedByJWT::make($this)->mockLogin($adminNotOwner);
 
 
         // Assert
