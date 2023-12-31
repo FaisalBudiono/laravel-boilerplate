@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Core\Auth\JWT\JWTGuardContract;
+use App\Core\Post\Policy\PostPolicyContract;
 use App\Models\Post\Post;
-use App\Policies\Post\PostPolicy;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Auth;
@@ -19,7 +19,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        Post::class => PostPolicy::class,
+        Post::class => PostPolicyContract::class,
     ];
 
     /**

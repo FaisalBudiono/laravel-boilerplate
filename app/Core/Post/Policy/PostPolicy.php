@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Policies\Post;
+namespace App\Core\Post\Policy;
 
 use App\Models\Permission\Enum\RoleName;
 use App\Models\Post\Post;
 use App\Models\User\User;
 
-class PostPolicy
+class PostPolicy implements PostPolicyContract
 {
     public function delete(User $user, Post $post): bool
     {
