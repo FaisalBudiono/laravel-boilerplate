@@ -89,7 +89,16 @@ class PostCore implements PostCoreContract
 
     public function get(GetSinglePostPort $request): Post
     {
-        return $request->getPost()->fresh(Post::eagerLoadAll());
+        $post = $request->getPost();
+
+        if ($request->getUserActor()->cannot('see', $post)) {
+            throw new InsufficientPermissionException(new ExceptionMessageStandard(
+                'Insufficient permission to see post',
+                PostExceptionCode::PERMISSION_INSUFFICIENT->value,
+            ));
+        }
+
+        return $post->fresh(Post::eagerLoadAll());
     }
 
     public function update(UpdatePostPort $request): Post

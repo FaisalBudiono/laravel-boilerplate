@@ -7,6 +7,7 @@ namespace App\Http\Requests\Post;
 use App\Http\Requests\BaseRequest;
 use App\Http\Requests\Traits\PostFromRouteTrait;
 use App\Models\Post\Post;
+use App\Models\User\User;
 use App\Port\Core\Post\GetSinglePostPort;
 
 class GetSinglePostRequest extends BaseRequest implements GetSinglePostPort
@@ -34,5 +35,10 @@ class GetSinglePostRequest extends BaseRequest implements GetSinglePostPort
     public function getPost(): Post
     {
         return $this->getPostFromRoute();
+    }
+
+    public function getUserActor(): User
+    {
+        return $this->getAuthenticatedUser();
     }
 }
