@@ -22,7 +22,7 @@ class PostPolicy implements PostPolicyContract
 
     public function seeUserPost(User $user, User $userFilter): bool
     {
-        return true;
+        return $this->isAdmin($user) || $user->is($userFilter);
     }
 
     public function see(User $user, Post $post): bool
