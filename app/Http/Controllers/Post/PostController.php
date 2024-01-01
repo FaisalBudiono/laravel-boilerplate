@@ -6,6 +6,8 @@ namespace App\Http\Controllers\Post;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
 use App\Core\Post\PostCoreContract;
+use App\Exceptions\Core\Auth\Permission\PermissionException;
+use App\Exceptions\Http\ForbiddenException;
 use App\Exceptions\Http\InternalServerErrorException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Post\CreatePostRequest;
@@ -42,6 +44,8 @@ class PostController extends Controller
             return PostResource::collection($posts)
                 ->response()
                 ->setStatusCode(Response::HTTP_OK);
+        } catch (PermissionException $e) {
+            throw new ForbiddenException($e->exceptionMessage, $e);
         } catch (\Throwable $e) {
             throw new InternalServerErrorException(new ExceptionMessageGeneric(), $e);
         }

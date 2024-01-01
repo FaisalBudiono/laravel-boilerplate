@@ -20,6 +20,11 @@ class PostPolicy implements PostPolicyContract
         return $user->roles->contains('name', RoleName::ADMIN);
     }
 
+    public function seeUserPost(User $user, User $userFilter): bool
+    {
+        return true;
+    }
+
     public function see(User $user, Post $post): bool
     {
         return $this->isOwner($user, $post) || $this->isAdmin($user);

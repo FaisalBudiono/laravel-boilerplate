@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Core\Post;
 
-use App\Models\Permission\Enum\RoleName;
+use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
+use App\Core\Post\Enum\PostExceptionCode;
+use App\Exceptions\Core\Auth\Permission\InsufficientPermissionException;
 use App\Models\Post\Post;
 use App\Port\Core\Post\CreatePostPort;
 use App\Port\Core\Post\DeletePostPort;
@@ -56,21 +58,23 @@ class PostCore implements PostCoreContract
      */
     public function getAll(GetAllPostPort $request): LengthAwarePaginator
     {
-        $perPage = $request->getPerPage() ?? 15;
-
         $userActor = $request->getUserActor();
         $userFilter = $request->getUserFilter();
 
-        $isAdmin = $userActor->roles->contains('name', RoleName::ADMIN);
-        $shouldFilterByUser = !$isAdmin || !is_null($userFilter);
+        $wantToSeeAll = is_null($userFilter);
+        if ($wantToSeeAll && $userActor->cannot('seeAll', Post::class)) {
+            $this->throwInsufficientPermission();
+        }
 
+        $perPage = $request->getPerPage() ?? 15;
+        $wantToFilteredByUser = !is_null($userFilter);
 
         return Post::with(Post::eagerLoadAll())
-            ->when($shouldFilterByUser, function (Builder $q) use ($userFilter, $userActor, $isAdmin) {
-                if (!$isAdmin) {
-                    $q->where('user_id', $userActor->id);
-                    return;
+            ->when($wantToFilteredByUser, function (Builder $q) use ($userFilter, $userActor) {
+                if ($userActor->cannot('see-user-post', [Post::class, $userFilter])) {
+                    $this->throwInsufficientPermission();
                 }
+
                 $q->where('user_id', $userFilter->id);
             })->paginate($perPage, ['*'], 'page', $request->getPage());
     }
@@ -98,5 +102,13 @@ class PostCore implements PostCoreContract
             DB::rollBack();
             throw $e;
         }
+    }
+
+    protected function throwInsufficientPermission(): never
+    {
+        throw new InsufficientPermissionException(new ExceptionMessageStandard(
+            'Insufficient permission to fetch posts',
+            PostExceptionCode::PERMISSION_INSUFFICIENT->value,
+        ));
     }
 }
