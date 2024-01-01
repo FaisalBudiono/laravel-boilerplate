@@ -90,6 +90,8 @@ class PostController extends Controller
                 ->response()
                 ->setStatusCode(Response::HTTP_OK);
             return response()->json();
+        } catch (PermissionException $e) {
+            throw new ForbiddenException($e->exceptionMessage, $e);
         } catch (\Throwable $e) {
             throw new InternalServerErrorException(new ExceptionMessageGeneric(), $e);
         }

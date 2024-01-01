@@ -107,7 +107,13 @@ class PostCore implements PostCoreContract
             DB::beginTransaction();
 
             $post = $request->getPost();
-            $post->user_id = $request->getUserActor()->id;
+            if ($request->getUserActor()->cannot('update', $post)) {
+                throw new InsufficientPermissionException(new ExceptionMessageStandard(
+                    'Insufficient permission to update post',
+                    PostExceptionCode::PERMISSION_INSUFFICIENT->value,
+                ));
+            }
+
             $post->title = $request->getTitle();
             $post->content = $request->getPostContent();
             $post->save();
