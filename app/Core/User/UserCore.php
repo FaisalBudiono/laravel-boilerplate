@@ -8,6 +8,7 @@ use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
 use App\Core\Query\Enum\OrderDirection;
 use App\Core\User\Query\UserOrderBy;
 use App\Exceptions\Core\User\UserEmailDuplicatedException;
+use App\Models\Permission\Enum\RoleName;
 use App\Models\User\Enum\UserExceptionCode;
 use App\Models\User\User;
 use App\Port\Core\User\CreateUserPort;
@@ -43,6 +44,8 @@ class UserCore implements UserCoreContract
             $user->email = $email;
             $user->password = Hash::make($request->getUserPassword());
             $user->save();
+
+            $user->syncRoles(RoleName::NORMAL);
 
             DB::commit();
 
