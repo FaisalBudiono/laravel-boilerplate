@@ -73,7 +73,15 @@ class UserCore implements UserCoreContract
 
     public function get(GetUserPort $request): User
     {
-        return $request->getUserModel();
+        $user = $request->getUserModel();
+        if ($request->getUserActor()->cannot('see', $user)) {
+            throw new InsufficientPermissionException(new ExceptionMessageStandard(
+                'Insufficient permission to see user',
+                UserExceptionCode::PERMISSION_INSUFFICIENT->value,
+            ));
+        }
+
+        return $user;
     }
 
     public function getAll(GetAllUserPort $request): LengthAwarePaginator

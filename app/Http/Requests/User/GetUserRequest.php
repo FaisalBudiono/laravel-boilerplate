@@ -15,7 +15,7 @@ class GetUserRequest extends BaseRequest implements GetUserPort
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->getAuthenticatedUser()->can('see', $this->route('userID'));
     }
 
     /**
@@ -26,6 +26,11 @@ class GetUserRequest extends BaseRequest implements GetUserPort
     public function rules(): array
     {
         return [];
+    }
+
+    public function getUserActor(): User
+    {
+        return $this->getAuthenticatedUser();
     }
 
     public function getUserModel(): User

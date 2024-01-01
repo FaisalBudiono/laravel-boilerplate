@@ -61,6 +61,8 @@ class UserController extends Controller
             return UserResource::make($user)
                 ->response()
                 ->setStatusCode(Response::HTTP_OK);
+        } catch (PermissionException $e) {
+            throw new ForbiddenException($e->exceptionMessage, $e);
         } catch (Throwable $e) {
             throw new InternalServerErrorException(new ExceptionMessageGeneric(), $e);
         }
@@ -74,6 +76,8 @@ class UserController extends Controller
             return UserResource::make($user)
                 ->response()
                 ->setStatusCode(Response::HTTP_OK);
+        } catch (PermissionException $e) {
+            throw new ForbiddenException($e->exceptionMessage, $e);
         } catch (Throwable $e) {
             throw new InternalServerErrorException(new ExceptionMessageGeneric(), $e);
         }

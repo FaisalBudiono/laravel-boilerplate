@@ -15,7 +15,7 @@ class GetMyInfoRequest extends BaseRequest implements GetUserPort
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->getAuthenticatedUser()->can('see', $this->getAuthenticatedUser());
     }
 
     /**
@@ -28,8 +28,13 @@ class GetMyInfoRequest extends BaseRequest implements GetUserPort
         return [];
     }
 
+    public function getUserActor(): User
+    {
+        return $this->getAuthenticatedUser();
+    }
+
     public function getUserModel(): User
     {
-        return $this->user();
+        return $this->getAuthenticatedUser();
     }
 }

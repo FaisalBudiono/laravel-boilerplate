@@ -8,5 +8,7 @@ use App\Models\User\User;
 
 interface GetUserPort
 {
+    public function getUserActor(): User;
+
     public function getUserModel(): User;
 }
