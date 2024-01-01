@@ -44,7 +44,15 @@ class PostCore implements PostCoreContract
         try {
             DB::beginTransaction();
 
-            $request->getPost()->delete();
+            $post = $request->getPost();
+            if ($request->getUserActor()->cannot('delete', $post)) {
+                throw new InsufficientPermissionException(new ExceptionMessageStandard(
+                    'Insufficient permission to delete post',
+                    PostExceptionCode::PERMISSION_INSUFFICIENT->value,
+                ));
+            }
+
+            $post->delete();
 
             DB::commit();
         } catch (\Throwable $e) {

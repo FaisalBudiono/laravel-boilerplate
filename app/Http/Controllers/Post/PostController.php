@@ -31,6 +31,8 @@ class PostController extends Controller
             $this->core->delete($request);
 
             return response()->noContent();
+        } catch (PermissionException $e) {
+            throw new ForbiddenException($e->exceptionMessage, $e);
         } catch (\Throwable $e) {
             throw new InternalServerErrorException(new ExceptionMessageGeneric(), $e);
         }
