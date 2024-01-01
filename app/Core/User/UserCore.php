@@ -7,6 +7,7 @@ namespace App\Core\User;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
 use App\Core\Query\Enum\OrderDirection;
 use App\Core\User\Query\UserOrderBy;
+use App\Exceptions\Core\Auth\Permission\InsufficientPermissionException;
 use App\Exceptions\Core\User\UserEmailDuplicatedException;
 use App\Models\Permission\Enum\RoleName;
 use App\Core\User\Enum\UserExceptionCode;
@@ -59,6 +60,14 @@ class UserCore implements UserCoreContract
     public function delete(DeleteUserPort $request): void
     {
         $user = $request->getUserModel();
+
+        if ($request->getUserActor()->cannot('delete', $user)) {
+            throw new InsufficientPermissionException(new ExceptionMessageStandard(
+                'Insufficient permission to delete user',
+                UserExceptionCode::PERMISSION_INSUFFICIENT->value,
+            ));
+        }
+
         $user->delete();
     }
 

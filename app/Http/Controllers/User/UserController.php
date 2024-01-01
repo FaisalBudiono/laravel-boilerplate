@@ -6,8 +6,10 @@ namespace App\Http\Controllers\User;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
 use App\Core\User\UserCoreContract;
+use App\Exceptions\Core\Auth\Permission\PermissionException;
 use App\Exceptions\Core\User\UserEmailDuplicatedException;
 use App\Exceptions\Http\ConflictException;
+use App\Exceptions\Http\ForbiddenException;
 use App\Exceptions\Http\InternalServerErrorException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\CreateUserRequest;
@@ -33,6 +35,8 @@ class UserController extends Controller
             $this->core->delete($request);
 
             return response()->json([], Response::HTTP_NO_CONTENT);
+        } catch (PermissionException $e) {
+            throw new ForbiddenException($e->exceptionMessage, $e);
         } catch (Throwable $e) {
             throw new InternalServerErrorException(new ExceptionMessageGeneric(), $e);
         }

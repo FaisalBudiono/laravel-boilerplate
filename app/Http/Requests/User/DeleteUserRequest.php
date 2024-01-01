@@ -15,7 +15,7 @@ class DeleteUserRequest extends BaseRequest implements DeleteUserPort
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->getAuthenticatedUser()->can('delete', $this->route('userID'));
     }
 
     /**
@@ -26,6 +26,11 @@ class DeleteUserRequest extends BaseRequest implements DeleteUserPort
     public function rules(): array
     {
         return [];
+    }
+
+    public function getUserActor(): User
+    {
+        return $this->getAuthenticatedUser();
     }
 
     public function getUserModel(): User

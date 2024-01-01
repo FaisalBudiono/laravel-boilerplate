@@ -8,5 +8,7 @@ use App\Models\User\User;
 
 interface DeleteUserPort
 {
+    public function getUserActor(): User;
+
     public function getUserModel(): User;
 }
