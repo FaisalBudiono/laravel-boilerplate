@@ -6,7 +6,9 @@ namespace App\Providers;
 
 use App\Core\Auth\JWT\JWTGuardContract;
 use App\Core\Post\Policy\PostPolicyContract;
+use App\Core\User\Policy\UserPolicyContract;
 use App\Models\Post\Post;
+use App\Models\User\User;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Auth;
@@ -20,6 +22,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         Post::class => PostPolicyContract::class,
+        User::class => UserPolicyContract::class,
     ];
 
     /**
