@@ -86,6 +86,13 @@ class UserCore implements UserCoreContract
 
     public function getAll(GetAllUserPort $request): LengthAwarePaginator
     {
+        if ($request->getUserActor()->cannot('seeAll', User::class)) {
+            throw new InsufficientPermissionException(new ExceptionMessageStandard(
+                'Insufficient permission to see all users',
+                UserExceptionCode::PERMISSION_INSUFFICIENT->value,
+            ));
+        }
+
         $page = $request->getPage() ?? 1;
         $perPage = $request->getPerPage() ?? 30;
         $orderDirection = $request->getOrderDirection() ?? OrderDirection::DESCENDING;

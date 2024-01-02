@@ -4,10 +4,16 @@ declare(strict_types=1);
 
 namespace Tests\Feature\User;
 
+use App\Core\Formatter\ExceptionErrorCode;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
+use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
 use App\Core\Query\Enum\OrderDirection;
+use App\Core\User\Policy\UserPolicyContract;
 use App\Core\User\Query\UserOrderBy;
 use App\Core\User\UserCoreContract;
+use App\Exceptions\Core\Auth\Permission\InsufficientPermissionException;
+use App\Exceptions\Http\AbstractHttpException;
+use App\Exceptions\Http\ForbiddenException;
 use App\Exceptions\Http\InternalServerErrorException;
 use App\Http\Resources\User\UserResource;
 use App\Models\User\User;
@@ -17,6 +23,7 @@ use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Feature\BaseFeatureTestCase;
+use Tests\Helper\MockInstance\Middleware\MockerAuthenticatedByJWT;
 use Tests\Helper\Trait\JSONTrait;
 
 class UserIndexTest extends BaseFeatureTestCase
@@ -30,6 +37,13 @@ class UserIndexTest extends BaseFeatureTestCase
         User::factory()->count(10)->create();
 
         $this->instance(UserCoreContract::class, $this->mock(UserCoreContract::class));
+
+        $this->mock(
+            UserPolicyContract::class,
+            function (MockInterface $mock) {
+                $mock->shouldReceive('seeAll')->andReturn(true);
+            }
+        );
     }
 
     #[Test]
@@ -38,6 +52,10 @@ class UserIndexTest extends BaseFeatureTestCase
         string $errorMaker,
         array $input
     ): void {
+        // Arrange
+        MockerAuthenticatedByJWT::make($this)->mockLogin(User::factory()->create());
+
+
         // Act
         $response = $this->getJson(
             $this->getEndpointUrl() . '?' . http_build_query($input),
@@ -129,25 +147,74 @@ class UserIndexTest extends BaseFeatureTestCase
     }
 
     #[Test]
-    public function should_show_500_when_generic_error_is_thrown(): void
+    public function should_show_401_when_not_logged_in(): void
     {
+        // Act
+        $response = $this->getJson(
+            $this->getEndpointUrl(),
+        );
+
+
+        // Assert
+        $response->assertUnauthorized();
+        $response->assertJsonPath('errors.message', 'Authentication is needed');
+        $response->assertJsonPath('errors.errorCode', ExceptionErrorCode::REQUIRE_AUTHORIZATION->value);
+    }
+
+    #[Test]
+    public function should_show_403_when_denied_by_policy(): void
+    {
+        // Arrange
+        MockerAuthenticatedByJWT::make($this)->mockLogin(
+            User::factory()->create()->fresh(),
+        );
+
+        $this->mock(
+            UserPolicyContract::class,
+            function (MockInterface $mock) {
+                $mock->shouldReceive('seeAll')->andReturn(false);
+            }
+        );
+
+
+
+        // Act
+        $response = $this->getJson(
+            $this->getEndpointUrl(),
+        );
+
+
+        // Assert
+        $response->assertForbidden();
+        $response->assertJsonPath('errors.message', 'Lack of authorization to access this resource');
+        $response->assertJsonPath('errors.errorCode', ExceptionErrorCode::LACK_OF_AUTHORIZATION->value);
+    }
+
+    #[Test]
+    #[DataProvider('exceptionDataProvider')]
+    public function should_show_error_code_when_thrown_by_core(
+        \Throwable $mockException,
+        AbstractHttpException $expectedException,
+    ): void {
         // Arrange
         $this->withoutExceptionHandling();
 
         $input = $this->validRequestInput();
 
-        $mockException = new \Error($this->faker->sentence);
+        MockerAuthenticatedByJWT::make($this)->mockLogin(
+            $userActor = User::factory()->create(),
+        );
 
 
         // Assert
         $mockCore = $this->mock(
             UserCoreContract::class,
-            function (MockInterface $mock) use ($input, $mockException) {
+            function (MockInterface $mock) use ($input, $mockException, $userActor) {
                 $mock->shouldReceive('getAll')
                     ->once()
                     ->withArgs(fn (
                         GetAllUserPort $argInput
-                    ) => $this->validateRequest($argInput, $input))
+                    ) => $this->validateRequest($argInput, $input, $userActor))
                     ->andThrow($mockException);
             }
         );
@@ -165,12 +232,33 @@ class UserIndexTest extends BaseFeatureTestCase
             throw $e;
         } catch (\Throwable $e) {
             // Assert
-            $expectedException = new InternalServerErrorException(
-                new ExceptionMessageGeneric(),
-                $mockException,
-            );
             $this->assertEquals($expectedException, $e);
         }
+    }
+
+    public static function exceptionDataProvider(): array
+    {
+        $faker = self::makeFaker();
+
+        return [
+            'generic exception - 500' => [
+                $e = new \Error($faker->sentence()),
+                new InternalServerErrorException(
+                    new ExceptionMessageGeneric(),
+                    $e,
+                ),
+            ],
+            'permission exception - 403' => [
+                $e = new InsufficientPermissionException(new ExceptionMessageStandard(
+                    $faker->sentence(),
+                    $faker->sentence(),
+                )),
+                new ForbiddenException(
+                    $e->exceptionMessage,
+                    $e,
+                ),
+            ],
+        ];
     }
 
     #[Test]
@@ -181,14 +269,18 @@ class UserIndexTest extends BaseFeatureTestCase
         // Assert
         $mockedResults = User::query()->paginate();
 
+        MockerAuthenticatedByJWT::make($this)->mockLogin(
+            $userActor = User::factory()->create(),
+        );
+
         $mockCore = $this->mock(
             UserCoreContract::class,
-            function (MockInterface $mock) use ($input, $mockedResults) {
+            function (MockInterface $mock) use ($input, $mockedResults, $userActor) {
                 $mock->shouldReceive('getAll')
                     ->once()
                     ->withArgs(fn (
                         GetAllUserPort $argInput
-                    ) => $this->validateRequest($argInput, $input))
+                    ) => $this->validateRequest($argInput, $input, $userActor))
                     ->andReturn($mockedResults);
             }
         );
@@ -275,7 +367,8 @@ class UserIndexTest extends BaseFeatureTestCase
 
     protected function validateRequest(
         GetAllUserPort $argInput,
-        array $input
+        array $input,
+        User $loggInUser,
     ): bool {
         try {
             $this->assertSame(
@@ -293,6 +386,10 @@ class UserIndexTest extends BaseFeatureTestCase
             $this->assertSame(
                 $input['per_page'] ?? null,
                 $argInput->getPerPage()
+            );
+            $this->assertTrue(
+                $argInput->getUserActor()->is($loggInUser),
+                'User actor is not the same',
             );
             return true;
         } catch (\Throwable $e) {

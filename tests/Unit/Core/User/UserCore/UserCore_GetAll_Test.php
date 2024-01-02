@@ -4,16 +4,19 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Core\User\UserCore;
 
+use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
 use App\Core\Query\Enum\OrderDirection;
+use App\Core\User\Enum\UserExceptionCode;
+use App\Core\User\Policy\UserPolicyContract;
 use App\Core\User\Query\UserOrderBy;
+use App\Exceptions\Core\Auth\Permission\InsufficientPermissionException;
 use App\Models\User\User;
 use App\Port\Core\User\GetAllUserPort;
 use Illuminate\Support\Facades\DB;
 use Mockery\MockInterface;
+use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\Helper\QueryDataProvider;
 
 class UserCore_GetAll_Test extends UserCoreBaseTestCase
 {
@@ -24,135 +27,68 @@ class UserCore_GetAll_Test extends UserCoreBaseTestCase
         parent::setUp();
 
         $this->mockRequest = $this->mock(GetAllUserPort::class);
+
+        $this->mock(UserPolicyContract::class);
     }
 
     #[Test]
-    public function should_return_30_latest_data_when_called_with_no_parameter(): void
+    public function should_throw_insufficient_permission_exception_when_denied_by_policy(): void
     {
         // Arrange
-        $this->makeMockUsers(35);
+        $this->mockRequest->shouldReceive('getUserActor')->once()->andReturn(
+            $userActor = User::factory()->create(),
+        );
+
+        $this->mock(
+            UserPolicyContract::class,
+            function (MockInterface $mock) use ($userActor) {
+                $mock->shouldReceive('seeAll')->once()->with($userActor)->andReturn(false);
+            }
+        );
 
 
-        // Assert
-        $this->mockRequest->shouldReceive('getOrderBy')->once()->andReturnNull();
-        $this->mockRequest->shouldReceive('getOrderDirection')->once()->andReturnNull();
-        $this->mockRequest->shouldReceive('getPage')->once()->andReturnNull();
-        $this->mockRequest->shouldReceive('getPerPage')->once()->andReturnNull();
-
-
-        // Act
-        $results = $this->makeService()->getAll($this->mockRequest);
-
-
-        // Assert
-        $expectedResults = DB::table('users')
-            ->orderByDesc('created_at')
-            ->limit(30)
-            ->get();
-
-        $this->assertSame($expectedResults->count(), $results->perPage());
-        $this->assertSame(1, $results->currentPage());
-
-        collect($results->items())->each(function (
-            User $user,
-            int $index
-        ) use ($expectedResults) {
-            $this->assertSame($expectedResults[$index]->id, $user->id);
-        });
+        try {
+            // Act
+            $this->makeService()->getAll($this->mockRequest);
+            $this->fail('Should throw error');
+        } catch (AssertionFailedError $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            $expectedException = new InsufficientPermissionException(new ExceptionMessageStandard(
+                'Insufficient permission to see all users',
+                UserExceptionCode::PERMISSION_INSUFFICIENT->value,
+            ));
+            $this->assertEquals($expectedException, $e);
+        }
     }
 
     #[Test]
-    public function should_return_data_with_requested_per_page(): void
-    {
-        // Arrange
-        $this->makeMockUsers(12);
-
-        $perPage = 10;
-
-
-        // Assert
-        $this->mockRequest->shouldReceive('getOrderBy')->once()->andReturnNull();
-        $this->mockRequest->shouldReceive('getOrderDirection')->once()->andReturnNull();
-        $this->mockRequest->shouldReceive('getPage')->once()->andReturnNull();
-        $this->mockRequest->shouldReceive('getPerPage')->once()->andReturn($perPage);
-
-
-        // Act
-        $results = $this->makeService()->getAll($this->mockRequest);
-
-
-        // Assert
-        $expectedResults = DB::table('users')
-            ->orderByDesc('created_at')
-            ->limit($perPage)
-            ->get();
-
-        $this->assertSame($perPage, $results->perPage());
-        $this->assertSame(1, $results->currentPage());
-
-        collect($results->items())->each(function (
-            User $user,
-            int $index
-        ) use ($expectedResults) {
-            $this->assertSame($expectedResults[$index]->id, $user->id);
-        });
-    }
-
-    #[Test]
-    public function should_return_data_with_requested_page(): void
-    {
-        // Arrange
-        $this->makeMockUsers(65);
-
-        $defaultPerPage = 30;
-        $page = 3;
-
-
-        // Assert
-        $this->mockRequest->shouldReceive('getOrderBy')->once()->andReturnNull();
-        $this->mockRequest->shouldReceive('getOrderDirection')->once()->andReturnNull();
-        $this->mockRequest->shouldReceive('getPerPage')->once()->andReturnNull();
-        $this->mockRequest->shouldReceive('getPage')->once()->andReturn($page);
-
-
-        // Act
-        $results = $this->makeService()->getAll($this->mockRequest);
-
-
-        // Assert
-        $expectedResults = DB::table('users')
-            ->orderByDesc('created_at')
-            ->limit($defaultPerPage)
-            ->offset(60)
-            ->get();
-
-        $this->assertSame($defaultPerPage, $results->perPage());
-        $this->assertSame($page, $results->currentPage());
-
-        collect($results->items())->each(function (
-            User $user,
-            int $index
-        ) use ($expectedResults) {
-            $this->assertSame($expectedResults[$index]->id, $user->id);
-        });
-    }
-
-    #[Test]
-    #[DataProviderExternal(QueryDataProvider::class, 'orderDirection')]
-    public function should_return_data_with_requested_order_direction(
-        OrderDirection $orderDirection
+    #[DataProvider('inputDataProvider')]
+    public function should_successfully_return_users(
+        int $totalCreatedUser,
+        ?UserOrderBy $mockedOrderBy,
+        ?OrderDirection $mockedOrderDir,
+        ?int $mockedPage,
+        ?int $mockedPerPage,
+        array $expectedBuilderMethods,
     ): void {
         // Arrange
-        $this->makeMockUsers(30);
+        $this->makeMockUsers($totalCreatedUser);
 
-        $defaultPerPage = 30;
+        $this->mockRequest->shouldReceive('getUserActor')->once()->andReturn(
+            $userActor = User::factory()->create(),
+        );
+        $this->mockRequest->shouldReceive('getOrderBy')->once()->andReturn($mockedOrderBy);
+        $this->mockRequest->shouldReceive('getOrderDirection')->once()->andReturn($mockedOrderDir);
+        $this->mockRequest->shouldReceive('getPage')->once()->andReturn($mockedPage);
+        $this->mockRequest->shouldReceive('getPerPage')->once()->andReturn($mockedPerPage);
 
-
-        // Assert
-        $this->mockRequest->shouldReceive('getOrderBy')->once()->andReturnNull();
-        $this->mockRequest->shouldReceive('getPage')->once()->andReturnNull();
-        $this->mockRequest->shouldReceive('getPerPage')->once()->andReturnNull();
-        $this->mockRequest->shouldReceive('getOrderDirection')->once()->andReturn($orderDirection);
+        $this->mock(
+            UserPolicyContract::class,
+            function (MockInterface $mock) use ($userActor) {
+                $mock->shouldReceive('seeAll')->once()->with($userActor)->andReturn(true);
+            }
+        );
 
 
         // Act
@@ -160,14 +96,15 @@ class UserCore_GetAll_Test extends UserCoreBaseTestCase
 
 
         // Assert
-        $expectedResults = DB::table('users')
-            ->select('id')
-            ->orderBy('created_at', $orderDirection->value)
-            ->limit($defaultPerPage)
-            ->get();
+        $builder = DB::connection();
 
-        $this->assertSame($defaultPerPage, $results->perPage());
-        $this->assertSame(1, $results->currentPage());
+        collect($expectedBuilderMethods)->each(function (array $arg) use (&$builder) {
+            $builder = $builder->{$arg[0]}(...$arg[1]);
+        });
+        $expectedResults = $builder->get();
+
+        $this->assertSame($mockedPerPage ?? 30, $results->perPage());
+        $this->assertSame($mockedPage ?? 1, $results->currentPage());
 
         collect($results->items())->each(function (
             User $user,
@@ -177,57 +114,46 @@ class UserCore_GetAll_Test extends UserCoreBaseTestCase
         });
     }
 
-    #[Test]
-    #[DataProvider('orderByDataProvider')]
-    public function should_return_data_with_requested_order_by(
-        UserOrderBy $orderBy
-    ): void {
-        // Arrange
-        $this->makeMockUsers(30);
-
-        $defaultPerPage = 30;
-
-
-        // Assert
-        $this->mockRequest->shouldReceive('getOrderDirection')->once()->andReturnNull();
-        $this->mockRequest->shouldReceive('getPage')->once()->andReturnNull();
-        $this->mockRequest->shouldReceive('getPerPage')->once()->andReturnNull();
-        $this->mockRequest->shouldReceive('getOrderBy')->once()->andReturn($orderBy);
-
-
-        // Act
-        $results = $this->makeService()->getAll($this->mockRequest);
-
-
-        // Assert
-        $expectedResults = DB::table('users')
-            ->select('id')
-            ->orderBy($orderBy->value, 'desc')
-            ->limit($defaultPerPage)
-            ->get();
-
-        $this->assertSame($defaultPerPage, $results->perPage());
-        $this->assertSame(1, $results->currentPage());
-
-        collect($results->items())->each(function (
-            User $user,
-            int $index
-        ) use ($expectedResults) {
-            $this->assertSame($expectedResults[$index]->id, $user->id);
-        });
-    }
-
-    public static function orderByDataProvider(): array
+    public static function inputDataProvider(): array
     {
         return [
-            'by name' => [
-                UserOrderBy::NAME,
+            'no input given' => [
+                1,
+                null,
+                null,
+                null,
+                null,
+                [
+                    ['table', ['users']],
+                    ['orderByDesc', ['created_at']],
+                    ['limit', [30]],
+                ],
             ],
-            'by email' => [
+            '15 per page 2nd page' => [
+                31,
+                null,
+                null,
+                $page = 2,
+                $perPage = 15,
+                [
+                    ['table', ['users']],
+                    ['orderByDesc', ['created_at']],
+                    ['limit', [$perPage]],
+                    ['offset', [self::calculateOffset($page, $perPage)]],
+                ],
+            ],
+            '3 per page 2nd page order by email ascending' => [
+                10,
                 UserOrderBy::EMAIL,
-            ],
-            'by created_at' => [
-                UserOrderBy::CREATED_AT,
+                OrderDirection::ASCENDING,
+                $page = 2,
+                $perPage = 3,
+                [
+                    ['table', ['users']],
+                    ['orderBy', ['email']],
+                    ['limit', [$perPage]],
+                    ['offset', [self::calculateOffset($page, $perPage)]],
+                ],
             ],
         ];
     }
@@ -238,5 +164,10 @@ class UserCore_GetAll_Test extends UserCoreBaseTestCase
             $user->created_at = now()->addMinutes($user->id);
             $user->save();
         });
+    }
+
+    protected static function calculateOffset(int $page, int $perPage): int
+    {
+        return ($page - 1) * $perPage;
     }
 }

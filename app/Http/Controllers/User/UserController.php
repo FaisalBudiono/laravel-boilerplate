@@ -48,6 +48,8 @@ class UserController extends Controller
             $users = $this->core->getAll($request);
 
             return UserResource::collection($users);
+        } catch (PermissionException $e) {
+            throw new ForbiddenException($e->exceptionMessage, $e);
         } catch (Throwable $e) {
             throw new InternalServerErrorException(new ExceptionMessageGeneric(), $e);
         }

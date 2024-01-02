@@ -7,6 +7,7 @@ namespace App\Http\Requests\User;
 use App\Core\Query\Enum\OrderDirection;
 use App\Core\User\Query\UserOrderBy;
 use App\Http\Requests\BaseRequest;
+use App\Models\User\User;
 use App\Port\Core\User\GetAllUserPort;
 use App\Rules\Enum\BackedEnumRule;
 
@@ -17,7 +18,7 @@ class GetAllUserRequest extends BaseRequest implements GetAllUserPort
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->getAuthenticatedUser()->can('see-all', User::class);
     }
 
     /**
@@ -33,6 +34,11 @@ class GetAllUserRequest extends BaseRequest implements GetAllUserPort
             'page' => ['bail', 'integer'],
             'per_page' => ['bail', 'integer'],
         ];
+    }
+
+    public function getUserActor(): User
+    {
+        return $this->getAuthenticatedUser();
     }
 
     public function getOrderBy(): ?UserOrderBy
