@@ -7,3 +7,6 @@
 
 # About
 This is a laravel boilerplate with service pattern applied (We call it Core). It has JWT authentication with refresh token rotation implemented.
+
+# Postman
+https://www.postman.com/meembar/workspace/laravel-boilerplate
