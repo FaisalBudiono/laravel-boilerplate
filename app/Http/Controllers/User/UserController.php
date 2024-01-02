@@ -28,7 +28,7 @@ class UserController extends Controller
     ) {
     }
 
-    public function destroy(DeleteUserRequest $request)
+    public function destroy(DeleteUserRequest $request): Response
     {
         try {
             $this->core->delete($request);
@@ -41,12 +41,14 @@ class UserController extends Controller
         }
     }
 
-    public function index(GetAllUserRequest $request)
+    public function index(GetAllUserRequest $request): Response
     {
         try {
             $users = $this->core->getAll($request);
 
-            return UserResource::collection($users);
+            return UserResource::collection($users)
+                ->response()
+                ->setStatusCode(Response::HTTP_OK);
         } catch (PermissionException $e) {
             throw new ForbiddenException($e->exceptionMessage, $e);
         } catch (Throwable $e) {
@@ -54,7 +56,7 @@ class UserController extends Controller
         }
     }
 
-    public function me(GetMyInfoRequest $request)
+    public function me(GetMyInfoRequest $request): Response
     {
         try {
             $user = $this->core->get($request);
@@ -69,7 +71,7 @@ class UserController extends Controller
         }
     }
 
-    public function show(GetUserRequest $request)
+    public function show(GetUserRequest $request): Response
     {
         try {
             $user = $this->core->get($request);
@@ -84,7 +86,7 @@ class UserController extends Controller
         }
     }
 
-    public function update(UpdateUserRequest $request)
+    public function update(UpdateUserRequest $request): Response
     {
         try {
             $user = $this->core->update($request);

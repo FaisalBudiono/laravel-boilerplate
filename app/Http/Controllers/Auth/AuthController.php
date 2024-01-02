@@ -30,7 +30,7 @@ class AuthController extends Controller
     ) {
     }
 
-    public function login(LoginRequest $request)
+    public function login(LoginRequest $request): Response
     {
         try {
             $tokenPair = $this->authCore->login($request);
@@ -45,7 +45,7 @@ class AuthController extends Controller
         }
     }
 
-    public function logout(LogoutRequest $request)
+    public function logout(LogoutRequest $request): Response
     {
         try {
             $this->authCore->logout($request);
@@ -58,7 +58,7 @@ class AuthController extends Controller
         }
     }
 
-    public function register(RegisterRequest $request)
+    public function register(RegisterRequest $request): Response
     {
         try {
             $user = $this->userCore->create($request);
@@ -73,7 +73,7 @@ class AuthController extends Controller
         }
     }
 
-    public function refresh(GetRefreshTokenRequest $request)
+    public function refresh(GetRefreshTokenRequest $request): Response
     {
         try {
             $tokenPair = $this->authCore->refresh($request);
