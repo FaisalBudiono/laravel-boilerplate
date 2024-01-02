@@ -9,9 +9,11 @@ use App\Exceptions\Core\User\UserEmailDuplicatedException;
 use App\Models\Permission\Enum\RoleName;
 use App\Models\Permission\Role;
 use App\Core\User\Enum\UserExceptionCode;
+use App\Events\User\UserCreated;
 use App\Models\User\User;
 use App\Port\Core\User\CreateUserPort;
 use Database\Seeders\Base\RoleSeeder;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use Mockery\MockInterface;
 use PHPUnit\Framework\AssertionFailedError;
@@ -28,6 +30,8 @@ class UserCore_Create_Test extends UserCoreBaseTestCase
         $this->mockRequest = $this->mock(CreateUserPort::class);
 
         $this->seed(RoleSeeder::class);
+
+        Event::fake();
     }
 
     #[Test]
@@ -57,6 +61,8 @@ class UserCore_Create_Test extends UserCoreBaseTestCase
                 UserExceptionCode::DUPLICATED->value,
             ));
             $this->assertEquals($expectedException, $e);
+
+            Event::assertNotDispatched(UserCreated::class);
         }
     }
 
@@ -100,5 +106,14 @@ class UserCore_Create_Test extends UserCoreBaseTestCase
             'model_type' => User::class,
             'role_id' => $role->id,
         ]);
+
+        Event::assertDispatched(
+            UserCreated::class,
+            function (UserCreated $event) use ($result) {
+                $this->assertTrue($event->user->is($result));
+
+                return true;
+            }
+        );
     }
 }
