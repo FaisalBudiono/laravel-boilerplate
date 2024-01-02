@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace App\Port\Core\User;
 
 use App\Models\User\User;
+use App\Port\Core\NeedActorPort;
 
-interface UpdateUserPort
+interface UpdateUserPort extends NeedActorPort
 {
-    public function getUserActor(): User;
-
     public function getEmail(): string;
     public function getName(): string;
     public function getUserModel(): User;
