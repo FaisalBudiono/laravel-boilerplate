@@ -14,7 +14,7 @@ use App\Core\Auth\JWT\ValueObject\ClaimsUser;
 use App\Core\Auth\JWT\ValueObject\TokenPair;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
 use App\Exceptions\Core\Auth\InvalidCredentialException;
-use App\Models\User\Enum\UserExceptionCode;
+use App\Core\User\Enum\UserExceptionCode;
 use App\Models\User\User;
 use App\Port\Core\Auth\LoginPort;
 use Carbon\Carbon;

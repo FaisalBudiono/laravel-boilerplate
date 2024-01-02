@@ -6,7 +6,7 @@ namespace Tests\Unit\Core\User\UserCore;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
 use App\Exceptions\Core\User\UserEmailDuplicatedException;
-use App\Models\User\Enum\UserExceptionCode;
+use App\Core\User\Enum\UserExceptionCode;
 use App\Models\User\User;
 use App\Port\Core\User\UpdateUserPort;
 use Illuminate\Support\Facades\Hash;

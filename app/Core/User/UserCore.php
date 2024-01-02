@@ -9,7 +9,7 @@ use App\Core\Query\Enum\OrderDirection;
 use App\Core\User\Query\UserOrderBy;
 use App\Exceptions\Core\User\UserEmailDuplicatedException;
 use App\Models\Permission\Enum\RoleName;
-use App\Models\User\Enum\UserExceptionCode;
+use App\Core\User\Enum\UserExceptionCode;
 use App\Models\User\User;
 use App\Port\Core\User\CreateUserPort;
 use App\Port\Core\User\DeleteUserPort;
