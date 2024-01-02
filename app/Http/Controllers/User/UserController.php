@@ -108,6 +108,8 @@ class UserController extends Controller
             return UserResource::make($user)
                 ->response()
                 ->setStatusCode(Response::HTTP_OK);
+        } catch (PermissionException $e) {
+            throw new ForbiddenException($e->exceptionMessage, $e);
         } catch (UserEmailDuplicatedException $e) {
             throw new ConflictException($e->exceptionMessage, $e);
         } catch (Throwable $e) {

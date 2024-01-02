@@ -8,6 +8,8 @@ use App\Models\User\User;
 
 interface UpdateUserPort
 {
+    public function getUserActor(): User;
+
     public function getEmail(): string;
     public function getName(): string;
     public function getUserModel(): User;

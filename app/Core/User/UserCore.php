@@ -109,8 +109,14 @@ class UserCore implements UserCoreContract
             DB::beginTransaction();
 
             $user = $request->getUserModel();
-            $email = $request->getEmail();
+            if ($request->getUserActor()->cannot('update', $user)) {
+                throw new InsufficientPermissionException(new ExceptionMessageStandard(
+                    'Insufficient permission to update user',
+                    UserExceptionCode::DUPLICATED->value,
+                ));
+            }
 
+            $email = $request->getEmail();
             $isEmailExist = User::query()
                 ->where('email', $email)
                 ->where('id', '<>', $user->id)

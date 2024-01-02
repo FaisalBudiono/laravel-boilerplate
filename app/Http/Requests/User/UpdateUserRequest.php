@@ -15,7 +15,7 @@ class UpdateUserRequest extends BaseRequest implements UpdateUserPort
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->getAuthenticatedUser()->can('update', $this->route('userID'));
     }
 
     /**
@@ -30,6 +30,11 @@ class UpdateUserRequest extends BaseRequest implements UpdateUserPort
             'name' => ['required', 'string', 'max:250'],
             'password' => ['required', 'string'],
         ];
+    }
+
+    public function getUserActor(): User
+    {
+        return $this->getAuthenticatedUser();
     }
 
     public function getName(): string
