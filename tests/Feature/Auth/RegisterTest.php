@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\User;
+namespace Tests\Feature\Auth;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
@@ -22,7 +22,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Tests\Feature\BaseFeatureTestCase;
 use Tests\Helper\Trait\JSONTrait;
 
-class UserStoreTest extends BaseFeatureTestCase
+class RegisterTest extends BaseFeatureTestCase
 {
     use JSONTrait;
 
@@ -280,7 +280,7 @@ class UserStoreTest extends BaseFeatureTestCase
 
     protected function getEndpointUrl(): string
     {
-        return route('user.store');
+        return route('register');
     }
 
     protected function validateRequest(

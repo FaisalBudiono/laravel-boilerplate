@@ -11,8 +11,8 @@ use App\Core\Logger\Message\LogMessageDirectorContract;
 use App\Exceptions\Http\InternalServerErrorException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Healthcheck\HealthcheckRequest;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\Response;
 
 class HealthcheckController extends Controller
 {
@@ -23,7 +23,7 @@ class HealthcheckController extends Controller
     ) {
     }
 
-    public function index(HealthcheckRequest $request)
+    public function index(HealthcheckRequest $request): Response
     {
         try {
             Log::info(
