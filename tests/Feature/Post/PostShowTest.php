@@ -6,17 +6,20 @@ namespace Tests\Feature\Post;
 
 use App\Core\Formatter\ExceptionErrorCode;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
+use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
+use App\Core\Post\Policy\PostPolicyContract;
 use App\Core\Post\PostCoreContract;
+use App\Exceptions\Core\Auth\Permission\InsufficientPermissionException;
+use App\Exceptions\Http\AbstractHttpException;
+use App\Exceptions\Http\ForbiddenException;
 use App\Exceptions\Http\InternalServerErrorException;
 use App\Http\Resources\Post\PostResource;
-use App\Models\Permission\Enum\RoleName;
-use App\Models\Permission\Role;
 use App\Models\Post\Post;
 use App\Models\User\User;
 use App\Port\Core\Post\GetSinglePostPort;
-use Exception;
 use Mockery\MockInterface;
 use PHPUnit\Framework\AssertionFailedError;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\ExpectationFailedException;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,6 +39,13 @@ class PostShowTest extends BaseFeatureTestCase
         ]);
 
         $this->instance(PostCoreContract::class, $this->mock(PostCoreContract::class));
+
+        $this->mock(
+            PostPolicyContract::class,
+            function (MockInterface $mock) {
+                $mock->shouldReceive('see')->andReturn(true);
+            }
+        );
     }
 
     #[Test]
@@ -54,12 +64,19 @@ class PostShowTest extends BaseFeatureTestCase
     }
 
     #[Test]
-    public function should_show_403_when_user_neither_the_owner_or_admin(): void
+    public function should_show_403_when_denied_by_policy(): void
     {
         // Arrange
         $notOwnerUser = User::factory()->create();
         MockerAuthenticatedByJWT::make($this)
             ->mockLogin($notOwnerUser);
+
+        $this->mock(
+            PostPolicyContract::class,
+            function (MockInterface $mock) {
+                $mock->shouldReceive('see')->andReturn(false);
+            }
+        );
 
 
         // Act
@@ -81,25 +98,28 @@ class PostShowTest extends BaseFeatureTestCase
     }
 
     #[Test]
-    public function should_show_500_when_generic_error_is_thrown(): void
-    {
+    #[DataProvider('exceptionDataProvider')]
+    public function should_show_error_code_when_thrown_by_core(
+        \Throwable $mockException,
+        AbstractHttpException $expectedException,
+    ): void {
         // Arrange
         $this->withoutExceptionHandling();
 
+        $userActor = User::factory()->create();
         MockerAuthenticatedByJWT::make($this)
-            ->mockLogin($this->mockPost->user);
+            ->mockLogin($userActor);
 
-        $mockException = new Exception($this->faker->sentence());
-
-
-        // Assert
         $mockCore = $this->mock(
             PostCoreContract::class,
-            function (MockInterface $mock) use ($mockException) {
+            function (MockInterface $mock) use ($mockException, $userActor) {
                 $mock->shouldReceive('get')
                     ->once()
-                    ->withArgs(fn ($argInput) => $this->validateRequest($argInput, $this->mockPost))
-                    ->andThrow($mockException);
+                    ->withArgs(fn ($argInput) => $this->validateRequest(
+                        $argInput,
+                        $this->mockPost,
+                        $userActor,
+                    ))->andThrow($mockException);
             }
         );
         $this->instance(PostCoreContract::class, $mockCore);
@@ -114,69 +134,53 @@ class PostShowTest extends BaseFeatureTestCase
         } catch (AssertionFailedError $e) {
             throw $e;
         } catch (\Throwable $e) {
-            $expectedException = new InternalServerErrorException(
-                new ExceptionMessageGeneric(),
-                $mockException,
-            );
             $this->assertEquals($expectedException, $e);
         }
     }
 
-    #[Test]
-    public function should_show_200_when_owner_successfully_get_post_detail(): void
+    public static function exceptionDataProvider(): array
     {
-        // Arrange
-        MockerAuthenticatedByJWT::make($this)->mockLogin($this->mockPost->user);
+        $faker = self::makeFaker();
 
-
-        // Assert
-        $mockCore = $this->mock(
-            PostCoreContract::class,
-            function (MockInterface $mock) {
-                $mock->shouldReceive('get')
-                    ->once()
-                    ->withArgs(fn ($argInput) => $this->validateRequest($argInput, $this->mockPost))
-                    ->andReturn($this->mockPost);
-            }
-        );
-        $this->instance(PostCoreContract::class, $mockCore);
-
-
-        // Act
-        $response = $this->getJson(
-            $this->getEndpointUrl($this->mockPost->id),
-        );
-
-
-        // Assert
-        $response->assertStatus(Response::HTTP_OK);
-
-        $expectedResponse = json_decode(PostResource::make($this->mockPost)->toJson(), true);
-        $response->assertJsonPath('data', $expectedResponse);
+        return [
+            'generic exception - 500' => [
+                $e = new \Error($faker->sentence()),
+                new InternalServerErrorException(
+                    new ExceptionMessageGeneric(),
+                    $e,
+                ),
+            ],
+            'permission exception - 403' => [
+                $e = new InsufficientPermissionException(new ExceptionMessageStandard(
+                    $faker->sentence(),
+                    $faker->sentence(),
+                )),
+                new ForbiddenException(
+                    $e->exceptionMessage,
+                    $e,
+                ),
+            ],
+        ];
     }
 
     #[Test]
-    public function should_show_200_when_admin_successfully_get_post_detail(): void
+    public function should_show_200_when_successfully_get_post_detail(): void
     {
         // Arrange
-        $adminRole = Role::create([
-            'name' => RoleName::ADMIN,
-        ]);
-
-        $adminNotOwner = User::factory()->create();
-        $adminNotOwner->assignRole($adminRole);
-
-        MockerAuthenticatedByJWT::make($this)->mockLogin($adminNotOwner);
-
+        $userActor = User::factory()->create();
+        MockerAuthenticatedByJWT::make($this)->mockLogin($userActor);
 
         // Assert
         $mockCore = $this->mock(
             PostCoreContract::class,
-            function (MockInterface $mock) {
+            function (MockInterface $mock) use ($userActor) {
                 $mock->shouldReceive('get')
                     ->once()
-                    ->withArgs(fn ($argInput) => $this->validateRequest($argInput, $this->mockPost))
-                    ->andReturn($this->mockPost);
+                    ->withArgs(fn ($argInput) => $this->validateRequest(
+                        $argInput,
+                        $this->mockPost,
+                        $userActor,
+                    ))->andReturn($this->mockPost);
             }
         );
         $this->instance(PostCoreContract::class, $mockCore);
@@ -203,9 +207,17 @@ class PostShowTest extends BaseFeatureTestCase
     protected function validateRequest(
         GetSinglePostPort $argInput,
         Post $post,
+        User $user,
     ): bool {
         try {
-            $this->assertTrue($post->is($argInput->getPost()));
+            $this->assertTrue(
+                $post->is($argInput->getPost()),
+                'Post is not the same',
+            );
+            $this->assertTrue(
+                $user->is($argInput->getUserActor()),
+                'User is not the same',
+            );
             return true;
         } catch (ExpectationFailedException $e) {
             dump(

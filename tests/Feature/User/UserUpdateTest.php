@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace Tests\Feature\User;
 
+use App\Core\Formatter\ExceptionErrorCode;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
+use App\Core\User\Policy\UserPolicyContract;
 use App\Core\User\UserCoreContract;
+use App\Exceptions\Core\Auth\Permission\InsufficientPermissionException;
 use App\Exceptions\Core\User\UserEmailDuplicatedException;
+use App\Exceptions\Http\AbstractHttpException;
 use App\Exceptions\Http\ConflictException;
+use App\Exceptions\Http\ForbiddenException;
 use App\Exceptions\Http\InternalServerErrorException;
 use App\Http\Resources\User\UserResource;
 use App\Models\User\User;
@@ -18,6 +23,7 @@ use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Feature\BaseFeatureTestCase;
+use Tests\Helper\MockInstance\Middleware\MockerAuthenticatedByJWT;
 use Tests\Helper\Trait\JSONTrait;
 
 class UserUpdateTest extends BaseFeatureTestCase
@@ -35,6 +41,13 @@ class UserUpdateTest extends BaseFeatureTestCase
         ]);
 
         $this->instance(UserCoreContract::class, $this->mock(UserCoreContract::class));
+
+        $this->mock(
+            UserPolicyContract::class,
+            function (MockInterface $mock) {
+                $mock->shouldReceive('update')->andReturn(true);
+            }
+        );
     }
 
     #[Test]
@@ -43,6 +56,10 @@ class UserUpdateTest extends BaseFeatureTestCase
         string $errorMaker,
         array $input,
     ): void {
+        // Arrange
+        MockerAuthenticatedByJWT::make($this)->mockLogin(User::factory()->create());
+
+
         // Act
         $response = $this->putJson(
             $this->getEndpointUrl($this->user->id),
@@ -152,74 +169,78 @@ class UserUpdateTest extends BaseFeatureTestCase
     }
 
     #[Test]
-    public function should_show_409_when_thrown_duplicated_email_exception(): void
+    public function should_show_401_when_not_logged_in(): void
     {
-        // Arrange
-        $this->withoutExceptionHandling();
-
-        $input = $this->validRequestInput();
+        // Act
+        $response = $this->putJson(
+            $this->getEndpointUrl($this->user->id),
+        );
 
 
         // Assert
-        $mockException = new UserEmailDuplicatedException(new ExceptionMessageStandard(
-            $this->faker->sentence(),
-            $this->faker->word(),
-        ));
-
-        $mockCore = $this->mock(
-            UserCoreContract::class,
-            function (MockInterface $mock) use ($mockException, $input) {
-                $mock->shouldReceive('update')
-                    ->once()
-                    ->withArgs(fn (
-                        UpdateUserPort $argInput
-                    ) => $this->validateRequest($argInput, $input))
-                    ->andThrow($mockException);
-            }
-        );
-        $this->instance(UserCoreContract::class, $mockCore);
-
-
-        try {
-            // Act
-            $this->putJson(
-                $this->getEndpointUrl($this->user->id),
-                $input,
-            );
-            $this->fail('Should throw error');
-        } catch (AssertionFailedError $e) {
-            throw $e;
-            // Assert
-            $expectedException = new ConflictException(
-                $mockException->exceptionMessage,
-                $mockException,
-            );
-            $this->assertEquals($expectedException, $e);
-        } catch (\Throwable $e) {
-        }
+        $response->assertUnauthorized();
+        $response->assertJsonPath('errors.message', 'Authentication is needed');
+        $response->assertJsonPath('errors.errorCode', ExceptionErrorCode::REQUIRE_AUTHORIZATION->value);
     }
 
     #[Test]
-    public function should_show_500_when_generic_error_is_thrown(): void
+    public function should_show_403_when_denied_by_policy(): void
     {
+        // Arrange
+        MockerAuthenticatedByJWT::make($this)->mockLogin(
+            User::factory()->create()->fresh(),
+        );
+
+        $this->mock(
+            UserPolicyContract::class,
+            function (MockInterface $mock) {
+                $mock->shouldReceive('update')->andReturn(false);
+            }
+        );
+
+
+
+        // Act
+        $response = $this->putJson(
+            $this->getEndpointUrl($this->user->id),
+        );
+
+
+        // Assert
+        $response->assertForbidden();
+        $response->assertJsonPath('errors.message', 'Lack of authorization to access this resource');
+        $response->assertJsonPath('errors.errorCode', ExceptionErrorCode::LACK_OF_AUTHORIZATION->value);
+    }
+
+    #[Test]
+    #[DataProvider('exceptionDataProvider')]
+    public function should_show_error_code_when_thrown_by_core(
+        \Throwable $mockException,
+        AbstractHttpException $expectedException,
+    ): void {
         // Arrange
         $this->withoutExceptionHandling();
 
         $input = $this->validRequestInput();
-
-        $mockException = new \Error($this->faker->sentence);
+        MockerAuthenticatedByJWT::make($this)->mockLogin(
+            $userActor = User::factory()->create()->fresh(),
+        );
 
 
         // Assert
         $mockCore = $this->mock(
             UserCoreContract::class,
-            function (MockInterface $mock) use ($input, $mockException) {
+            function (MockInterface $mock) use ($input, $mockException, $userActor) {
                 $mock->shouldReceive('update')
                     ->once()
                     ->withArgs(fn (
                         UpdateUserPort $argInput
-                    ) => $this->validateRequest($argInput, $input))
-                    ->andThrow($mockException);
+                    ) => $this->validateRequest(
+                        $argInput,
+                        $input,
+                        $this->user,
+                        $userActor,
+                    ))->andThrow($mockException);
             }
         );
         $this->instance(UserCoreContract::class, $mockCore);
@@ -236,12 +257,43 @@ class UserUpdateTest extends BaseFeatureTestCase
             throw $e;
         } catch (\Throwable $e) {
             // Assert
-            $expectedException = new InternalServerErrorException(
-                new ExceptionMessageGeneric(),
-                $mockException,
-            );
             $this->assertEquals($expectedException, $e);
         }
+    }
+
+    public static function exceptionDataProvider(): array
+    {
+        $faker = self::makeFaker();
+
+        return [
+            'generic exception - 500' => [
+                $e = new \Error($faker->sentence()),
+                new InternalServerErrorException(
+                    new ExceptionMessageGeneric(),
+                    $e,
+                ),
+            ],
+            'permission exception - 403' => [
+                $e = new InsufficientPermissionException(new ExceptionMessageStandard(
+                    $faker->sentence(),
+                    $faker->sentence(),
+                )),
+                new ForbiddenException(
+                    $e->exceptionMessage,
+                    $e,
+                ),
+            ],
+            'email duplicate exception - 409' => [
+                $e = new UserEmailDuplicatedException(new ExceptionMessageStandard(
+                    $faker->sentence(),
+                    $faker->sentence(),
+                )),
+                new ConflictException(
+                    $e->exceptionMessage,
+                    $e,
+                ),
+            ],
+        ];
     }
 
     #[Test]
@@ -251,17 +303,23 @@ class UserUpdateTest extends BaseFeatureTestCase
         $input = $this->validRequestInput();
         $mockedUser = User::factory()->create();
 
+        MockerAuthenticatedByJWT::make($this)->mockLogin(
+            $userActor = User::factory()->create(),
+        );
 
-        // Assert
         $mockCore = $this->mock(
             UserCoreContract::class,
-            function (MockInterface $mock) use ($input, $mockedUser) {
+            function (MockInterface $mock) use ($input, $mockedUser, $userActor) {
                 $mock->shouldReceive('update')
                     ->once()
                     ->withArgs(fn (
                         UpdateUserPort $argInput
-                    ) => $this->validateRequest($argInput, $input))
-                    ->andReturn($mockedUser);
+                    ) => $this->validateRequest(
+                        $argInput,
+                        $input,
+                        $this->user,
+                        $userActor,
+                    ))->andReturn($mockedUser);
             }
         );
         $this->instance(UserCoreContract::class, $mockCore);
@@ -287,13 +345,24 @@ class UserUpdateTest extends BaseFeatureTestCase
         return route('user.update', ['userID' => $userId]);
     }
 
-    protected function validateRequest(UpdateUserPort $argInput, array $input): bool
-    {
+    protected function validateRequest(
+        UpdateUserPort $argInput,
+        array $input,
+        User $userTarget,
+        User $userActor,
+    ): bool {
         try {
             $this->assertSame($input['email'], $argInput->getEmail());
             $this->assertSame($input['name'], $argInput->getName());
             $this->assertSame($input['password'], $argInput->getUserPassword());
-            $this->assertTrue($argInput->getUserModel()->is($this->user));
+            $this->assertTrue(
+                $argInput->getUserModel()->is($userTarget),
+                'User target not the same',
+            );
+            $this->assertTrue(
+                $argInput->getUserActor()->is($userActor),
+                'User actor not the same',
+            );
             return true;
         } catch (\Throwable $e) {
             dd($e);

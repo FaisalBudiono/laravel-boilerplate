@@ -5,17 +5,20 @@ declare(strict_types=1);
 namespace App\Http\Requests\User;
 
 use App\Http\Requests\BaseRequest;
+use App\Http\Requests\Traits\UserFromRouteTrait;
 use App\Models\User\User;
 use App\Port\Core\User\DeleteUserPort;
 
 class DeleteUserRequest extends BaseRequest implements DeleteUserPort
 {
+    use UserFromRouteTrait;
+
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->getAuthenticatedUser()->can('delete', $this->getUserFromRouteUserID());
     }
 
     /**
@@ -28,8 +31,13 @@ class DeleteUserRequest extends BaseRequest implements DeleteUserPort
         return [];
     }
 
+    public function getUserActor(): User
+    {
+        return $this->getAuthenticatedUser();
+    }
+
     public function getUserModel(): User
     {
-        return $this->route('userID');
+        return $this->getUserFromRouteUserID();
     }
 }

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Policies\Post;
+namespace App\Core\Post\Policy;
 
 use App\Models\Permission\Enum\RoleName;
 use App\Models\Post\Post;
 use App\Models\User\User;
 
-class PostPolicy
+class PostPolicy implements PostPolicyContract
 {
     public function delete(User $user, Post $post): bool
     {
@@ -18,6 +18,11 @@ class PostPolicy
     public function seeAll(User $user): bool
     {
         return $user->roles->contains('name', RoleName::ADMIN);
+    }
+
+    public function seeUserPost(User $user, User $userFilter): bool
+    {
+        return $this->isAdmin($user) || $user->is($userFilter);
     }
 
     public function see(User $user, Post $post): bool

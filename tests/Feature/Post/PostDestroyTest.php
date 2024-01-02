@@ -6,16 +6,19 @@ namespace Tests\Feature\Post;
 
 use App\Core\Formatter\ExceptionErrorCode;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
+use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
+use App\Core\Post\Policy\PostPolicyContract;
 use App\Core\Post\PostCoreContract;
+use App\Exceptions\Core\Auth\Permission\InsufficientPermissionException;
+use App\Exceptions\Http\AbstractHttpException;
+use App\Exceptions\Http\ForbiddenException;
 use App\Exceptions\Http\InternalServerErrorException;
-use App\Models\Permission\Enum\RoleName;
-use App\Models\Permission\Role;
 use App\Models\Post\Post;
 use App\Models\User\User;
 use App\Port\Core\Post\DeletePostPort;
-use Exception;
 use Mockery\MockInterface;
 use PHPUnit\Framework\AssertionFailedError;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\ExpectationFailedException;
 use Tests\Feature\BaseFeatureTestCase;
@@ -34,6 +37,13 @@ class PostDestroyTest extends BaseFeatureTestCase
         ]);
 
         $this->instance(PostCoreContract::class, $this->mock(PostCoreContract::class));
+
+        $this->mock(
+            PostPolicyContract::class,
+            function (MockInterface $mock) {
+                $mock->shouldReceive('delete')->andReturn(true);
+            }
+        );
     }
 
     #[Test]
@@ -52,12 +62,18 @@ class PostDestroyTest extends BaseFeatureTestCase
     }
 
     #[Test]
-    public function should_show_403_when_user_neither_the_owner_or_admin(): void
+    public function should_show_403_when_denied_by_policy(): void
     {
         // Arrange
-        $notOwnerUser = User::factory()->create();
         MockerAuthenticatedByJWT::make($this)
-            ->mockLogin($notOwnerUser);
+            ->mockLogin($this->mockPost->user);
+
+        $this->mock(
+            PostPolicyContract::class,
+            function (MockInterface $mock) {
+                $mock->shouldReceive('delete')->andReturn(false);
+            }
+        );
 
 
         // Act
@@ -79,26 +95,28 @@ class PostDestroyTest extends BaseFeatureTestCase
     }
 
     #[Test]
-    public function should_show_500_when_generic_error_is_thrown(): void
-    {
+    #[DataProvider('exceptionDataProvider')]
+    public function should_show_error_code_when_thrown_by_core(
+        \Throwable $mockException,
+        AbstractHttpException $expectedException,
+    ): void {
         // Arrange
         $this->withoutExceptionHandling();
 
+        $user = User::factory()->create();
+
         MockerAuthenticatedByJWT::make($this)
-            ->mockLogin($this->mockPost->user);
+            ->mockLogin($user);
 
-        $mockException = new Exception($this->faker->sentence());
-
-
-        // Assert
         $mockCore = $this->mock(
             PostCoreContract::class,
-            function (MockInterface $mock) use ($mockException) {
+            function (MockInterface $mock) use ($mockException, $user) {
                 $mock->shouldReceive('delete')
                     ->once()
                     ->withArgs(fn ($argInput) => $this->validateRequest(
                         $argInput,
                         $this->mockPost,
+                        $user,
                     ))->andThrow($mockException);
             }
         );
@@ -115,69 +133,52 @@ class PostDestroyTest extends BaseFeatureTestCase
             throw $e;
         } catch (\Throwable $e) {
             // Assert
-            $expectedException = new InternalServerErrorException(
-                new ExceptionMessageGeneric(),
-                $mockException,
-            );
             $this->assertEquals($expectedException, $e);
         }
     }
 
-    #[Test]
-    public function should_show_204_when_owner_successfully_delete_post(): void
+    public static function exceptionDataProvider(): array
     {
-        // Arrange
-        MockerAuthenticatedByJWT::make($this)->mockLogin($this->mockPost->user);
+        $faker = self::makeFaker();
 
-
-        // Assert
-        $mockCore = $this->mock(
-            PostCoreContract::class,
-            function (MockInterface $mock) {
-                $mock->shouldReceive('delete')
-                    ->once()
-                    ->withArgs(fn ($argInput) => $this->validateRequest(
-                        $argInput,
-                        $this->mockPost,
-                    ))->andReturn($this->mockPost);
-            }
-        );
-        $this->instance(PostCoreContract::class, $mockCore);
-
-
-        // Act
-        $response = $this->deleteJson(
-            $this->getEndpointUrl($this->mockPost->id),
-        );
-
-
-        // Assert
-        $response->assertNoContent();
+        return [
+            'generic exception - 500' => [
+                $e = new \Error($faker->sentence()),
+                new InternalServerErrorException(
+                    new ExceptionMessageGeneric(),
+                    $e,
+                ),
+            ],
+            'permission exception - 403' => [
+                $e = new InsufficientPermissionException(new ExceptionMessageStandard(
+                    $faker->sentence(),
+                    $faker->sentence(),
+                )),
+                new ForbiddenException(
+                    $e->exceptionMessage,
+                    $e,
+                ),
+            ],
+        ];
     }
 
     #[Test]
-    public function should_show_204_when_admin_successfully_delete_post(): void
+    public function should_show_204_when_successfully_delete_post(): void
     {
         // Arrange
-        $adminRole = Role::create([
-            'name' => RoleName::ADMIN,
-        ]);
+        $user = User::factory()->create();
 
-        $adminNotOwner = User::factory()->create();
-        $adminNotOwner->assignRole($adminRole);
+        MockerAuthenticatedByJWT::make($this)->mockLogin($user);
 
-        MockerAuthenticatedByJWT::make($this)->mockLogin($adminNotOwner);
-
-
-        // Assert
         $mockCore = $this->mock(
             PostCoreContract::class,
-            function (MockInterface $mock) {
+            function (MockInterface $mock) use ($user) {
                 $mock->shouldReceive('delete')
                     ->once()
                     ->withArgs(fn ($argInput) => $this->validateRequest(
                         $argInput,
                         $this->mockPost,
+                        $user,
                     ))->andReturn($this->mockPost);
             }
         );
@@ -202,9 +203,17 @@ class PostDestroyTest extends BaseFeatureTestCase
     protected function validateRequest(
         DeletePostPort $argInput,
         Post $post,
+        User $user,
     ): bool {
         try {
-            $this->assertEquals($post->id, $argInput->getPost()->id);
+            $this->assertTrue(
+                $argInput->getPost()->is($post),
+                'Post is not the same',
+            );
+            $this->assertTrue(
+                $argInput->getUserActor()->is($user),
+                'User is not the same',
+            );
 
             return true;
         } catch (ExpectationFailedException $e) {

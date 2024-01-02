@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace App\Port\Core\Post;
 
 use App\Models\Post\Post;
-use App\Models\User\User;
+use App\Port\Core\NeedActorPort;
 
-interface UpdatePostPort
+interface UpdatePostPort extends NeedActorPort
 {
-    public function getUserActor(): User;
-
     public function getPost(): Post;
     public function getTitle(): string;
     public function getPostContent(): ?string;

@@ -6,7 +6,11 @@ namespace Tests\Feature\Post;
 
 use App\Core\Formatter\ExceptionErrorCode;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
+use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
 use App\Core\Post\PostCoreContract;
+use App\Exceptions\Core\Auth\Permission\InsufficientPermissionException;
+use App\Exceptions\Http\AbstractHttpException;
+use App\Exceptions\Http\ForbiddenException;
 use App\Exceptions\Http\InternalServerErrorException;
 use App\Http\Resources\Post\PostResource;
 use App\Models\Post\Post;
@@ -125,8 +129,11 @@ class PostIndexTest extends BaseFeatureTestCase
     }
 
     #[Test]
-    public function should_show_500_when_generic_error_is_thrown(): void
-    {
+    #[DataProvider('exceptionDataProvider')]
+    public function should_show_error_code_when_thrown_by_core(
+        \Throwable $mockException,
+        AbstractHttpException $expectedException,
+    ): void {
         // Arrange
         $this->withoutExceptionHandling();
 
@@ -136,10 +143,6 @@ class PostIndexTest extends BaseFeatureTestCase
         MockerAuthenticatedByJWT::make($this)
             ->mockLogin($mockedLoggedInUser);
 
-        $mockException = new Exception($this->faker->sentence());
-
-
-        // Assert
         $mockCore = $this->mock(
             PostCoreContract::class,
             function (MockInterface $mock) use ($mockException, $mockedLoggedInUser, $input) {
@@ -165,12 +168,33 @@ class PostIndexTest extends BaseFeatureTestCase
             throw $e;
         } catch (\Throwable $e) {
             // Assert
-            $expectedException = new InternalServerErrorException(
-                new ExceptionMessageGeneric(),
-                $mockException,
-            );
             $this->assertEquals($expectedException, $e);
         }
+    }
+
+    public static function exceptionDataProvider(): array
+    {
+        $faker = self::makeFaker();
+
+        return [
+            'generic exception - 500' => [
+                $e = new \Error($faker->sentence()),
+                new InternalServerErrorException(
+                    new ExceptionMessageGeneric(),
+                    $e,
+                ),
+            ],
+            'permission exception - 403' => [
+                $e = new InsufficientPermissionException(new ExceptionMessageStandard(
+                    $faker->sentence(),
+                    $faker->sentence(),
+                )),
+                new ForbiddenException(
+                    $e->exceptionMessage,
+                    $e,
+                ),
+            ],
+        ];
     }
 
     #[Test]
