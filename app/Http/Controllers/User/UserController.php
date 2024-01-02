@@ -12,7 +12,6 @@ use App\Exceptions\Http\ConflictException;
 use App\Exceptions\Http\ForbiddenException;
 use App\Exceptions\Http\InternalServerErrorException;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\User\CreateUserRequest;
 use App\Http\Requests\User\DeleteUserRequest;
 use App\Http\Requests\User\GetAllUserRequest;
 use App\Http\Requests\User\GetMyInfoRequest;
@@ -80,21 +79,6 @@ class UserController extends Controller
                 ->setStatusCode(Response::HTTP_OK);
         } catch (PermissionException $e) {
             throw new ForbiddenException($e->exceptionMessage, $e);
-        } catch (Throwable $e) {
-            throw new InternalServerErrorException(new ExceptionMessageGeneric(), $e);
-        }
-    }
-
-    public function store(CreateUserRequest $request)
-    {
-        try {
-            $user = $this->core->create($request);
-
-            return UserResource::make($user)
-                ->response()
-                ->setStatusCode(Response::HTTP_CREATED);
-        } catch (UserEmailDuplicatedException $e) {
-            throw new ConflictException($e->exceptionMessage, $e);
         } catch (Throwable $e) {
             throw new InternalServerErrorException(new ExceptionMessageGeneric(), $e);
         }

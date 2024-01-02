@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Requests\User;
+namespace App\Http\Requests\Auth;
 
 use App\Http\Requests\BaseRequest;
 use App\Port\Core\User\CreateUserPort;
 
-class CreateUserRequest extends BaseRequest implements CreateUserPort
+class RegisterRequest extends BaseRequest implements CreateUserPort
 {
     /**
      * Determine if the user is authorized to make this request.
