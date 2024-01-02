@@ -11,6 +11,7 @@ use App\Exceptions\Core\Auth\Permission\InsufficientPermissionException;
 use App\Exceptions\Core\User\UserEmailDuplicatedException;
 use App\Models\Permission\Enum\RoleName;
 use App\Core\User\Enum\UserExceptionCode;
+use App\Events\User\UserCreated;
 use App\Models\User\User;
 use App\Port\Core\User\CreateUserPort;
 use App\Port\Core\User\DeleteUserPort;
@@ -47,6 +48,8 @@ class UserCore implements UserCoreContract
             $user->save();
 
             $user->syncRoles(RoleName::NORMAL);
+
+            UserCreated::dispatch($user);
 
             DB::commit();
 
