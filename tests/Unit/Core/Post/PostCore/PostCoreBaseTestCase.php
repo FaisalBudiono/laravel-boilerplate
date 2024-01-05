@@ -19,10 +19,7 @@ class PostCoreBaseTestCase extends TestCase
     protected function assertLoadedRelationships(Post $model): void
     {
         $this->expectationLoadedRelationships()->each(function (string $relationship) use ($model) {
-            $this->assertTrue(
-                $model->relationLoaded($relationship),
-                "{$relationship} not loaded",
-            );
+            $this->assertNestedRelationship($model, $relationship);
         });
     }
 
