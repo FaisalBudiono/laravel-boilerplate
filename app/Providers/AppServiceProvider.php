@@ -29,6 +29,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Model::preventLazyLoading(!$this->app->environment('production'));
+        Model::shouldBeStrict(!$this->app->environment('production'));
     }
 }
