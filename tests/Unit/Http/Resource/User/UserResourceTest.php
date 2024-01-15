@@ -27,13 +27,13 @@ class UserResourceTest extends TestCase
 
 
         // Act
-        $result = json_decode(UserResource::make($user)->toJson(), true);
+        $result = UserResource::make($user)->toJson();
 
 
         // Assert
-        $this->assertEquals([
+        $this->assertJsonStringEqualsJsonString(json_encode([
             ...$this->makeDefaultResponse($user),
-        ], $result);
+        ]), $result);
     }
 
     public static function dateDataProvider(): array
@@ -51,7 +51,7 @@ class UserResourceTest extends TestCase
     protected function makeDefaultResponse(User $user): array
     {
         return [
-            'id' => $user->id,
+            'id' => (string) $user->id,
             'name' => $user->name,
             'email' => $user->email,
             'createdAt' => $user->created_at?->format(DatetimeFormat::ISO_WITH_MILLIS->value),

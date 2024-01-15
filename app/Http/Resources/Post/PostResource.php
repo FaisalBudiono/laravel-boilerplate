@@ -20,7 +20,7 @@ class PostResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->model()->id,
+            'id' => (string) $this->model()->id,
             'title' => $this->model()->title,
             'content' => $this->model()->content,
             'user' => UserResource::make($this->whenLoaded('user')),

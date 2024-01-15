@@ -19,7 +19,7 @@ class UserResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->model()->id,
+            'id' => (string) $this->model()->id,
             'name' => $this->model()->name,
             'email' => $this->model()->email,
             'createdAt' => $this->model()->created_at?->format(DatetimeFormat::ISO_WITH_MILLIS->value),

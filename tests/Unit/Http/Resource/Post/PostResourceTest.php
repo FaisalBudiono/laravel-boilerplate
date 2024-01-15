@@ -29,13 +29,13 @@ class PostResourceTest extends TestCase
 
 
         // Act
-        $result = json_decode(PostResource::make($post)->toJson(), true);
+        $result = PostResource::make($post)->toJson();
 
 
         // Assert
-        $this->assertEquals([
+        $this->assertJsonStringEqualsJsonString(json_encode([
             ...$this->makeDefaultResponse($post),
-        ], $result);
+        ]), $result);
     }
 
     public static function dateDataProvider(): array
@@ -59,20 +59,20 @@ class PostResourceTest extends TestCase
 
 
         // Act
-        $result = json_decode(PostResource::make($post)->toJson(), true);
+        $result = PostResource::make($post)->toJson();
 
 
         // Assert
-        $this->assertEquals([
+        $this->assertJsonStringEqualsJsonString(json_encode([
             ...$this->makeDefaultResponse($post),
             'user' => json_decode(UserResource::make($post->user)->toJson(), true),
-        ], $result);
+        ]), $result);
     }
 
     protected function makeDefaultResponse(Post $post): array
     {
         return [
-            'id' => $post->id,
+            'id' => (string) $post->id,
             'title' => $post->title,
             'content' => $post->content,
             'createdAt' => $post->created_at?->format(DatetimeFormat::ISO_WITH_MILLIS->value),
