@@ -34,11 +34,7 @@ class PostResourceTest extends TestCase
 
         // Assert
         $this->assertEquals([
-            'id' => $post->id,
-            'title' => $post->title,
-            'content' => $post->content,
-            'createdAt' => $post->created_at?->format(DatetimeFormat::ISO_WITH_MILLIS->value),
-            'updatedAt' => $post->updated_at?->format(DatetimeFormat::ISO_WITH_MILLIS->value),
+            ...$this->makeDefaultResponse($post),
         ], $result);
     }
 
@@ -68,12 +64,19 @@ class PostResourceTest extends TestCase
 
         // Assert
         $this->assertEquals([
+            ...$this->makeDefaultResponse($post),
+            'user' => json_decode(UserResource::make($post->user)->toJson(), true),
+        ], $result);
+    }
+
+    protected function makeDefaultResponse(Post $post): array
+    {
+        return [
             'id' => $post->id,
             'title' => $post->title,
             'content' => $post->content,
-            'user' => json_decode(UserResource::make($post->user)->toJson(), true),
             'createdAt' => $post->created_at?->format(DatetimeFormat::ISO_WITH_MILLIS->value),
             'updatedAt' => $post->updated_at?->format(DatetimeFormat::ISO_WITH_MILLIS->value),
-        ], $result);
+        ];
     }
 }
