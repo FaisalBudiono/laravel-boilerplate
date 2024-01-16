@@ -16,7 +16,6 @@ use App\Http\Resources\Post\PostResource;
 use App\Models\Post\Post;
 use App\Models\User\User;
 use App\Port\Core\Post\GetAllPostPort;
-use Exception;
 use Mockery\MockInterface;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -25,9 +24,12 @@ use PHPUnit\Framework\ExpectationFailedException;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Feature\BaseFeatureTestCase;
 use Tests\Helper\MockInstance\Middleware\MockerAuthenticatedByJWT;
+use Tests\Helper\Trait\EmptyStringToNullTrait;
 
 class PostIndexTest extends BaseFeatureTestCase
 {
+    use EmptyStringToNullTrait;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -253,6 +255,11 @@ class PostIndexTest extends BaseFeatureTestCase
                     ->replace(['per_page' => null])
                     ->toArray(),
             ],
+            'per_page is empty string' => [
+                collect(self::validRequestInput())
+                    ->replace(['per_page' => ''])
+                    ->toArray(),
+            ],
 
             'without page' => [
                 collect(self::validRequestInput())
@@ -264,6 +271,11 @@ class PostIndexTest extends BaseFeatureTestCase
                     ->replace(['page' => null])
                     ->toArray(),
             ],
+            'page is empty string' => [
+                collect(self::validRequestInput())
+                    ->replace(['page' => ''])
+                    ->toArray(),
+            ],
 
             'without user' => [
                 collect(self::validRequestInput())
@@ -273,6 +285,11 @@ class PostIndexTest extends BaseFeatureTestCase
             'user is null' => [
                 collect(self::validRequestInput())
                     ->replace(['user' => null])
+                    ->toArray(),
+            ],
+            'user is empty string' => [
+                collect(self::validRequestInput())
+                    ->replace(['user' => ''])
                     ->toArray(),
             ],
         ];
@@ -290,15 +307,15 @@ class PostIndexTest extends BaseFeatureTestCase
     ): bool {
         try {
             $this->assertEquals(
-                $input['user'] ?? null,
+                $this->emptyStringToNull($input['user'] ?? null),
                 $argInput->getUserFilter()?->id,
             );
             $this->assertEquals(
-                $input['page'] ?? 1,
+                $this->emptyStringToNull($input['page'] ?? null) ?? 1,
                 $argInput->getPage(),
             );
             $this->assertEquals(
-                $input['per_page'] ?? null,
+                $this->emptyStringToNull($input['per_page'] ?? null),
                 $argInput->getPerPage(),
             );
             $this->assertEquals(

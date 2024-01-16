@@ -28,9 +28,9 @@ class GetAllPostRequest extends BaseRequest implements GetAllPostPort
     public function rules(): array
     {
         return [
-            'user' => ['integer'],
-            'page' => ['integer'],
-            'per_page' => ['integer'],
+            'user' => ['nullable', 'integer'],
+            'page' => ['nullable', 'integer'],
+            'per_page' => ['nullable', 'integer'],
         ];
     }
 

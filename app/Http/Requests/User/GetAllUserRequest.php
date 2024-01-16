@@ -29,10 +29,10 @@ class GetAllUserRequest extends BaseRequest implements GetAllUserPort
     public function rules(): array
     {
         return [
-            'order_by' => ['bail', 'string', new BackedEnumRule(UserOrderBy::NAME)],
-            'order_dir' => ['bail', 'string', new BackedEnumRule(OrderDirection::ASCENDING)],
-            'page' => ['bail', 'integer'],
-            'per_page' => ['bail', 'integer'],
+            'order_by' => ['bail', 'nullable', 'string', new BackedEnumRule(UserOrderBy::NAME)],
+            'order_dir' => ['bail', 'nullable', 'string', new BackedEnumRule(OrderDirection::ASCENDING)],
+            'page' => ['bail', 'nullable', 'integer'],
+            'per_page' => ['bail', 'nullable', 'integer'],
         ];
     }
 

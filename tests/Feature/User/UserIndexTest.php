@@ -24,10 +24,12 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Feature\BaseFeatureTestCase;
 use Tests\Helper\MockInstance\Middleware\MockerAuthenticatedByJWT;
+use Tests\Helper\Trait\EmptyStringToNullTrait;
 use Tests\Helper\Trait\JSONTrait;
 
 class UserIndexTest extends BaseFeatureTestCase
 {
+    use EmptyStringToNullTrait;
     use JSONTrait;
 
     protected function setUp(): void
@@ -321,6 +323,11 @@ class UserIndexTest extends BaseFeatureTestCase
                     ->except('order_by')
                     ->toArray(),
             ],
+            'order_by is empty string' => [
+                collect(self::validRequestInput())
+                    ->replace(['order_by' => ''])
+                    ->toArray(),
+            ],
 
             'order_dir is null' => [
                 collect(self::validRequestInput())
@@ -331,6 +338,11 @@ class UserIndexTest extends BaseFeatureTestCase
             'without order_dir' => [
                 collect(self::validRequestInput())
                     ->except('order_dir')
+                    ->toArray(),
+            ],
+            'order_dir is empty string' => [
+                collect(self::validRequestInput())
+                    ->replace(['order_dir' => ''])
                     ->toArray(),
             ],
 
@@ -345,6 +357,11 @@ class UserIndexTest extends BaseFeatureTestCase
                     ->except('page')
                     ->toArray(),
             ],
+            'page is empty string' => [
+                collect(self::validRequestInput())
+                    ->replace(['page' => ''])
+                    ->toArray(),
+            ],
 
             'per_page is null' => [
                 collect(self::validRequestInput())
@@ -355,6 +372,11 @@ class UserIndexTest extends BaseFeatureTestCase
             'without per_page' => [
                 collect(self::validRequestInput())
                     ->except('per_page')
+                    ->toArray(),
+            ],
+            'per_page is empty string' => [
+                collect(self::validRequestInput())
+                    ->replace(['per_page' => ''])
                     ->toArray(),
             ],
         ];
@@ -372,19 +394,19 @@ class UserIndexTest extends BaseFeatureTestCase
     ): bool {
         try {
             $this->assertSame(
-                $input['order_by'] ?? null,
+                $this->emptyStringToNull($input['order_by'] ?? null),
                 $argInput->getOrderBy()?->value
             );
             $this->assertSame(
-                $input['order_dir'] ?? null,
+                $this->emptyStringToNull($input['order_dir'] ?? null),
                 $argInput->getOrderDirection()?->value
             );
             $this->assertSame(
-                $input['page'] ?? null,
+                $this->emptyStringToNull($input['page'] ?? null),
                 $argInput->getPage()
             );
             $this->assertSame(
-                $input['per_page'] ?? null,
+                $this->emptyStringToNull($input['per_page'] ?? null),
                 $argInput->getPerPage()
             );
             $this->assertTrue(
