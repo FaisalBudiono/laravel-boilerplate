@@ -22,6 +22,9 @@ interface LogMessageDirectorContract
     public function buildEndpointHTTP(
         LogMessageBuilderContract $builder,
     ): LogMessageBuilderContract;
+    public function buildIPHTTP(
+        LogMessageBuilderContract $builder,
+    ): LogMessageBuilderContract;
 
     public function buildForException(
         LogMessageBuilderContract $builder,

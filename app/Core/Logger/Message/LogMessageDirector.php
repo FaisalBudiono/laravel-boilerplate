@@ -50,6 +50,12 @@ class LogMessageDirector implements LogMessageDirectorContract
         return $this->setDefaultEndpoint($builder);
     }
 
+    public function buildIPHTTP(
+        LogMessageBuilderContract $builder,
+    ): LogMessageBuilderContract {
+        return $this->setIP($builder);
+    }
+
     public function buildForException(
         LogMessageBuilderContract $builder,
         Throwable $e,

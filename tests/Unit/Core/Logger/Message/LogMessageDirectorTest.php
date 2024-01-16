@@ -258,6 +258,41 @@ class LogMessageDirectorTest extends TestCase
     }
 
     #[Test]
+    public function buildIPHTTP_should_return_builder_correctly(): void
+    {
+        // Arrange
+        $mockedIP = $this->faker->ipv4();
+
+        $mockRequest = $this->mock(
+            Request::class,
+            function (MockInterface $mock) use (
+                $mockedIP,
+            ) {
+                $mock->shouldReceive('ip')->once()->withNoArgs()->andReturn($mockedIP);
+            }
+        );
+        assert($mockRequest instanceof Request);
+
+        $mockLogBuilder = $this->mock(
+            LogMessageBuilderContract::class,
+            function (MockInterface $mock) use (
+                $mockedIP,
+            ) {
+                $mock->shouldReceive('ip')->once()->with($mockedIP)->andReturn($mock);
+            }
+        );
+        assert($mockLogBuilder instanceof LogMessageBuilderContract);
+
+
+        // Act
+        $result = $this->makeService($mockRequest)->buildIPHTTP($mockLogBuilder);
+
+
+        // Assert
+        $this->assertEquals($mockLogBuilder, $result);
+    }
+
+    #[Test]
     #[DataProvider('exceptionDataProvider')]
     public function buildForException_should_return_builder_correctly(
         \Throwable $mockedException,
