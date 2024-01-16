@@ -10,6 +10,7 @@ class LogMessageBuilder implements LogMessageBuilderContract
 {
     protected ?string $endpoint;
     protected ?string $requestID;
+    protected ?string $ip;
     protected ?ProcessingStatus $processingStatus;
     protected ?string $message;
     protected ?array $meta;
@@ -23,6 +24,12 @@ class LogMessageBuilder implements LogMessageBuilderContract
     public function requestID(string $requestID): self
     {
         $this->requestID = $requestID;
+        return $this;
+    }
+
+    public function ip(string $ip): self
+    {
+        $this->ip = $ip;
         return $this;
     }
 
@@ -49,6 +56,7 @@ class LogMessageBuilder implements LogMessageBuilderContract
         return new LogMessage(
             $this->endpoint ?? '',
             $this->requestID ?? '',
+            $this->ip ?? '',
             $this->processingStatus ?? ProcessingStatus::BEGIN,
             $this->message ?? '',
             $this->meta ?? [],

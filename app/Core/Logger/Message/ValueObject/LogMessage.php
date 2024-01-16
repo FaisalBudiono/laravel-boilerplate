@@ -12,6 +12,7 @@ class LogMessage implements Stringable
     public function __construct(
         protected string $endpoint,
         protected string $requestID,
+        protected string $ip,
         protected ProcessingStatus $processingStatus,
         protected string $message,
         protected array $meta,
@@ -28,6 +29,7 @@ class LogMessage implements Stringable
         return [
             'endpoint' => $this->endpoint,
             'request-id' => $this->requestID,
+            'ip' => $this->ip,
             'processing-status' => $this->processingStatus->value,
             'message' => $this->message,
             'meta' => $this->meta,
