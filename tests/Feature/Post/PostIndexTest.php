@@ -66,18 +66,18 @@ class PostIndexTest extends BaseFeatureTestCase
         $faker = self::makeFaker();
 
         return [
-            'user_id is not a number (now contain string)' => [
-                'user_id',
+            'user is not a number (now contain string)' => [
+                'user',
                 collect(self::validRequestInput())
                     ->replace([
-                        'user_id' => $faker->words(3, true),
+                        'user' => $faker->words(3, true),
                     ])->toArray(),
             ],
-            'user_id is not a number (now contain array)' => [
-                'user_id',
+            'user is not a number (now contain array)' => [
+                'user',
                 collect(self::validRequestInput())
                     ->replace([
-                        'user_id' => $faker->words(),
+                        'user' => $faker->words(),
                     ])->toArray(),
             ],
 
@@ -265,12 +265,12 @@ class PostIndexTest extends BaseFeatureTestCase
                     ->toArray(),
             ],
 
-            'without user_id' => [
+            'without user' => [
                 collect(self::validRequestInput())
-                    ->except('user_id')
+                    ->except('user')
                     ->toArray(),
             ],
-            'user_id is null' => [
+            'user is null' => [
                 collect(self::validRequestInput())
                     ->replace(['user' => null])
                     ->toArray(),
@@ -290,7 +290,7 @@ class PostIndexTest extends BaseFeatureTestCase
     ): bool {
         try {
             $this->assertEquals(
-                $input['user_id'] ?? null,
+                $input['user'] ?? null,
                 $argInput->getUserFilter()?->id,
             );
             $this->assertEquals(
@@ -329,7 +329,7 @@ class PostIndexTest extends BaseFeatureTestCase
         $faker = self::makeFaker();
 
         return [
-            'user_id' => self::userDummyID(),
+            'user' => self::userDummyID(),
             'page' => $faker->numberBetween(),
             'per_page' => $faker->numberBetween(),
         ];
