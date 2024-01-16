@@ -25,10 +25,12 @@ use Symfony\Component\HttpFoundation\Response;
 use Tests\Feature\BaseFeatureTestCase;
 use Tests\Helper\MockInstance\Middleware\MockerAuthenticatedByJWT;
 use Tests\Helper\Trait\EmptyStringToNullTrait;
+use Tests\Helper\Trait\JSONTrait;
 
 class PostIndexTest extends BaseFeatureTestCase
 {
     use EmptyStringToNullTrait;
+    use JSONTrait;
 
     protected function setUp(): void
     {
@@ -234,7 +236,7 @@ class PostIndexTest extends BaseFeatureTestCase
         // Assert
         $response->assertStatus(Response::HTTP_OK);
 
-        $expectedResponse = json_decode(PostResource::collection($mockedPosts)->toJson(), true);
+        $expectedResponse = $this->jsonToArray(PostResource::collection($mockedPosts)->toJson());
         $response->assertJsonPath('data', $expectedResponse);
     }
 
