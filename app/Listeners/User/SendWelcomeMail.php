@@ -19,7 +19,6 @@ class SendWelcomeMail implements ShouldQueue
      * Create the event listener.
      */
     public function __construct(
-        protected Randomizer $randomizer,
         protected LogMessageBuilderContract $logMessageBuilder,
         protected LogMessageDirectorContract $logMessageDirector,
     ) {
@@ -32,12 +31,10 @@ class SendWelcomeMail implements ShouldQueue
     public function handle(UserCreated $event): void
     {
         try {
-            $requestID = $this->randomizer->getRandomizeString();
-
             Log::info(
                 $this->logMessageDirector->buildBegin(
                     clone $this->logMessageBuilder,
-                )->requestID($requestID)
+                )->requestID($event->requestID)
                     ->endpoint(LogEndpoint::QUEUE->value)
                     ->message(self::class)
                     ->meta([
@@ -50,7 +47,7 @@ class SendWelcomeMail implements ShouldQueue
             Log::info(
                 $this->logMessageDirector->buildSuccess(
                     clone $this->logMessageBuilder,
-                )->requestID($requestID)
+                )->requestID($event->requestID)
                     ->endpoint(LogEndpoint::QUEUE->value)
                     ->message(self::class)
                     ->build()
@@ -59,7 +56,7 @@ class SendWelcomeMail implements ShouldQueue
             Log::error(
                 $this->logMessageDirector->buildSuccess(
                     clone $this->logMessageBuilder,
-                )->requestID($requestID)
+                )->requestID($event->requestID)
                     ->endpoint(LogEndpoint::QUEUE->value)
                     ->message(self::class)
                     ->build()

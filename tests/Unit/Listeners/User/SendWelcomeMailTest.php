@@ -45,16 +45,8 @@ class SendWelcomeMailTest extends TestCase
         // Arrange
         $event = new UserCreated(
             $user = User::factory()->create(),
-            $this->faker->uuid(),
+            $mockedRequestID = $this->faker->uuid(),
         );
-
-        $mockedRequestID = $this->faker->uuid();
-        $mockRandomizer = $this->mock(
-            Randomizer::class,
-            fn (MockInterface $mock) =>
-            $mock->shouldReceive('getRandomizeString')->once()->andReturn($mockedRequestID)
-        );
-        assert($mockRandomizer instanceof Randomizer);
 
         $mockLogMessage = $this->mock(LogMessage::class);
         $mockLogBuilder = $this->mock(
@@ -95,7 +87,6 @@ class SendWelcomeMailTest extends TestCase
         try {
             // Act
             $this->makeService(
-                randomizer: $mockRandomizer,
                 logMessageBuilder: $mockLogBuilder,
                 logMessageDirector: $mockLogDirector,
             )->handle($event);
@@ -115,16 +106,8 @@ class SendWelcomeMailTest extends TestCase
         // Arrange
         $event = new UserCreated(
             $user = User::factory()->create(),
-            $this->faker->uuid(),
+            $mockedRequestID = $this->faker->uuid(),
         );
-
-        $mockedRequestID = $this->faker->uuid();
-        $mockRandomizer = $this->mock(
-            Randomizer::class,
-            fn (MockInterface $mock) =>
-            $mock->shouldReceive('getRandomizeString')->once()->andReturn($mockedRequestID)
-        );
-        assert($mockRandomizer instanceof Randomizer);
 
         $mockLogMessage = $this->mock(LogMessage::class);
         $mockLogBuilder = $this->mock(
@@ -157,7 +140,6 @@ class SendWelcomeMailTest extends TestCase
 
         // Act
         $this->makeService(
-            randomizer: $mockRandomizer,
             logMessageBuilder: $mockLogBuilder,
             logMessageDirector: $mockLogDirector,
         )->handle($event);
@@ -171,12 +153,10 @@ class SendWelcomeMailTest extends TestCase
     }
 
     protected function makeService(
-        ?Randomizer $randomizer = null,
         ?LogMessageBuilderContract $logMessageBuilder = null,
         ?LogMessageDirectorContract $logMessageDirector = null,
     ): SendWelcomeMail {
         return new SendWelcomeMail(
-            $randomizer ?? $this->mock(Randomizer::class),
             $logMessageBuilder ?? $this->mock(LogMessageBuilderContract::class),
             $logMessageDirector ?? $this->mock(LogMessageDirectorContract::class),
         );
