@@ -10,7 +10,6 @@ use App\Core\Logger\Message\LogMessageDirector;
 use App\Core\Logger\Message\LogMessageDirectorContract;
 use App\Core\Logger\Message\ProcessingStatus;
 use App\Exceptions\Core\Auth\InvalidCredentialException;
-use App\Exceptions\Core\User\UserEmailDuplicatedException;
 use App\Exceptions\Http\UnprocessableEntityException;
 use App\Http\Middleware\XRequestIDMiddleware;
 use Illuminate\Http\Request;
@@ -38,6 +37,7 @@ class LogMessageDirectorTest extends TestCase
         $mockedUUID = $this->faker->uuid();
         $mockedURL = $this->faker->url();
         $mockedMethod = $this->faker->word();
+        $mockedIP = $this->faker->ipv4();
 
         $mockRequest = $this->mock(
             Request::class,
@@ -45,10 +45,12 @@ class LogMessageDirectorTest extends TestCase
                 $mockedUUID,
                 $mockedURL,
                 $mockedMethod,
+                $mockedIP,
             ) {
                 $mock->shouldReceive('header')->once()->with(XRequestIDMiddleware::HEADER_NAME)->andReturn($mockedUUID);
                 $mock->shouldReceive('url')->once()->withNoArgs()->andReturn($mockedURL);
                 $mock->shouldReceive('method')->once()->withNoArgs()->andReturn($mockedMethod);
+                $mock->shouldReceive('ip')->once()->withNoArgs()->andReturn($mockedIP);
             }
         );
         assert($mockRequest instanceof Request);
@@ -59,11 +61,13 @@ class LogMessageDirectorTest extends TestCase
                 $mockedUUID,
                 $mockedURL,
                 $mockedMethod,
+                $mockedIP,
                 $processingStatus,
             ) {
                 $mock->shouldReceive('requestID')->once()->with($mockedUUID)->andReturn($mock);
                 $mock->shouldReceive('endpoint')->once()->with("{$mockedMethod} {$mockedURL}")->andReturn($mock);
                 $mock->shouldReceive('processingStatus')->once()->with($processingStatus)->andReturn($mock);
+                $mock->shouldReceive('ip')->once()->with($mockedIP)->andReturn($mock);
             }
         );
         assert($mockLogBuilder instanceof LogMessageBuilderContract);
@@ -108,6 +112,7 @@ class LogMessageDirectorTest extends TestCase
         // Arrange
         $mockedURL = $this->faker->url();
         $mockedMethod = $this->faker->word();
+        $mockedIP = $this->faker->ipv4();
 
         $mockRequest = $this->mock(
             Request::class,
@@ -115,9 +120,11 @@ class LogMessageDirectorTest extends TestCase
                 $mockedURL,
                 $mockedMethod,
                 $headerResult,
+                $mockedIP,
             ) {
                 $mock->shouldReceive('header')->once()->with(XRequestIDMiddleware::HEADER_NAME)->andReturn($headerResult);
                 $mock->shouldReceive('url')->once()->withNoArgs()->andReturn($mockedURL);
+                $mock->shouldReceive('ip')->once()->withNoArgs()->andReturn($mockedIP);
                 $mock->shouldReceive('method')->once()->withNoArgs()->andReturn($mockedMethod);
             }
         );
@@ -128,9 +135,11 @@ class LogMessageDirectorTest extends TestCase
             function (MockInterface $mock) use (
                 $mockedURL,
                 $mockedMethod,
+                $mockedIP,
                 $expectedRequestID,
             ) {
                 $mock->shouldReceive('requestID')->once()->with($expectedRequestID)->andReturn($mock);
+                $mock->shouldReceive('ip')->once()->with($mockedIP)->andReturn($mock);
                 $mock->shouldReceive('endpoint')->once()->with("{$mockedMethod} {$mockedURL}")->andReturn($mock);
                 $mock->shouldReceive('processingStatus')->once()->with(ProcessingStatus::BEGIN)->andReturn($mock);
             }
@@ -160,6 +169,53 @@ class LogMessageDirectorTest extends TestCase
                 implode(' ', $headers),
             ],
         ];
+    }
+
+    #[Test]
+    public function should_handle_null_ip_in_request_gracefully(): void
+    {
+        // Arrange
+        $mockedURL = $this->faker->url();
+        $mockedMethod = $this->faker->word();
+        $mockedRequestID = $this->faker->uuid();
+
+        $mockRequest = $this->mock(
+            Request::class,
+            function (MockInterface $mock) use (
+                $mockedURL,
+                $mockedMethod,
+                $mockedRequestID,
+            ) {
+                $mock->shouldReceive('header')->once()->with(XRequestIDMiddleware::HEADER_NAME)->andReturn($mockedRequestID);
+                $mock->shouldReceive('url')->once()->withNoArgs()->andReturn($mockedURL);
+                $mock->shouldReceive('ip')->once()->withNoArgs()->andReturn(null);
+                $mock->shouldReceive('method')->once()->withNoArgs()->andReturn($mockedMethod);
+            }
+        );
+        assert($mockRequest instanceof Request);
+
+        $mockLogBuilder = $this->mock(
+            LogMessageBuilderContract::class,
+            function (MockInterface $mock) use (
+                $mockedURL,
+                $mockedMethod,
+                $mockedRequestID,
+            ) {
+                $mock->shouldReceive('requestID')->once()->with($mockedRequestID)->andReturn($mock);
+                $mock->shouldReceive('ip')->once()->with('')->andReturn($mock);
+                $mock->shouldReceive('endpoint')->once()->with("{$mockedMethod} {$mockedURL}")->andReturn($mock);
+                $mock->shouldReceive('processingStatus')->once()->with(ProcessingStatus::BEGIN)->andReturn($mock);
+            }
+        );
+        assert($mockLogBuilder instanceof LogMessageBuilderContract);
+
+
+        // Act
+        $result = $this->makeService($mockRequest)->buildBegin($mockLogBuilder);
+
+
+        // Assert
+        $this->assertEquals($mockLogBuilder, $result);
     }
 
     #[Test]

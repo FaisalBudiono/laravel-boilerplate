@@ -27,6 +27,7 @@ class LogMessageBuilderTest extends TestCase
         $expectedResult =  new LogMessage(
             $endpoint = $this->faker->sentence(),
             $requestID = $this->faker->sentence(),
+            $ip = $this->faker->ipv4(),
             $processingStatus = $this->faker->randomElement(ProcessingStatus::cases()),
             $message = $this->faker->sentence(),
             $meta = $this->faker->sentences(),
@@ -37,6 +38,7 @@ class LogMessageBuilderTest extends TestCase
         $result = $this->makeService()
             ->endpoint($endpoint)
             ->requestID($requestID)
+            ->ip($ip)
             ->processingStatus($processingStatus)
             ->message($message)
             ->meta($meta)
@@ -52,6 +54,7 @@ class LogMessageBuilderTest extends TestCase
     {
         // Arrange
         $expectedResult =  new LogMessage(
+            '',
             '',
             '',
             ProcessingStatus::BEGIN,

@@ -88,6 +88,14 @@ class LogMessageDirector implements LogMessageDirectorContract
         );
     }
 
+    protected function setIP(
+        LogMessageBuilderContract $builder,
+    ): LogMessageBuilderContract {
+        return $builder->ip(
+            $this->request->ip() ?? '',
+        );
+    }
+
     protected function setRequestID(
         LogMessageBuilderContract $builder,
     ): LogMessageBuilderContract {
@@ -97,8 +105,10 @@ class LogMessageDirector implements LogMessageDirectorContract
     protected function setPreProcessing(
         LogMessageBuilderContract $builder,
     ): LogMessageBuilderContract {
-        return $this->setRequestID(
-            $this->setDefaultEndpoint($builder),
+        return $this->setIP(
+            $this->setRequestID(
+                $this->setDefaultEndpoint($builder),
+            ),
         );
     }
 }

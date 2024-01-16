@@ -25,6 +25,7 @@ class LogMessageTest extends TestCase
         // Arrange
         $endpoint = $this->faker->sentence();
         $requestID = $this->faker->sentence();
+        $ip = $this->faker->ipv4();
         $processingStatus = $this->faker->randomElement(
             ProcessingStatus::cases(),
         );
@@ -36,6 +37,7 @@ class LogMessageTest extends TestCase
         $result = $this->makeVO(
             $endpoint,
             $requestID,
+            $ip,
             $processingStatus,
             $message,
             $meta,
@@ -46,6 +48,7 @@ class LogMessageTest extends TestCase
         $this->assertEquals([
             'endpoint' => $endpoint,
             'request-id' => $requestID,
+            'ip' => $ip,
             'processing-status' => $processingStatus->value,
             'message' => $message,
             'meta' => $meta,
@@ -70,6 +73,7 @@ class LogMessageTest extends TestCase
     protected function makeVO(
         ?string $endpoint = null,
         ?string $requestID = null,
+        ?string $ip = null,
         ?ProcessingStatus $processingStatus = null,
         ?string $message = null,
         ?array $meta = null,
@@ -77,6 +81,7 @@ class LogMessageTest extends TestCase
         return new LogMessage(
             $endpoint ?? $this->faker->sentence(),
             $requestID ?? $this->faker->sentence(),
+            $ip ?? $this->faker->ipv4(),
             $processingStatus ?? $this->faker->randomElement(
                 ProcessingStatus::cases(),
             ),
