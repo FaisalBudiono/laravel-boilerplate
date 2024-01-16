@@ -29,17 +29,13 @@ class PostResourceTest extends TestCase
 
 
         // Act
-        $result = json_decode(PostResource::make($post)->toJson(), true);
+        $result = PostResource::make($post)->toJson();
 
 
         // Assert
-        $this->assertEquals([
-            'id' => $post->id,
-            'title' => $post->title,
-            'content' => $post->content,
-            'createdAt' => $post->created_at?->format(DatetimeFormat::ISO_WITH_MILLIS->value),
-            'updatedAt' => $post->updated_at?->format(DatetimeFormat::ISO_WITH_MILLIS->value),
-        ], $result);
+        $this->assertJsonStringEqualsJsonString(json_encode([
+            ...$this->makeDefaultResponse($post),
+        ]), $result);
     }
 
     public static function dateDataProvider(): array
@@ -63,17 +59,24 @@ class PostResourceTest extends TestCase
 
 
         // Act
-        $result = json_decode(PostResource::make($post)->toJson(), true);
+        $result = PostResource::make($post)->toJson();
 
 
         // Assert
-        $this->assertEquals([
-            'id' => $post->id,
+        $this->assertJsonStringEqualsJsonString(json_encode([
+            ...$this->makeDefaultResponse($post),
+            'user' => json_decode(UserResource::make($post->user)->toJson(), true),
+        ]), $result);
+    }
+
+    protected function makeDefaultResponse(Post $post): array
+    {
+        return [
+            'id' => (string) $post->id,
             'title' => $post->title,
             'content' => $post->content,
-            'user' => json_decode(UserResource::make($post->user)->toJson(), true),
             'createdAt' => $post->created_at?->format(DatetimeFormat::ISO_WITH_MILLIS->value),
             'updatedAt' => $post->updated_at?->format(DatetimeFormat::ISO_WITH_MILLIS->value),
-        ], $result);
+        ];
     }
 }

@@ -7,53 +7,55 @@ namespace Tests\Unit\Http\Resource\User;
 use App\Core\Date\DatetimeFormat;
 use App\Http\Resources\User\UserResource;
 use App\Models\User\User;
+use Carbon\Carbon;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class UserResourceTest extends TestCase
 {
     #[Test]
-    public function should_return_right_arrayable_format(): void
-    {
-        // Arrange
-        $user = User::factory()->create();
-
-
-        // Act
-        $result = json_decode(UserResource::make($user)->toJson(), true);
-
-
-        // Assert
-        $this->assertEquals([
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-            'createdAt' => $user->created_at->format(DatetimeFormat::ISO_WITH_MILLIS->value),
-            'updatedAt' => $user->updated_at->format(DatetimeFormat::ISO_WITH_MILLIS->value),
-        ], $result);
-    }
-
-    #[Test]
-    public function should_return_right_arrayable_format_when_nullable_date_is_null(): void
-    {
+    #[DataProvider('dateDataProvider')]
+    public function should_return_right_arrayable_format(
+        ?Carbon $mockDate,
+    ): void {
         // Arrange
         $user = User::factory()->create([
-            'created_at' => null,
-            'updated_at' => null,
+            'created_at' => $mockDate,
+            'updated_at' => $mockDate,
         ]);
 
 
         // Act
-        $result = json_decode(UserResource::make($user)->toJson(), true);
+        $result = UserResource::make($user)->toJson();
 
 
         // Assert
-        $this->assertEquals([
-            'id' => $user->id,
+        $this->assertJsonStringEqualsJsonString(json_encode([
+            ...$this->makeDefaultResponse($user),
+        ]), $result);
+    }
+
+    public static function dateDataProvider(): array
+    {
+        return [
+            'filled date' => [
+                now(),
+            ],
+            'date is null' => [
+                null,
+            ],
+        ];
+    }
+
+    protected function makeDefaultResponse(User $user): array
+    {
+        return [
+            'id' => (string) $user->id,
             'name' => $user->name,
             'email' => $user->email,
-            'createdAt' => null,
-            'updatedAt' => null,
-        ], $result);
+            'createdAt' => $user->created_at?->format(DatetimeFormat::ISO_WITH_MILLIS->value),
+            'updatedAt' => $user->updated_at?->format(DatetimeFormat::ISO_WITH_MILLIS->value),
+        ];
     }
 }
