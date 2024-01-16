@@ -49,7 +49,7 @@ class UserCore implements UserCoreContract
 
             $user->syncRoles(RoleName::NORMAL);
 
-            UserCreated::dispatch($user);
+            UserCreated::dispatch($user, $request->getRequestID());
 
             DB::commit();
 

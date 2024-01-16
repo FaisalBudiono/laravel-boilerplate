@@ -11,7 +11,7 @@ use Tests\TestCase;
 
 class BaseFeatureTestCase extends TestCase
 {
-    private string $mockedRequestId;
+    protected string $mockedRequestId;
 
     protected function setUp(): void
     {

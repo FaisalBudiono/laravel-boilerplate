@@ -79,6 +79,9 @@ class UserCore_Create_Test extends UserCoreBaseTestCase
         $this->mockRequest->shouldReceive('getName')->once()->andReturn($name);
         $this->mockRequest->shouldReceive('getEmail')->once()->andReturn($email);
         $this->mockRequest->shouldReceive('getUserPassword')->once()->andReturn($password);
+        $this->mockRequest->shouldReceive('getRequestID')->once()->andReturn(
+            $mockedRequestID = $this->faker->uuid(),
+        );
 
         $hashedPassword = $this->faker->words(7, true);
         Hash::shouldReceive('make')->with($password)->andReturn($hashedPassword);
@@ -109,8 +112,9 @@ class UserCore_Create_Test extends UserCoreBaseTestCase
 
         Event::assertDispatched(
             UserCreated::class,
-            function (UserCreated $event) use ($result) {
+            function (UserCreated $event) use ($result, $mockedRequestID) {
                 $this->assertTrue($event->user->is($result));
+                $this->assertSame($mockedRequestID, $event->requestID);
 
                 return true;
             }

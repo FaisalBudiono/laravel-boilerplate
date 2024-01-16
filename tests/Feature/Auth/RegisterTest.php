@@ -6,6 +6,7 @@ namespace Tests\Feature\Auth;
 
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageStandard;
+use App\Core\Formatter\Randomizer\Randomizer;
 use App\Core\User\UserCoreContract;
 use App\Exceptions\Core\User\UserEmailDuplicatedException;
 use App\Exceptions\Http\ConflictException;
@@ -290,6 +291,7 @@ class RegisterTest extends BaseFeatureTestCase
         $this->assertSame($input['email'], $argInput->getEmail());
         $this->assertSame($input['name'], $argInput->getName());
         $this->assertSame($input['password'], $argInput->getUserPassword());
+        $this->assertSame($this->mockedRequestId, $argInput->getRequestID());
         return true;
     }
 
