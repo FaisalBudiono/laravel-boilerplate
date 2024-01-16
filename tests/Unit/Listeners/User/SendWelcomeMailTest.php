@@ -43,7 +43,10 @@ class SendWelcomeMailTest extends TestCase
     public function should_throw_error_and_log_the_error_appropriately(): void
     {
         // Arrange
-        $event = new UserCreated($user = User::factory()->create());
+        $event = new UserCreated(
+            $user = User::factory()->create(),
+            $this->faker->uuid(),
+        );
 
         $mockedRequestID = $this->faker->uuid();
         $mockRandomizer = $this->mock(
@@ -110,7 +113,10 @@ class SendWelcomeMailTest extends TestCase
     public function should_send_welcome_mail(): void
     {
         // Arrange
-        $event = new UserCreated($user = User::factory()->create());
+        $event = new UserCreated(
+            $user = User::factory()->create(),
+            $this->faker->uuid(),
+        );
 
         $mockedRequestID = $this->faker->uuid();
         $mockRandomizer = $this->mock(

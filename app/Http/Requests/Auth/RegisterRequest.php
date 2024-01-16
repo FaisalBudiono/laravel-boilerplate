@@ -45,4 +45,9 @@ class RegisterRequest extends BaseRequest implements CreateUserPort
     {
         return $this->input('password');
     }
+
+    public function getRequestID(): string
+    {
+        return '';
+    }
 }
