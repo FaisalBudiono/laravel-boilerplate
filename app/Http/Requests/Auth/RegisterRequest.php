@@ -48,6 +48,6 @@ class RegisterRequest extends BaseRequest implements CreateUserPort
 
     public function getRequestID(): string
     {
-        return '';
+        return $this->getXRequestID();
     }
 }
