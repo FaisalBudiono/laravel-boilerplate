@@ -19,29 +19,37 @@ class LogMessageDirector implements LogMessageDirectorContract
     public function buildBegin(
         LogMessageBuilderContract $builder,
     ): LogMessageBuilderContract {
-        return $this->setPreProcessing($builder)
+        return $this->setHTTPMeta($builder)
             ->processingStatus(ProcessingStatus::BEGIN);
     }
 
     public function buildProcessing(
         LogMessageBuilderContract $builder,
     ): LogMessageBuilderContract {
-        return $this->setPreProcessing($builder)
+        return $this->setHTTPMeta($builder)
             ->processingStatus(ProcessingStatus::PROCESSING);
     }
 
     public function buildSuccess(
         LogMessageBuilderContract $builder,
     ): LogMessageBuilderContract {
-        return $this->setPreProcessing($builder)
+        return $this->setHTTPMeta($builder)
             ->processingStatus(ProcessingStatus::SUCCESS);
     }
 
     public function buildError(
         LogMessageBuilderContract $builder,
     ): LogMessageBuilderContract {
-        return $this->setPreProcessing($builder)
+        return $this->setHTTPMeta($builder)
             ->processingStatus(ProcessingStatus::ERROR);
+    }
+
+    public function buildHTTP(
+        LogMessageBuilderContract $builder,
+        ProcessingStatus $processingStatus,
+    ): LogMessageBuilderContract {
+        return $this->setHTTPMeta($builder)
+            ->processingStatus($processingStatus);
     }
 
     public function buildEndpointHTTP(
@@ -108,7 +116,7 @@ class LogMessageDirector implements LogMessageDirectorContract
         return $builder->requestID($this->getFormattedRequestID());
     }
 
-    protected function setPreProcessing(
+    protected function setHTTPMeta(
         LogMessageBuilderContract $builder,
     ): LogMessageBuilderContract {
         return $this->setIP(

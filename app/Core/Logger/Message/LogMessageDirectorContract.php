@@ -19,6 +19,11 @@ interface LogMessageDirectorContract
         LogMessageBuilderContract $builder,
     ): LogMessageBuilderContract;
 
+    public function buildHTTP(
+        LogMessageBuilderContract $builder,
+        ProcessingStatus $processingStatus,
+    ): LogMessageBuilderContract;
+
     public function buildEndpointHTTP(
         LogMessageBuilderContract $builder,
     ): LogMessageBuilderContract;
