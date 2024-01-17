@@ -6,6 +6,7 @@ namespace Tests\Helper\MockInstance\Core\Logger\Message;
 
 use App\Core\Logger\Message\LogMessageBuilderContract;
 use App\Core\Logger\Message\LogMessageDirectorContract;
+use App\Core\Logger\Message\ProcessingStatus;
 use Mockery\MockInterface;
 use Tests\TestCase;
 
@@ -35,6 +36,22 @@ class MockerLogMessageDirector extends TestCase
                 }
             })
             ->andReturn($this->logBuilder);
+        return $this;
+    }
+
+    public function http(ProcessingStatus $processingStatus): self
+    {
+        $this->builder->shouldReceive('buildHTTP')
+            ->withArgs(function ($arg, $argProcessingStatus) use ($processingStatus) {
+                try {
+                    $this->assertEquals($this->logBuilder, $arg);
+                    $this->assertEquals($processingStatus, $argProcessingStatus);
+                    return true;
+                } catch (\Throwable $e) {
+                    return false;
+                }
+            })->andReturn($this->logBuilder);
+
         return $this;
     }
 

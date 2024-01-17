@@ -7,6 +7,7 @@ namespace Tests\Unit\Http\Middleware;
 use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
 use App\Core\Logger\Message\LogMessageBuilderContract;
 use App\Core\Logger\Message\LogMessageDirectorContract;
+use App\Core\Logger\Message\ProcessingStatus;
 use App\Core\Logger\Message\ValueObject\LogMessage;
 use App\Exceptions\Http\ConflictException;
 use App\Exceptions\Http\InternalServerErrorException;
@@ -60,7 +61,8 @@ class LoggingMiddlewareTest extends TestCase
         assert($mockLogMessageBuilder instanceof LogMessageBuilderContract);
 
         $mockLogMessageDirector = MockerLogMessageDirector::make($this, $mockLogMessageBuilder)
-            ->normal(['buildBegin', 'buildSuccess'])
+            ->http(ProcessingStatus::BEGIN)
+            ->http(ProcessingStatus::SUCCESS)
             ->build();
 
         $middleware = $this->makeMiddleware(
@@ -150,7 +152,8 @@ class LoggingMiddlewareTest extends TestCase
         assert($mockLogMessageBuilder instanceof LogMessageBuilderContract);
 
         $mockLogMessageDirector = MockerLogMessageDirector::make($this, $mockLogMessageBuilder)
-            ->normal(['buildBegin', 'buildError'])
+            ->http(ProcessingStatus::BEGIN)
+            ->http(ProcessingStatus::ERROR)
             ->forException($expectedPreviousException)
             ->build();
 
