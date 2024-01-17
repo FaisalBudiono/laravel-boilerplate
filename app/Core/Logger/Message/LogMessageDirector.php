@@ -16,34 +16,6 @@ class LogMessageDirector implements LogMessageDirectorContract
     ) {
     }
 
-    public function buildBegin(
-        LogMessageBuilderContract $builder,
-    ): LogMessageBuilderContract {
-        return $this->setHTTPMeta($builder)
-            ->processingStatus(ProcessingStatus::BEGIN);
-    }
-
-    public function buildProcessing(
-        LogMessageBuilderContract $builder,
-    ): LogMessageBuilderContract {
-        return $this->setHTTPMeta($builder)
-            ->processingStatus(ProcessingStatus::PROCESSING);
-    }
-
-    public function buildSuccess(
-        LogMessageBuilderContract $builder,
-    ): LogMessageBuilderContract {
-        return $this->setHTTPMeta($builder)
-            ->processingStatus(ProcessingStatus::SUCCESS);
-    }
-
-    public function buildError(
-        LogMessageBuilderContract $builder,
-    ): LogMessageBuilderContract {
-        return $this->setHTTPMeta($builder)
-            ->processingStatus(ProcessingStatus::ERROR);
-    }
-
     public function buildHTTP(
         LogMessageBuilderContract $builder,
         ProcessingStatus $processingStatus,

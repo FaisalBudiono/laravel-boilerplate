@@ -6,19 +6,6 @@ namespace App\Core\Logger\Message;
 
 interface LogMessageDirectorContract
 {
-    public function buildBegin(
-        LogMessageBuilderContract $builder,
-    ): LogMessageBuilderContract;
-    public function buildProcessing(
-        LogMessageBuilderContract $builder,
-    ): LogMessageBuilderContract;
-    public function buildSuccess(
-        LogMessageBuilderContract $builder,
-    ): LogMessageBuilderContract;
-    public function buildError(
-        LogMessageBuilderContract $builder,
-    ): LogMessageBuilderContract;
-
     public function buildHTTP(
         LogMessageBuilderContract $builder,
         ProcessingStatus $processingStatus,

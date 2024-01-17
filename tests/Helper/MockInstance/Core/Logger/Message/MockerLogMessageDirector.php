@@ -55,24 +55,6 @@ class MockerLogMessageDirector extends TestCase
         return $this;
     }
 
-    public function normal(array $methodCalls): self
-    {
-        collect($methodCalls)->each(
-            fn ($methodCall) =>
-            $this->builder->shouldReceive($methodCall)
-                ->once()
-                ->withArgs(function ($arg) {
-                    try {
-                        $this->assertEquals($this->logBuilder, $arg);
-                        return true;
-                    } catch (\Throwable $e) {
-                        dd($e);
-                    }
-                })->andReturn($this->logBuilder)
-        );
-        return $this;
-    }
-
     public function build(): LogMessageDirectorContract
     {
         return $this->builder;
