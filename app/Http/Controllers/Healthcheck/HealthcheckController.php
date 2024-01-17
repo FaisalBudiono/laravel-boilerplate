@@ -8,6 +8,7 @@ use App\Core\Formatter\ExceptionMessage\ExceptionMessageGeneric;
 use App\Core\Healthcheck\HealthcheckCoreContract;
 use App\Core\Logger\Message\LogMessageBuilderContract;
 use App\Core\Logger\Message\LogMessageDirectorContract;
+use App\Core\Logger\Message\ProcessingStatus;
 use App\Exceptions\Http\InternalServerErrorException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Healthcheck\HealthcheckRequest;
@@ -27,8 +28,9 @@ class HealthcheckController extends Controller
     {
         try {
             Log::info(
-                $this->logDirector->buildBegin(
-                    clone $this->logBuilder
+                $this->logDirector->buildHTTP(
+                    $this->logBuilder,
+                    ProcessingStatus::BEGIN,
                 )->message('Healthcheck endpoint')
                     ->build()
             );
@@ -37,8 +39,9 @@ class HealthcheckController extends Controller
 
             if ($status->isHealthy()) {
                 Log::info(
-                    $this->logDirector->buildSuccess(
-                        clone $this->logBuilder
+                    $this->logDirector->buildHTTP(
+                        $this->logBuilder,
+                        ProcessingStatus::SUCCESS,
                     )->message('Healthcheck endpoint')
                         ->build()
                 );
@@ -49,8 +52,9 @@ class HealthcheckController extends Controller
             }
 
             Log::emergency(
-                $this->logDirector->buildSuccess(
-                    clone $this->logBuilder
+                $this->logDirector->buildHTTP(
+                    $this->logBuilder,
+                    ProcessingStatus::SUCCESS,
                 )->message('Healthcheck endpoint')
                     ->meta([
                         'detail' => $status->toArrayDetail(),
@@ -63,8 +67,9 @@ class HealthcheckController extends Controller
         } catch (\Throwable $e) {
             Log::error(
                 $this->logDirector->buildForException(
-                    $this->logDirector->buildError(
-                        clone $this->logBuilder
+                    $this->logDirector->buildHTTP(
+                        $this->logBuilder,
+                        ProcessingStatus::ERROR,
                     ),
                     $e,
                 )->build()

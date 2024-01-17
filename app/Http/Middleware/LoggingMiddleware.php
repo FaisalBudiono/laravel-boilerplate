@@ -6,6 +6,7 @@ namespace App\Http\Middleware;
 
 use App\Core\Logger\Message\LogMessageBuilderContract;
 use App\Core\Logger\Message\LogMessageDirectorContract;
+use App\Core\Logger\Message\ProcessingStatus;
 use Closure;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -28,8 +29,9 @@ class LoggingMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         Log::info(
-            $this->logDirector->buildBegin(
-                clone $this->logBuilder
+            $this->logDirector->buildHTTP(
+                clone $this->logBuilder,
+                ProcessingStatus::BEGIN,
             )->message('start')
                 ->meta($this->cleanUpInput($request->all()))
                 ->build()
@@ -42,8 +44,9 @@ class LoggingMiddleware
 
         if (is_null($exception)) {
             Log::info(
-                $this->logDirector->buildSuccess(
-                    clone $this->logBuilder
+                $this->logDirector->buildHTTP(
+                    $this->logBuilder,
+                    ProcessingStatus::SUCCESS,
                 )->message('end')
                     ->build()
             );
@@ -53,8 +56,9 @@ class LoggingMiddleware
 
         $prevException = $exception->getPrevious() ?? $exception;
         $exceptionMessage = $this->logDirector->buildForException(
-            $this->logDirector->buildError(
-                clone $this->logBuilder
+            $this->logDirector->buildHTTP(
+                $this->logBuilder,
+                ProcessingStatus::ERROR,
             ),
             $prevException,
         )->build();

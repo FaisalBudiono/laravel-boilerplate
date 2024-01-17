@@ -10,6 +10,7 @@ use App\Core\Healthcheck\ValueObject\HealthcheckResponse;
 use App\Core\Healthcheck\ValueObject\HealthcheckStatus;
 use App\Core\Logger\Message\LogMessageBuilderContract;
 use App\Core\Logger\Message\LogMessageDirectorContract;
+use App\Core\Logger\Message\ProcessingStatus;
 use App\Core\Logger\Message\ValueObject\LogMessage;
 use App\Exceptions\Http\InternalServerErrorException;
 use Illuminate\Support\Facades\Log;
@@ -75,7 +76,8 @@ class HealthcheckTest extends BaseFeatureTestCase
         $this->instance(
             LogMessageDirectorContract::class,
             MockerLogMessageDirector::make($this, $mockLogMessageBuilder)
-                ->normal(['buildBegin', 'buildError'])
+                ->http(ProcessingStatus::BEGIN)
+                ->http(ProcessingStatus::ERROR)
                 ->forException($mockException)
                 ->build(),
         );
@@ -138,7 +140,8 @@ class HealthcheckTest extends BaseFeatureTestCase
         $this->instance(
             LogMessageDirectorContract::class,
             MockerLogMessageDirector::make($this, $mockLogMessageBuilder)
-                ->normal(['buildBegin', 'buildSuccess'])
+                ->http(ProcessingStatus::BEGIN)
+                ->http(ProcessingStatus::SUCCESS)
                 ->build(),
         );
 
@@ -213,7 +216,8 @@ class HealthcheckTest extends BaseFeatureTestCase
         $this->instance(
             LogMessageDirectorContract::class,
             MockerLogMessageDirector::make($this, $mockLogMessageBuilder)
-                ->normal(['buildBegin', 'buildSuccess'])
+                ->http(ProcessingStatus::BEGIN)
+                ->http(ProcessingStatus::SUCCESS)
                 ->build(),
         );
 
