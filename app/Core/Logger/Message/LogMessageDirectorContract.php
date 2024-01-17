@@ -18,6 +18,13 @@ interface LogMessageDirectorContract
         LogMessageBuilderContract $builder,
     ): LogMessageBuilderContract;
 
+    public function buildQueue(
+        LogMessageBuilderContract $builder,
+        ProcessingStatus $processingStatus,
+        string $className,
+        string $requestID,
+    ): LogMessageBuilderContract;
+
     public function buildForException(
         LogMessageBuilderContract $builder,
         \Throwable $e,

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Core\Logger\Message;
 
+use App\Core\Logger\Message\Enum\LogEndpoint;
 use App\Exceptions\BaseException;
 use App\Http\Middleware\XRequestIDMiddleware;
 use Illuminate\Http\Request;
@@ -34,6 +35,18 @@ class LogMessageDirector implements LogMessageDirectorContract
         LogMessageBuilderContract $builder,
     ): LogMessageBuilderContract {
         return $this->setIP($builder);
+    }
+
+    public function buildQueue(
+        LogMessageBuilderContract $builder,
+        ProcessingStatus $processingStatus,
+        string $className,
+        string $requestID,
+    ): LogMessageBuilderContract {
+        return $builder->endpoint(LogEndpoint::QUEUE->value)
+            ->requestID($requestID)
+            ->processingStatus($processingStatus)
+            ->message($className);
     }
 
     public function buildForException(
