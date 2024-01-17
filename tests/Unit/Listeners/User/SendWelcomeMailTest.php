@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Listeners\User;
 
-use App\Core\Logger\Message\Enum\LogEndpoint;
 use App\Core\Logger\Message\LogMessageBuilderContract;
 use App\Core\Logger\Message\LogMessageDirectorContract;
 use App\Core\Logger\Message\ProcessingStatus;
@@ -54,26 +53,28 @@ class SendWelcomeMailTest extends TestCase
         $mockLogBuilder = $this->mock(
             LogMessageBuilderContract::class,
             function (MockInterface $mock) use (
-                $mockedRequestID,
                 $mockLogMessage,
                 $user,
             ) {
                 $mock->shouldReceive('meta')->once()->with([
                     'user' => $user->toArray(),
                 ])->andReturn($mock);
-                $mock->shouldReceive('message')->once()->with(SendWelcomeMail::class)->andReturn($mock);
 
-                $mock->shouldReceive('endpoint')->twice()->with(LogEndpoint::QUEUE->value)->andReturn($mock);
-                $mock->shouldReceive('requestID')->twice()->with($mockedRequestID)->andReturn($mock);
                 $mock->shouldReceive('build')->twice()->andReturn($mockLogMessage);
             },
         );
         assert($mockLogBuilder instanceof LogMessageBuilderContract);
 
         $mockLogDirector = MockerLogMessageDirector::make($this, $mockLogBuilder)
-            ->http(ProcessingStatus::BEGIN)
-            ->http(ProcessingStatus::ERROR)
-            ->forException($mockedException)
+            ->queue(
+                ProcessingStatus::BEGIN,
+                SendWelcomeMail::class,
+                $mockedRequestID,
+            )->queue(
+                ProcessingStatus::ERROR,
+                SendWelcomeMail::class,
+                $mockedRequestID,
+            )->forException($mockedException)
             ->build();
 
         Log::shouldReceive('info')
@@ -123,18 +124,21 @@ class SendWelcomeMailTest extends TestCase
                     'user' => $user->toArray(),
                 ])->andReturn($mock);
 
-                $mock->shouldReceive('endpoint')->twice()->with(LogEndpoint::QUEUE->value)->andReturn($mock);
-                $mock->shouldReceive('message')->twice()->with(SendWelcomeMail::class)->andReturn($mock);
-                $mock->shouldReceive('requestID')->twice()->with($mockedRequestID)->andReturn($mock);
                 $mock->shouldReceive('build')->twice()->andReturn($mockLogMessage);
             },
         );
         assert($mockLogBuilder instanceof LogMessageBuilderContract);
 
         $mockLogDirector = MockerLogMessageDirector::make($this, $mockLogBuilder)
-            ->http(ProcessingStatus::BEGIN)
-            ->http(ProcessingStatus::SUCCESS)
-            ->build();
+            ->queue(
+                ProcessingStatus::BEGIN,
+                SendWelcomeMail::class,
+                $mockedRequestID,
+            )->queue(
+                ProcessingStatus::SUCCESS,
+                SendWelcomeMail::class,
+                $mockedRequestID,
+            )->build();
 
         Log::shouldReceive('info')
             ->with($mockLogMessage)

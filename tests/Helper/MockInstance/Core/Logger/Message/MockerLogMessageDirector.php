@@ -55,6 +55,32 @@ class MockerLogMessageDirector extends TestCase
         return $this;
     }
 
+    public function queue(
+        ProcessingStatus $processingStatus,
+        string $className,
+        string $requestID,
+    ): self {
+        $this->builder->shouldReceive('buildQueue')
+            ->withArgs(function (
+                $arg,
+                $argProcessingStatus,
+                $argClassName,
+                $argRequestID,
+            ) use ($processingStatus, $className, $requestID) {
+                try {
+                    $this->assertEquals($this->logBuilder, $arg);
+                    $this->assertEquals($processingStatus, $argProcessingStatus);
+                    $this->assertEquals($className, $argClassName);
+                    $this->assertEquals($requestID, $argRequestID);
+                    return true;
+                } catch (\Throwable $e) {
+                    return false;
+                }
+            })->andReturn($this->logBuilder);
+
+        return $this;
+    }
+
     public function build(): LogMessageDirectorContract
     {
         return $this->builder;
