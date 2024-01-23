@@ -15,9 +15,12 @@ RUN apt-get update && apt-get install -y \
     libxrender1 \
     libfontconfig1 \
     libfreetype6
+COPY --chown=application:application composer.json composer.lock ./
+RUN composer install --no-dev --optimize-autoloader --no-scripts
 COPY --chown=application:application . .
 RUN mv start.sh /opt/docker/provision/entrypoint.d/
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 COPY user.ini $PHP_INI_DIR/conf.d/
-RUN composer install
+RUN composer install -o --no-dev
+RUN php artisan optimize
 EXPOSE 80
