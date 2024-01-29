@@ -50,6 +50,10 @@ jobs:
       - uses: php-actions/phpunit@v3
         with:
           memory_limit: "512M"
+          bootstrap: vendor/autoload.php
+          configuration: ./phpunit.xml
+          version: "10"
+          php_version: "8.2"
 
   build:
     name: Build
