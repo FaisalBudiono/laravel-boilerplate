@@ -20,7 +20,7 @@
         "brianium/paratest": "^7.3",
         "fakerphp/faker": "^1.23.0",
         "laravel/pint": "^1.13.5",
-        "laravel/telescope": "^4.17",
+        "laravel/telescope": "^5.0",
         "mockery/mockery": "^1.6.6",
         "nunomaduro/collision": "^7.10",
         "phpunit/phpunit": "^10.4.2",
