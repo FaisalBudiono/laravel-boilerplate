@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models\User;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
