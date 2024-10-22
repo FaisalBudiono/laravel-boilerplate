@@ -13,6 +13,7 @@ class CoreServiceProvider extends ServiceProvider
     protected $coreBinders = [
         \App\Providers\CoreBinder\CoreBinderAuth::class,
         \App\Providers\CoreBinder\CoreBinderJWT::class,
+        \App\Providers\CoreBinder\CoreBinderUser::class,
     ];
 
     /**
