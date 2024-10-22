@@ -11,9 +11,6 @@ use App\Services\Auth\Exceptions\AuthErrorCode;
 use App\Services\Auth\ValueObject\Token;
 use App\Services\Formatter\ExceptionMessage\ExceptionMessageStandard;
 use App\Services\JWT\Signer\JWTSigner;
-use App\Services\JWT\ValueObject\Claims;
-use App\Services\JWT\ValueObject\ClaimsUser;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
@@ -38,18 +35,7 @@ class AuthService implements AuthServiceContract
                 throw $this->invalidCredException();
             }
 
-            $claims = new Claims(
-                new ClaimsUser(
-                    (string) $u->id,
-                    $u->email,
-                ),
-                'something',
-                Carbon::now(),
-                Carbon::now()->subSecond(),
-                Carbon::now()->addMinutes(10),
-            );
-
-            $at = $this->signer->sign($claims);
+            $at = $this->signer->sign($u);
 
             DB::commit();
 

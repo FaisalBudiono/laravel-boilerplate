@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Services\JWT\Signer;
 
+use App\Models\User\User;
 use App\Services\Formatter\ExceptionMessage\ExceptionMessageStandard;
 use App\Services\JWT\Exceptions\InvalidSignatureException;
 use App\Services\JWT\Exceptions\InvalidTimeRelatedClaimException;
 use App\Services\JWT\Exceptions\JWTErrorCode;
-use App\Services\JWT\ValueObject\Claims;
 use Lcobucci\JWT\Encoding\ChainedFormatter;
 use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Signer;
@@ -24,15 +24,17 @@ use Psr\Clock\ClockInterface;
 
 class JWTSignerLcobucci implements JWTSigner
 {
-    public function sign(Claims $claims): string
+    public function sign(User $user): string
     {
-        return $this->makeBuilder()->issuedAt($claims->issueAt->toImmutable())
-            ->expiresAt($claims->expiredAt->toImmutable())
-            ->canOnlyBeUsedAfter($claims->notBeforeAt->toImmutable())
-            ->permittedFor($claims->audience)
+        return $this->makeBuilder()->issuedAt(now()->toDateTimeImmutable())
+            ->canOnlyBeUsedAfter(now()->toDateTimeImmutable())
+            ->expiresAt(now()->addSeconds(
+                $this->getAccessTokenTTLInSecond(),
+            )->toDateTimeImmutable())
+            ->permittedFor('asd')
             ->withClaim('user', [
-                'id' => $claims->user->id,
-                'email' => $claims->user->email,
+                'id' => (string) $user->id,
+                'email' => $user->email,
             ])->getToken($this->makeSigner(), InMemory::plainText($this->getPrivateKey()))
             ->toString();
     }
@@ -71,6 +73,11 @@ class JWTSignerLcobucci implements JWTSigner
     protected function getPublicKey(): string
     {
         return (string) config('jwt.rsa.access-token.public', '');
+    }
+
+    protected function getAccessTokenTTLInSecond(): int
+    {
+        return config('jwt.ttl.access-token');
     }
 
     protected function hasValidSignature(Token $token): bool
