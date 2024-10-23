@@ -88,7 +88,7 @@ class JWTGuard implements JWTGuardContract
     public function validate(array $credentials = [])
     {
         try {
-            $token = (string) $credentials['token'] ?? '';
+            $token = (string) ($credentials['token'] ?? '');
             if (empty($token)) {
                 return false;
             }

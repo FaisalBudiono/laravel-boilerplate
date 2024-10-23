@@ -42,6 +42,7 @@ abstract class BaseRequest extends FormRequest
         if (is_null($user)) {
             $this->failedAuthentication();
         }
+        assert($user instanceof User);
 
         return $user;
     }
@@ -87,6 +88,7 @@ abstract class BaseRequest extends FormRequest
         if (is_null($user)) {
             return new User();
         }
+        assert($user instanceof User);
 
         return $user;
     }
