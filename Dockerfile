@@ -20,8 +20,11 @@ FROM base AS dev
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 COPY user.ini $PHP_INI_DIR/conf.d/
 RUN composer global require spatie/phpunit-watcher \
+    && composer global require phpstan/phpstan \
     && echo 'export PATH="$PATH:$HOME/.composer/vendor/bin"' >> ~/.bashrc
 RUN echo 'alias pw="phpunit-watcher watch --testdox"' >> ~/.bashrc \
+    && echo "alias ps='phpstan analyse'" >> ~/.bashrc \
+    && echo "alias psa='phpstan analyse -vl 5 app/ tests/'" >> ~/.bashrc \
     && echo "alias pp='php artisan test --parallel'" >> ~/.bashrc \
     && echo "alias ppc='php artisan test --parallel --coverage --coverage-text'" >> ~/.bashrc \
     && echo "alias pwf='pw --filter'" >> ~/.bashrc \
