@@ -1,0 +1,14 @@
+alias cw='chown -R www-data:www-data'
+alias pp='php artisan test --parallel'
+alias ppc='php artisan test --parallel --coverage --coverage-text'
+alias ppf='./vendor/bin/paratest --functional --filter'
+alias ppff='./vendor/bin/paratest --functional'
+alias ppfg='./vendor/bin/paratest --functional --group'
+alias pps='./vendor/bin/paratest --stop-on-failure'
+alias ppsf='./vendor/bin/paratest --stop-on-failure --functional --filter'
+alias ps='phpstan analyse'
+alias psa='phpstan analyse -vl 5 app/ tests/'
+alias pw="phpunit-watcher watch --testdox"
+alias pwf='pw --filter'
+alias ll="ls storage/logs | awk '{print \"storage/logs/\"\$1}'"
+alias lll="ls storage/logs | awk '{print \"storage/logs/\"\$1}' | xargs rm"
