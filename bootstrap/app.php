@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Exceptions\Http\AbstractHttpException;
+use App\Http\Middleware\LoggingMiddleware;
 use App\Http\Middleware\XRequestIDMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -17,6 +18,10 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->append(XRequestIDMiddleware::class);
+
+        $middleware->api(
+            prepend: [LoggingMiddleware::class],
+        );
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->report(function (AbstractHttpException $e) {
