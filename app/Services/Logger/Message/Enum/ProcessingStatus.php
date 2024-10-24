@@ -1,0 +1,13 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Services\Logger\Message\Enum;
+
+enum ProcessingStatus: string
+{
+    case BEGIN = 'BEGIN';
+    case ERROR = 'ERROR';
+    case PROCESSING = 'PROCESSING';
+    case SUCCESS = 'SUCCESS';
+}
