@@ -8,6 +8,10 @@ use App\Services\JWT\JWTGuard;
 use App\Services\JWT\JWTGuardContract;
 use App\Services\JWT\Parser\JWTParser;
 use App\Services\JWT\Parser\JWTParserLcobucci;
+use App\Services\JWT\Parser\JWTRefreshParser;
+use App\Services\JWT\Parser\JWTRefreshParserLcobucci;
+use App\Services\JWT\Signer\JWTRefreshSigner;
+use App\Services\JWT\Signer\JWTRefreshSignerLcobucci;
 use App\Services\JWT\Signer\JWTSigner;
 use App\Services\JWT\Signer\JWTSignerLcobucci;
 use Illuminate\Contracts\Foundation\Application;
@@ -29,6 +33,16 @@ class CoreBinderJWT implements CoreBinder
         $app->bind(
             JWTParser::class,
             fn (Application $app) => new JWTParserLcobucci(),
+        );
+
+        $app->bind(
+            JWTRefreshParser::class,
+            fn (Application $app) => new JWTRefreshParserLcobucci(),
+        );
+
+        $app->bind(
+            JWTRefreshSigner::class,
+            fn (Application $app) => new JWTRefreshSignerLcobucci(),
         );
 
         $app->bind(
