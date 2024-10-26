@@ -21,7 +21,8 @@ class CoreBinderAuth implements CoreBinder
         $app->bind(
             AuthServiceContract::class,
             fn (Application $app) => new AuthService(
-                $app->make(JWTSigner::class),
+                signer: $app->make(JWTSigner::class),
+                refreshTokenManager: $app->make(RefreshTokenManager::class),
             ),
         );
 

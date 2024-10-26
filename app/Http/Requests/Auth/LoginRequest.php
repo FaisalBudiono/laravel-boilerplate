@@ -39,4 +39,14 @@ class LoginRequest extends FormRequest implements LoginPort
     {
         return $this->input('password') ?? '';
     }
+
+    public function getUserAgent(): string
+    {
+        return $this->userAgent() ?? '';
+    }
+
+    public function getIPAdress(): string
+    {
+        return $this->ip() ?? '';
+    }
 }

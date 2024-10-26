@@ -8,4 +8,7 @@ interface LoginPort
 {
     public function getEmail(): string;
     public function getUserPassword(): string;
+
+    public function getUserAgent(): string;
+    public function getIPAdress(): string;
 }

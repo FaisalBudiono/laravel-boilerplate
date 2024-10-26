@@ -8,6 +8,7 @@ use App\Exceptions\Auth\InvalidCredentialException;
 use App\Models\User\User;
 use App\Port\Services\Auth\LoginPort;
 use App\Services\Auth\Exceptions\AuthErrorCode;
+use App\Services\Auth\RefreshToken\RefreshTokenManager;
 use App\Services\Auth\ValueObject\Token;
 use App\Services\Formatter\ExceptionMessage\ExceptionMessageStandard;
 use App\Services\JWT\Signer\JWTSigner;
@@ -18,6 +19,7 @@ class AuthService implements AuthServiceContract
 {
     public function __construct(
         protected JWTSigner $signer,
+        protected RefreshTokenManager $refreshTokenManager,
     ) {}
 
     public function login(LoginPort $port): Token
@@ -36,13 +38,16 @@ class AuthService implements AuthServiceContract
             }
 
             $at = $this->signer->sign($u);
+            $rf = $this->refreshTokenManager->generate(
+                $u,
+                $port->getIPAdress(),
+                $port->getUserAgent(),
+                null,
+            );
 
             DB::commit();
 
-            return new Token(
-                $at,
-                'dummy-refresh-token',
-            );
+            return new Token($at, $rf);
         } catch (\Throwable $e) {
             DB::rollBack();
 
