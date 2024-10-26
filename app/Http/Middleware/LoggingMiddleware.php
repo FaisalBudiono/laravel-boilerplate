@@ -77,6 +77,11 @@ class LoggingMiddleware
         return $response;
     }
 
+    /**
+     * @param array<string|int, mixed> $input
+     *
+     * @return array<string|int, mixed>
+     */
     protected function cleanUpInput(array $input): array
     {
         return collect($input)

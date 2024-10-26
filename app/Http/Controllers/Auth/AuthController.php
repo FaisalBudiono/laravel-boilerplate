@@ -40,12 +40,12 @@ class AuthController extends Controller
         }
     }
 
-    public function store(LoginRequest $req)
+    public function store(LoginRequest $req): Response
     {
         try {
             $token = $this->service->login($req);
 
-            return TokenResource::make($token);
+            return TokenResource::make($token)->response();
         } catch (InvalidCredentialException $e) {
             throw new Unauthorized($e->exceptionMessage, $e);
         } catch (\Throwable $e) {
@@ -53,12 +53,12 @@ class AuthController extends Controller
         }
     }
 
-    public function refresh(RefreshTokenRequest $req)
+    public function refresh(RefreshTokenRequest $req): Response
     {
         try {
             $token = $this->service->refreshToken($req);
 
-            return TokenResource::make($token);
+            return TokenResource::make($token)->response();
         } catch (RefreshTokenException $e) {
             throw new Unauthorized($e->exceptionMessage, $e);
         } catch (ModelNotFoundException $e) {

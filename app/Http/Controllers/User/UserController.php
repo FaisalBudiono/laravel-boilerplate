@@ -12,6 +12,7 @@ use App\Http\Requests\User\GetMeRequest;
 use App\Http\Resources\User\UserResource;
 use App\Services\Formatter\ExceptionMessage\ExceptionMessageGeneric;
 use App\Services\User\UserServiceContract;
+use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
 {
@@ -19,12 +20,12 @@ class UserController extends Controller
         protected UserServiceContract $service
     ) {}
 
-    public function me(GetMeRequest $req)
+    public function me(GetMeRequest $req): Response
     {
         try {
             $user = $this->service->getDetail($req);
 
-            return UserResource::make($user);
+            return UserResource::make($user)->response();
         } catch (InvalidCredentialException $e) {
             throw new Unauthorized($e->exceptionMessage, $e);
         } catch (\Throwable $e) {

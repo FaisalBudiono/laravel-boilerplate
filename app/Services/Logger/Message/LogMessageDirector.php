@@ -56,6 +56,9 @@ class LogMessageDirector implements LogMessageDirectorContract
         return new LogMessageBuilder();
     }
 
+    /**
+     * @return ?array<string|int, mixed>
+     */
     protected function formatExceptionDetail(\Throwable $e): ?array
     {
         if (!$e instanceof AppException) {

@@ -23,7 +23,10 @@ readonly class HealthcheckResponse
         return $this->isOverallHealthy();
     }
 
-    public function toArray()
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
     {
         return [
             'version' => $this->version,
@@ -32,7 +35,10 @@ readonly class HealthcheckResponse
         ];
     }
 
-    public function toArrayDetail()
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArrayDetail(): array
     {
         return [
             'version' => $this->version,
@@ -49,24 +55,33 @@ readonly class HealthcheckResponse
     protected function isOverallHealthy(): bool
     {
         return collect($this->dependencies)->every(
-            fn (HealthcheckStatus $dependency) => $this->isDependencyHealthy($dependency)
+            fn (HealthcheckStatus $dependency) => $this->isDependencyHealthy($dependency),
         );
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     protected function mapDependencies(): array
     {
         return collect($this->dependencies)->map(
-            fn (HealthcheckStatus $dependency) => $this->mapDependencyStatus($dependency)
+            fn (HealthcheckStatus $dependency) => $this->mapDependencyStatus($dependency),
         )->toArray();
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     protected function mapDetailDependencies(): array
     {
         return collect($this->dependencies)->map(
-            fn (HealthcheckStatus $dependency) => $this->mapDetailDependencyStatus($dependency)
+            fn (HealthcheckStatus $dependency) => $this->mapDetailDependencyStatus($dependency),
         )->toArray();
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function mapDetailDependencyStatus(
         HealthcheckStatus $dependency,
     ): array {
@@ -78,6 +93,9 @@ readonly class HealthcheckResponse
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function mapDependencyStatus(
         HealthcheckStatus $dependency,
     ): array {

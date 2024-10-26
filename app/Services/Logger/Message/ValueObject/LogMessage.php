@@ -8,6 +8,9 @@ use App\Services\Logger\Message\Enum\ProcessingStatus;
 
 readonly class LogMessage
 {
+    /**
+     * @param array<string|int, mixed> $meta
+     */
     public function __construct(
         public readonly string $endpoint,
         public readonly string $requestID,

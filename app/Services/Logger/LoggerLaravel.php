@@ -49,6 +49,9 @@ class LoggerLaravel implements Logger
         Log::debug($log->message, $this->toArray($log));
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function toArray(LogMessage $log): array
     {
         return [

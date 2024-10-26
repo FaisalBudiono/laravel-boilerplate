@@ -14,6 +14,10 @@ class LogMessageBuilder implements LogMessageBuilderContract
     protected ?string $ip;
     protected ?ProcessingStatus $processingStatus;
     protected ?string $message;
+
+    /**
+     * @var ?array<string|int, mixed>
+     */
     protected ?array $meta;
 
     public function endpoint(string $endpoint): self
@@ -51,6 +55,9 @@ class LogMessageBuilder implements LogMessageBuilderContract
         return $this;
     }
 
+    /**
+     * @param array<string|int, mixed> $meta
+     */
     public function meta(array $meta): self
     {
         $this->meta = $meta;

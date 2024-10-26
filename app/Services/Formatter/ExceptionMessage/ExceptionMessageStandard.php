@@ -9,10 +9,13 @@ use Illuminate\Support\Collection;
 
 readonly class ExceptionMessageStandard implements ExceptionMessage
 {
+    /**
+     * @param array<string|int, mixed> $meta
+     */
     public function __construct(
         public string $errorMessage,
         public string $errorCode,
-        public ?array $meta = [],
+        public array $meta = [],
     ) {}
 
     public function getJsonResponse(): Collection

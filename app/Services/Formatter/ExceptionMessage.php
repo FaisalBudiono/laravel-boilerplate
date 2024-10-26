@@ -8,6 +8,9 @@ use Illuminate\Support\Collection;
 
 interface ExceptionMessage
 {
+    /**
+     * @return Collection<string, mixed>
+     */
     public function getJsonResponse(): Collection;
     public function getMessage(): string;
 }

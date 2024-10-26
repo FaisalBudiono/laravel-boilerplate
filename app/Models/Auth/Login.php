@@ -28,6 +28,7 @@ use Illuminate\Notifications\Notifiable;
  */
 class Login extends Model
 {
+    /** @use HasFactory<LoginFactory> */
     use HasFactory;
     use Notifiable;
     use SoftDeletes;
@@ -52,12 +53,15 @@ class Login extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<User,$this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    protected static function newFactory()
+    protected static function newFactory(): LoginFactory
     {
         return LoginFactory::new();
     }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Exceptions\Http;
 
 use App\Services\Formatter\ExceptionMessage;
+use Symfony\Component\HttpFoundation\Response;
 
 abstract class AbstractHttpException extends \RuntimeException
 {
@@ -19,7 +20,10 @@ abstract class AbstractHttpException extends \RuntimeException
         );
     }
 
-    public function render($request)
+    /**
+     * @param mixed $request
+     */
+    public function render($request): Response
     {
         return response()->json(
             [

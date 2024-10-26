@@ -26,7 +26,7 @@ abstract class BaseRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\Rule|array|string>
+     * @return array<string,\Illuminate\Contracts\Validation\Rule|string|array<string,\Illuminate\Contracts\Validation\Rule|string>>
      */
     abstract public function rules(): array;
 
@@ -47,7 +47,7 @@ abstract class BaseRequest extends FormRequest
         return $user;
     }
 
-    protected function failedAuthentication()
+    protected function failedAuthentication(): never
     {
         throw new Unauthorized(new ExceptionMessageStandard(
             'Authentication is needed',

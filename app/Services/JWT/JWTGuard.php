@@ -82,7 +82,7 @@ class JWTGuard implements JWTGuardContract
     /**
      * Validate a user's credentials.
      *
-     * @param  array  $credentials
+     * @param  array<string, mixed>  $credentials
      * @return bool
      */
     public function validate(array $credentials = [])

@@ -14,6 +14,10 @@ interface LogMessageBuilderContract
     public function ip(string $ip): self;
     public function processingStatus(ProcessingStatus $processingStatus): self;
     public function message(string $message): self;
+
+    /**
+     * @param array<string|int, mixed> $meta
+     */
     public function meta(array $meta): self;
 
     public function build(): LogMessage;
