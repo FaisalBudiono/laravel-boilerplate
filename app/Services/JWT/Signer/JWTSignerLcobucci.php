@@ -6,6 +6,7 @@ namespace App\Services\JWT\Signer;
 
 use App\Models\User\User;
 use App\Services\Formatter\ExceptionMessage\ExceptionMessageStandard;
+use App\Services\JWT\Exceptions\FailedParsingException;
 use App\Services\JWT\Exceptions\InvalidSignatureException;
 use App\Services\JWT\Exceptions\InvalidTimeRelatedClaimException;
 use App\Services\JWT\Exceptions\JWTErrorCode;
@@ -60,9 +61,16 @@ class JWTSignerLcobucci implements JWTSigner
 
     protected function formatToken(string $token): Token
     {
-        $parser = new Parser(new JoseEncoder());
+        try {
+            $parser = new Parser(new JoseEncoder());
 
-        return $parser->parse($token);
+            return $parser->parse($token);
+        } catch (\Throwable $e) {
+            throw new FailedParsingException(new ExceptionMessageStandard(
+                'Failed to decode JWT token',
+                JWTErrorCode::FAILED_DECODING->value,
+            ), $e);
+        }
     }
 
     protected function getJWTAudience(): string
