@@ -8,6 +8,7 @@ use App\Exceptions\Auth\InvalidCredentialException;
 use App\Exceptions\Resource\ModelNotFoundException;
 use App\Models\User\User;
 use App\Port\Services\Auth\LoginPort;
+use App\Port\Services\Auth\LogoutPort;
 use App\Port\Services\Auth\RefreshTokenPort;
 use App\Services\Auth\Exceptions\AuthErrorCode;
 use App\Services\Auth\RefreshToken\RefreshTokenManager;
@@ -24,7 +25,6 @@ class AuthService implements AuthServiceContract
         protected JWTSigner $signer,
         protected RefreshTokenManager $refreshTokenManager,
     ) {}
-
 
     public function login(LoginPort $port): Token
     {
@@ -52,6 +52,21 @@ class AuthService implements AuthServiceContract
             DB::commit();
 
             return new Token($at, $rf);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            throw $e;
+        }
+    }
+
+    public function logout(LogoutPort $port): void
+    {
+        try {
+            DB::beginTransaction();
+
+            $this->refreshTokenManager->invalidate($port->getRefreshToken());
+
+            DB::commit();
         } catch (\Throwable $e) {
             DB::rollBack();
 
