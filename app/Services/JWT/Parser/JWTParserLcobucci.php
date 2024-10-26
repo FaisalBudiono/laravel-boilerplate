@@ -23,7 +23,7 @@ class JWTParserLcobucci implements JWTParser
             assert($parsedToken instanceof UnencryptedToken);
 
             $user = $parsedToken->claims()->get('user');
-            $invalidAt = $parsedToken->claims()->get('iat');
+            $issueAt = $parsedToken->claims()->get('iat');
             $notBeforeAt = $parsedToken->claims()->get('nbf');
             $expiredAt = $parsedToken->claims()->get('exp');
 
@@ -33,7 +33,7 @@ class JWTParserLcobucci implements JWTParser
                     $user['email'] ?? '',
                 ),
                 $parsedToken->claims()->get('aud')[0] ?? '',
-                $this->getInvalidDateWhenNull($invalidAt),
+                $this->getInvalidDateWhenNull($issueAt),
                 $this->getInvalidDateWhenNull($notBeforeAt),
                 $this->getInvalidDateWhenNull($expiredAt),
             );
