@@ -31,7 +31,7 @@ class JWTSignerLcobucci implements JWTSigner
             ->expiresAt(now()->addSeconds(
                 $this->getAccessTokenTTLInSecond(),
             )->toDateTimeImmutable())
-            ->permittedFor('asd')
+            ->permittedFor($this->getJWTAudience())
             ->withClaim('user', [
                 'id' => (string) $user->id,
                 'email' => $user->email,
@@ -63,6 +63,11 @@ class JWTSignerLcobucci implements JWTSigner
         $parser = new Parser(new JoseEncoder());
 
         return $parser->parse($token);
+    }
+
+    protected function getJWTAudience(): string
+    {
+        return (string) config('jwt.aud', '');
     }
 
     protected function getPrivateKey(): string
