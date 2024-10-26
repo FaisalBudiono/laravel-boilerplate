@@ -32,8 +32,12 @@ class LoggingMiddleware
                 $this->logDirector->makeBuilder(),
                 ProcessingStatus::BEGIN,
             )->message('start')
-                ->meta($this->cleanUpInput($request->all()))
-                ->build(),
+                ->meta([
+                    'input' => $this->cleanUpInput($request->all()),
+                    'headers' => [
+                        'user-agent' => $request->userAgent(),
+                    ],
+                ])->build(),
         );
 
         $response = $next($request);
