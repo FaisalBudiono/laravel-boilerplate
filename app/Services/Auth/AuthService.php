@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace App\Services\Auth;
 
 use App\Exceptions\Auth\InvalidCredentialException;
+use App\Exceptions\Resource\ModelNotFoundException;
 use App\Models\User\User;
 use App\Port\Services\Auth\LoginPort;
+use App\Port\Services\Auth\RefreshTokenPort;
 use App\Services\Auth\Exceptions\AuthErrorCode;
 use App\Services\Auth\RefreshToken\RefreshTokenManager;
 use App\Services\Auth\ValueObject\Token;
+use App\Services\Formatter\ExceptionErrorCode;
 use App\Services\Formatter\ExceptionMessage\ExceptionMessageStandard;
 use App\Services\JWT\Signer\JWTSigner;
 use Illuminate\Support\Facades\DB;
@@ -21,6 +24,7 @@ class AuthService implements AuthServiceContract
         protected JWTSigner $signer,
         protected RefreshTokenManager $refreshTokenManager,
     ) {}
+
 
     public function login(LoginPort $port): Token
     {
@@ -53,6 +57,22 @@ class AuthService implements AuthServiceContract
 
             throw $e;
         }
+    }
+
+    public function refreshToken(RefreshTokenPort $port): Token
+    {
+        $refreshToken = $port->getRefreshToken();
+        $refreshTokenVO = $this->refreshTokenManager->fetch($refreshToken);
+
+        $u = User::query()->where('id', $refreshTokenVO->user->id)->first();
+        if (is_null($u)) {
+            throw new ModelNotFoundException(new ExceptionMessageStandard(
+                'User not found',
+                ExceptionErrorCode::RESOURCE_NOT_FOUND->value,
+            ));
+        }
+
+        return new Token($this->signer->sign($u), $refreshToken);
     }
 
     protected function invalidCredException(): InvalidCredentialException
